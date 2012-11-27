@@ -1,0 +1,21 @@
+ACTION=="remove" GOTO="nvidia_end"
+
+# root only devices
+KERNEL=="knvrm" OWNER="root" GROUP="root" MODE="0660"
+KERNEL=="knvmap" OWNER="root" GROUP="root" MODE="0660"
+
+# graphics devices
+KERNEL=="nvmap" OWNER="root" GROUP="video" MODE="0660"
+KERNEL=="nvram" OWNER="root" GROUP="video" MODE="0660"
+KERNEL=="nvhdcp*" OWNER="root" GROUP="video" MODE="0660"
+KERNEL=="nvhost*" OWNER="root" GROUP="video" MODE="0660"
+KERNEL=="tegra*" OWNER="root" GROUP="video" MODE="0660"
+
+# camera and related devices
+KERNEL=="torch" OWNER="root" GROUP="video" MODE="0660"
+KERNEL=="ov*" OWNER="root" GROUP="video" MODE="0660"
+KERNEL=="focuser*" OWNER="root" GROUP="video" MODE="0660"
+KERNEL=="sh5*" OWNER="root" GROUP="video" MODE="0660"
+KERNEL=="tps*" OWNER="root" GROUP="video" MODE="0660"
+
+LABEL="nvidia_end"

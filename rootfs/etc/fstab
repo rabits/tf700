@@ -1,0 +1,4 @@
+# UNCONFIGURED FSTAB FOR BASE SYSTEM
+/dev/sda1 /               ext4    noatime,nodiratime,discard,errors=remount-ro,commit=60 0	1
+
+none /tmp tmpfs defaults,noatime,mode=1777 0 0
