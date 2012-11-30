@@ -21,6 +21,9 @@ TODO
   * $ unrar x ../../10_4_4_20_kernel.rar
   * $ tar xvf 10_4_4_20_kernel/*.tar.gz
   * $ rm -rf 10_4_4_20_kernel
+6. Apply [UKSM patch](http://kerneldedup.org/projects/uksm/download/):
+  * $ patch -p1 < ../../../kernel/patch/uksm/uksm*.patch
+  * $ patch -p1 < ../../../kernel/patch/uksm/0*.patch
 6. Change configuration of kernel:
   * $ make O=$KERNEL_OUT menuconfig
 7. Build kernel and install modules:
