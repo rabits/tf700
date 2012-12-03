@@ -6,9 +6,9 @@
 # in /etc/X11/xorg.conf.
 
 XKBMODEL="pc105"
-XKBLAYOUT="us,ru"
-XKBVARIANT=","
-XKBOPTIONS="grp:lctrl_toggle,ctrl:nocaps,altwin:swap_lalt_lwin,grp_led:scroll,grp_led:caps"
+XKBLAYOUT="us"
+XKBVARIANT=""
+XKBOPTIONS=""
 
 # If you don't want to use the XKB layout on the console, you can
 # specify an alternative keymap.  Make sure it will be accessible
