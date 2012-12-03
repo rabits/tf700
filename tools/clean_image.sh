@@ -79,3 +79,6 @@ echo "127.0.0.1   localhost
 
 echo -n "I: Remove ssh keys..."
 rm -rf etc/ssh/ssh_host*_key* && echo " ok" || echo " fail"
+
+echo -n "I: Remove network-manager net configs..."
+rm -rf etc/NetworkManager/* && echo " ok" || echo " fail"
