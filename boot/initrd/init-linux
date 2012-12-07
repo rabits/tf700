@@ -134,10 +134,7 @@ panic()
 
     echo "$@"
 
-    . /panic/keymap
-    . /panic/console_setup
-
-    REASON="$@" PS1='(initramfs) ' /bin/sh -i </dev/console >/dev/console 2>&1
+    /bin/sh -i </dev/console >/dev/console 2>&1
 }
 
 

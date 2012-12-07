@@ -2,16 +2,19 @@
 
 wait=10
 
+busybox clear
+
 cat <<EOF
 
 Please, select OS to boot:
 ==========================
  1 - Linux
  2 - Android
+ s - Initrd shell
 ==========================
 You have $wait Seconds to choose...
 EOF
-echo -n "Please Select (1,2) [1]: "
+echo -n "Please Select (1,2,s) [1]: "
 read -t $wait inp
 echo
 
@@ -20,6 +23,12 @@ case "$inp" in
     echo "Starting Android"
     echo
     /init-android "$@"
+    exit 1
+    ;;
+  s)
+    echo "Go to shell..."
+    echo
+    /bin/sh -i </dev/console >/dev/console 2>&1
     exit 1
     ;;
   *)
