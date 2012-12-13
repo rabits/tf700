@@ -43,6 +43,15 @@ TODO
 # Create rootfs on SD card
 TODO
 
+# Pack rootfs
+1. Copy rootfs from device to rootfs,img file:
+  * by dd utility
+2. Clean ext4 empty space for better compression:
+  * # apt-get install zerofree
+  * $ zerofree rootfs.img
+3. Compress rootfs.img
+  * $ zip -9 rootfs.img.zip rootfs.img
+
 # Test boot linux
 1. Power off android
 2. Insert SD card into dock SD cardreader
