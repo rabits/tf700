@@ -76,7 +76,8 @@ TODO
 6. Prepare blob file:
   * $ tools/blobtools/blobpack boot/img/boot.blob LNX boot/img/boot.img
 7. Prepend header of the blob, thanx [that](http://forum.xda-developers.com/showpost.php?p=35408420&postcount=67):
-  * $ sed -i "1i -SIGNED-BY-SIGNBLOB-\x00\x00\x00\x00\x00\x00\x00\x00" boot/img/boot.blob 
+  * $ echo -n "-SIGNED-BY-SIGNBLOB-$(dd if=/dev/zero count=8 bs=1)" | cat - boot/img/boot.blob > boot/img/boot.blob.new
+  * $ mv boot/img/boot.blob.new boot/img/boot.blob
 
 # Create rootfs on SD card
 TODO
