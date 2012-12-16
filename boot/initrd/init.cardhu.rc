@@ -86,8 +86,8 @@ on boot
     chown system system /sys/module/cpu_tegra/parameters/pwr_cap_limit_4
 
 # NTFS and exFAT driver
-    #insmod /sbin/tntfs.ko
-    #insmod /sbin/texfat.ko
+    insmod /sbin/tntfs.ko
+    insmod /sbin/texfat.ko
 
 # Sensor
     chown system system /sys/bus/iio/devices/device0/als_ir_mode
@@ -107,9 +107,9 @@ on boot
     chown system system /sys/bus/iio/devices/iio:device0/als_ir_mode
     chown system system /sys/bus/iio/devices/iio:device0/als_enable
     chown system system /sys/bus/iio/devices/iio:device0/proximity_enable
-    #insmod /system/lib/modules/mpu3050.ko
-    #insmod /system/lib/modules/inv_mpu_kxtf9.ko
-    #insmod /system/lib/modules/inv_mpu_ak8975.ko
+    insmod /system/lib/modules/mpu3050.ko
+    insmod /system/lib/modules/inv_mpu_kxtf9.ko
+    insmod /system/lib/modules/inv_mpu_ak8975.ko
 
 # Power management settings
     chown system system /sys/module/cpu_tegra3/parameters/no_lp
@@ -187,7 +187,7 @@ on boot
     setprop net.tcp.buffersize.lte     524288,1048576,2560000,262144,524288,1048576
 
 #insmod cfg80211.ko for cfg80211 and P2P mode.
-    insmod /lib/modules/3.1.10-tf700+/kernel/net/wireless/cfg80211.ko
+    insmod /lib/modules/3.1.10-tf700/kernel/net/wireless/cfg80211.ko
 
 # Touch
     chown system system /proc/ektf_dbg
@@ -215,7 +215,7 @@ on property:ro.carrier=wifi-only
 
 # load raw_ip_net module when xgold-ril is available
 on property:gsm.version.ril-impl="android infineon xgold-ril 1.0"
-    insmod lib/modules/3.1.10-tf700+/kernel/drivers/net/usb/raw_ip_net.ko max_intfs=2
+    insmod lib/modules/3.1.10-tf700/kernel/drivers/net/usb/raw_ip_net.ko max_intfs=2
 
 # Write Wi-Fi Mac
 service wifimacwriter /system/bin/wifimacwriter
@@ -385,6 +385,10 @@ service logdog-events /system/bin/sh /data/data/com.asus.LogTool/files/logdog-st
     disabled
     class logging-services
 
+service sysinit /system/bin/logwrapper /system/xbin/busybox run-parts /system/etc/init.d
+    disabled
+    oneshot
+
 service klogdog /system/bin/sh /data/data/com.asus.LogTool/files/klogdog-starter.sh
     user root
     group root
@@ -472,19 +476,19 @@ on property:ril.testmode=0
 
 #insmod bcmdhd driver for BCM4330/BCM4334
 on property:wifi.module.type=0
-    insmod lib/modules/3.1.10-tf700+/kernel/drivers/net/wireless/bcmdhd/bcmdhd.ko
+    insmod lib/modules/3.1.10-tf700/kernel/drivers/net/wireless/bcmdhd/bcmdhd.ko
 
 on property:wifi.module.type=2
-    insmod lib/modules/3.1.10-tf700+/kernel/drivers/net/wireless/bcmdhd/bcmdhd.ko
+    insmod lib/modules/3.1.10-tf700/kernel/drivers/net/wireless/bcmdhd/bcmdhd.ko
 
 on property:wifi.module.type=4
-    insmod lib/modules/3.1.10-tf700+/kernel/drivers/net/wireless/bcmdhd/bcmdhd.ko
+    insmod lib/modules/3.1.10-tf700/kernel/drivers/net/wireless/bcmdhd/bcmdhd.ko
 
 on property:wifi.module.type=5
-    insmod /bcmdhd_34.ko
+    insmod /system/lib/modules/bcmdhd_34.ko
 
 on property:wifi.module.type=6
-    insmod /bcmdhd_34.ko
+    insmod /system/lib/modules/bcmdhd_34.ko
 
 #Raydium touch setting
 service rm_ts_service    /system/bin/rm_ts_server

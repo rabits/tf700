@@ -6,11 +6,40 @@ Stuff for Asus Infinity tf700t tablet
 # Unlock tf700 bootloader
 TODO
 
+# Backup tf700 through nvflash
+1. Reboot in APX mode (Power+VolUp)
+2. Connect tf700 to usb
+3. Load bootloader through whelle:
+  * # wheelie --blob backup/AndroidRoot/blob.bin
+4. Get backup:
+  * # nvflash -r --rawdeviceread 0 2944 backup/block/bricksafe_0_2944.img
+  * # nvflash -r --getpartitiontable backup/block/partitiontable.txt
+  * # nvflash -r --read 2 backup/block/2_BCT.img
+  * # nvflash -r --read 3 backup/block/3_PT.img
+  * # nvflash -r --read 4 backup/block/4_EBT.img
+  * # nvflash -r --read 5 backup/block/5_SOS.img
+  * # nvflash -r --read 6 backup/block/6_LNX.img
+  * # nvflash -r --read 7 backup/block/7_CER.img
+  * # nvflash -r --read 8 backup/block/8_IMG.img
+  * # nvflash -r --read 9 backup/block/9_GP1.img
+5. Also you can get other partitions with android:
+  * # nvflash -r --read 10 backup/block/10_APP.img
+  * # nvflash -r --read 11 backup/block/11_CAC.img
+  * # nvflash -r --read 12 backup/block/12_MSC.img
+  * # nvflash -r --read 13 backup/block/13_USP.img
+  * # nvflash -r --read 14 backup/block/14_PER.img
+  * # nvflash -r --read 15 backup/block/15_YTU.img
+  * # nvflash -r --read 16 backup/block/16_CRA.img
+  * # nvflash -r --read 17 backup/block/17_UDA.img
+
+# Backup tf700 through dd on rooted device
+TODO
+
 # Build Linux Kernel
-1. Get kernel source from [Asus support](http://support.asus.com/Download.aspx?SLanguage=en&m=ASUS+Transformer+Pad+Infinity+TF700T&p=28&s=1)
+1. Get kernel source from [Clemsyn overclock kernel](http://forum.xda-developers.com/showthread.php?t=1950039) or [Asus support](http://support.asus.com/Download.aspx?SLanguage=en&m=ASUS+Transformer+Pad+Infinity+TF700T&p=28&s=1)
 2. Get linaro armhf gcc 4.7 toolchain from [Linaro release site](http://www.linaro.org/downloads/)
 3. Unpack it to source/toolchain dir:
-  * $ tar xvf gcc-linaro-arm-linux-gnueabihf-4.7-2012.10-20121022_linux.tar.bz2 --strip-components=1 -C source/toolchain
+  * $ tar xvf gcc-linaro-arm-linux-gnueabihf-*.tar.bz2 --strip-components=1 -C source/toolchain
 4. Set need environment:
   * $ export KERNEL_OUT=../out
   * $ export MODULES_OUT=../out_modules
@@ -35,10 +64,19 @@ TODO
 # Create boot image
 1. Install abootimg tool:
   * # apt-get install abootimg
-2. Make initrd:
-  * # cd boot/initrd && find | cpio -H newc -o > ../img/initrd.cpio && cd ../img && gzip -9 initrd.cpio && mv initrd.cpio.gz initrd.img && cd ../..
-3. Build boot image:
+2. Copy kernel modules to initrd:
+  * $ rm -rf boot/initrd/lib/modules
+  * $ cp -a source/kernel/out_modules/lib/modules boot/initrd/lib/
+3. Make initrd:
+  * $ cd boot/initrd && find | cpio -H newc -o > ../img/initrd.cpio && cd ../img && gzip -9 initrd.cpio && mv initrd.cpio.gz initrd.img && cd ../..
+4. Build boot image:
   * $ abootimg --create boot/img/boot.img -k source/kernel/out/arch/arm/boot/zImage -f boot/bootimg.cfg -r boot/img/initrd.img
+5. Build blobtools:
+  * $ cd tools/blobtools && make && cd ../..
+6. Prepare blob file:
+  * $ tools/blobtools/blobpack boot/img/boot.blob LNX boot/img/boot.img
+7. Prepend header of the blob, thanx [that](http://forum.xda-developers.com/showpost.php?p=35408420&postcount=67):
+  * $ sed -i "1i -SIGNED-BY-SIGNBLOB-\x00\x00\x00\x00\x00\x00\x00\x00" boot/img/boot.blob 
 
 # Create rootfs on SD card
 TODO

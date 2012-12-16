@@ -81,29 +81,6 @@ done
 
 export BOOT
 
-echo '----MOUNT ROOT----'
-mount -t ext4 ${ROOT} ${rootmnt}
-echo '----DONE----'
-
-# Preserve information on old systems without /run on the rootfs
-if [ -d ${rootmnt}/run ]; then
-	mount -n -o move /run ${rootmnt}/run
-else
-	# The initramfs udev database must be migrated:
-	if [ -d /run/udev ] && [ ! -d /dev/.udev ]; then
-		mv /run/udev /dev/.udev
-	fi
-	# The initramfs debug info must be migrated:
-	if [ -d /run/initramfs ] && [ ! -d /dev/.initramfs ]; then
-		mv /run/initramfs /dev/.initramfs
-	fi
-	umount /run
-fi
-
-# Move virtual filesystems over to the real filesystem
-mount -n -o move /sys ${rootmnt}/sys
-mount -n -o move /proc ${rootmnt}/proc
-
 validate_init() {
 	checktarget="${1}"
 
@@ -137,13 +114,51 @@ panic()
     /bin/sh -i </dev/console >/dev/console 2>&1
 }
 
+echo '----MOUNT ROOT----'
+if [ "$ROOT" ]; then
+    echo "Trying specified root: ${ROOT}..."
+    if ! mount -t ext4 ${ROOT} ${rootmnt}; then echo "  FAILED"; fi
+fi
+
+# Trying to boot external devices, then - internal mmcblk0p9
+for i in /dev/sda1 /dev/mmcblk1p1 /dev/sdb1 /dev/mmcblk0p9; do
+    if mount | grep -q /root; then break; fi
+    echo "Trying default root: $i"
+    if mount -t ext4 ${i} ${rootmnt}; then
+        if validate_init "$init"; then continue; fi
+        echo "  Target filesystem doesn't have requested ${init}.";
+        umount ${rootmnt}
+    fi
+    echo "  FAILED";
+done
+echo "Mounted: $(mount | grep /root)"
+echo '----DONE----'
+
+# Preserve information on old systems without /run on the rootfs
+if [ -d ${rootmnt}/run ]; then
+	mount -n -o move /run ${rootmnt}/run
+else
+	# The initramfs udev database must be migrated:
+	if [ -d /run/udev ] && [ ! -d /dev/.udev ]; then
+		mv /run/udev /dev/.udev
+	fi
+	# The initramfs debug info must be migrated:
+	if [ -d /run/initramfs ] && [ ! -d /dev/.initramfs ]; then
+		mv /run/initramfs /dev/.initramfs
+	fi
+	umount /run
+fi
+
+# Move virtual filesystems over to the real filesystem
+mount -n -o move /sys ${rootmnt}/sys
+mount -n -o move /proc ${rootmnt}/proc
 
 # Check init bootarg
 if [ -n "${init}" ]; then
-	if ! validate_init "$init"; then
-		echo "Target filesystem doesn't have requested ${init}."
-		init=
-	fi
+    if ! validate_init "$init"; then
+        echo "Target filesystem doesn't have requested ${init}."
+        init=
+    fi
 fi
 
 # Common case: /sbin/init is present

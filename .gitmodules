@@ -1,0 +1,3 @@
+[submodule "tools/blobtools"]
+	path = tools/blobtools
+	url = git@github.com:AndroidRoot/BlobTools.git

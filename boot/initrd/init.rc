@@ -24,6 +24,7 @@ sysclktz 0
 loglevel 3
 
 # setup the global environment
+    export TERMINFO /system/etc/terminfo
     export PATH /sbin:/vendor/bin:/system/sbin:/system/bin:/system/xbin
     export LD_LIBRARY_PATH /vendor/lib:/system/lib
     export ANDROID_BOOTLOGO 1

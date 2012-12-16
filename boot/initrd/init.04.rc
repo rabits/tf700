@@ -3,7 +3,6 @@ on init
     write /sys/class/android_usb/android0/f_rndis/manufacturer ASUS
     write /sys/class/android_usb/android0/f_rndis/vendorID 0B05
     write /sys/class/android_usb/android0/f_rndis/wceis 1
-    setprop ro.sf.lcd_density 240
 
 on boot
     write /sys/class/android_usb/android0/iManufacturer ${ro.product.manufacturer}
