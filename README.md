@@ -14,14 +14,14 @@ TODO
 4. Get backup:
   * # nvflash -r --rawdeviceread 0 2944 backup/block/bricksafe_0_2944.img
   * # nvflash -r --getpartitiontable backup/block/partitiontable.txt
-  * # nvflash -r --read 2 backup/block/2_BCT.img
-  * # nvflash -r --read 3 backup/block/3_PT.img
-  * # nvflash -r --read 4 backup/block/4_EBT.img
-  * # nvflash -r --read 5 backup/block/5_SOS.img
-  * # nvflash -r --read 6 backup/block/6_LNX.img
-  * # nvflash -r --read 7 backup/block/7_CER.img
-  * # nvflash -r --read 8 backup/block/8_IMG.img
-  * # nvflash -r --read 9 backup/block/9_GP1.img
+  * # nvflash -r --read 2 backup/block/02_BCT.img
+  * # nvflash -r --read 3 backup/block/03_PT.img
+  * # nvflash -r --read 4 backup/block/04_EBT.img
+  * # nvflash -r --read 5 backup/block/05_SOS.img
+  * # nvflash -r --read 6 backup/block/06_LNX.img
+  * # nvflash -r --read 7 backup/block/07_CER.img
+  * # nvflash -r --read 8 backup/block/08_IMG.img
+  * # nvflash -r --read 9 backup/block/09_GP1.img
 5. Also you can get other partitions with android:
   * # nvflash -r --read 10 backup/block/10_APP.img
   * # nvflash -r --read 11 backup/block/11_CAC.img
@@ -32,7 +32,7 @@ TODO
   * # nvflash -r --read 16 backup/block/16_CRA.img
   * # nvflash -r --read 17 backup/block/17_UDA.img
 
-# Backup tf700 through dd on rooted device
+# Backup tf700 through dd on rooted android
 TODO
 
 # Build Linux Kernel
@@ -71,11 +71,13 @@ TODO
   * $ cd boot/initrd && find | cpio -H newc -o > ../img/initrd.cpio && cd ../img && gzip -9 initrd.cpio && mv initrd.cpio.gz initrd.img && cd ../..
 4. Build boot image:
   * $ abootimg --create boot/img/boot.img -k source/kernel/out/arch/arm/boot/zImage -f boot/bootimg.cfg -r boot/img/initrd.img
-5. Build blobtools:
+5. Init blobtools:
+  * $ git submodule update --init tools/blobtools
+6. Build blobtools:
   * $ cd tools/blobtools && make && cd ../..
-6. Prepare blob file:
+7. Prepare blob file:
   * $ tools/blobtools/blobpack boot/img/boot.blob LNX boot/img/boot.img
-7. Prepend header of the blob, thanx [that](http://forum.xda-developers.com/showpost.php?p=35408420&postcount=67):
+8. Prepend header of the blob, thanx [that](http://forum.xda-developers.com/showpost.php?p=35408420&postcount=67):
   * $ echo -n "-SIGNED-BY-SIGNBLOB-$(dd if=/dev/zero count=8 bs=1)" | cat - boot/img/boot.blob > boot/img/boot.blob.new
   * $ mv boot/img/boot.blob.new boot/img/boot.blob
 

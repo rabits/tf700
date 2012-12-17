@@ -122,7 +122,7 @@ fi
 
 # Trying to boot external devices, then - internal mmcblk0p9
 for i in /dev/sda1 /dev/mmcblk1p1 /dev/sdb1 /dev/mmcblk0p9; do
-    if mount | grep -q /root; then break; fi
+    if mount | grep -q ${rootmnt}; then break; fi
     echo "Trying default root: $i"
     if mount -t ext4 ${i} ${rootmnt}; then
         if validate_init "$init"; then continue; fi
@@ -131,6 +131,14 @@ for i in /dev/sda1 /dev/mmcblk1p1 /dev/sdb1 /dev/mmcblk0p9; do
     fi
     echo "  FAILED";
 done
+
+if mount | grep -q ${rootmnt};
+    echo "Linux mount failed. Fallback to Android..."
+    echo
+    /init-android "$@"
+    exit 1
+fi
+
 echo "Mounted: $(mount | grep /root)"
 echo '----DONE----'
 
