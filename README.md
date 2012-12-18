@@ -127,3 +127,21 @@ TODO
 7. Boot with your boot image:
   * # fastboot boot boot/img/boot.img
 8. Done. Device should boot your rootfs
+
+# MISK
+
+## elan-touchscreen xorg driver "mtev":
+1. Get it:
+  * $ git clone git://gitorious.org/gabrbedd/xorg-x11-drv-mtev.git
+2. Unpack archive:
+  * $ cd xorg-x11-drv-mtev
+  * $ tar xvf *.tar.gz
+3. Patch it to current Xorg api version and add button emulation:
+  * $ cd xorg-x11-drv-mtev
+  * $ patch -p1 < ../xorg-x11-drv-mtev-0.1.13-update-code-for-xserver-1.11.patch
+  * $ patch -p1 < ../xorg-x11-drv-mtev-0.1.13-add-right-mouse-button-emulation.patch
+4. Install deps:
+  * $ sudo apt-get install libxi-dev
+5. Build & install package:
+  * $ dpkg-buildpackage -b -uc -rfakeroot
+  * $ sudo dpkg -i ../xserver-xorg-input-mtev_0.1.13_armhf.deb
