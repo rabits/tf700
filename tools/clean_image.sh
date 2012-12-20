@@ -84,7 +84,7 @@ echo -n "I: Disable ssh daemon..."
 mv etc/init/ssh.conf /etc/init/ssh.disabled && echo " ok" || echo " fail"
 
 echo -n "I: Remove network-manager net configs..."
-rm -rf etc/NetworkManager/* && echo " ok" || echo " fail"
+rm -rf etc/NetworkManager/system-connections/* && echo " ok" || echo " fail"
 
 echo -n "I: Remove xorg specific configuration..."
 rm -rf etc/X11/xorg.conf.d/05-*.conf && echo " ok" || echo " fail"

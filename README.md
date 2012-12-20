@@ -32,8 +32,24 @@ TODO
   * # nvflash -r --read 16 backup/block/16_CRA.img
   * # nvflash -r --read 17 backup/block/17_UDA.img
 
-# Backup tf700 through dd on rooted android
-TODO
+# Backup tf700 through dd on unlocked rooted android
+1. Go to root mode:
+  * $ su
+2. Try to get locked information:
+  * # hexdump -C | head -n3
+3. If you see:
+  * Non-zero bytes from 0x00000000 to 0x00000020 - you have unlocked bootloader and can continue backup
+  * Zero bytes from 0x00000000 to 0x00380000 - you have locked or nvflashed (AndroidRoot) bootloader and can't continue this backup
+4. Get partitions:
+  * # dd if=/dev/block/mmcblk0 of=backup/block/bricksafe_0_2944.img ibs=4096 bs=4096 count=2944
+  * # dd if=/dev/block/mmcblk0 of=backup/block/02_BCT.img ibs=4096 bs=4096 count=768
+  * # dd if=/dev/block/mmcblk0 of=backup/block/03_PT.img ibs=4096 bs=4096 count=128 skip=767
+  * # dd if=/dev/block/mmcblk0 of=backup/block/04_EBT.img ibs=4096 bs=4096 count=2048 skip=896
+  * # dd if=/dev/block/mmcblk0 of=backup/block/05_SOS.img ibs=4096 bs=4096 skip=2944 count=2048
+  * # dd if=/dev/block/mmcblk0 of=backup/block/06_LNX.img ibs=4096 bs=4096 skip=4992 count=2048
+  * # dd if=/dev/block/mmcblk0 of=backup/block/07_CER.img ibs=4096 bs=4096 skip=7040 count=2048
+  * # dd if=/dev/block/mmcblk0 of=backup/block/08_IMG.img ibs=4096 bs=4096 skip=9088 count=2048
+  * # dd if=/dev/block/mmcblk0 of=backup/block/09_GP1.img ibs=4096 bs=4096 skip=11136 count=256
 
 # Build Linux Kernel
 1. Get kernel source from [Clemsyn overclock kernel](http://forum.xda-developers.com/showthread.php?t=1950039) or [Asus support](http://support.asus.com/Download.aspx?SLanguage=en&m=ASUS+Transformer+Pad+Infinity+TF700T&p=28&s=1)
@@ -111,3 +127,21 @@ TODO
 7. Boot with your boot image:
   * # fastboot boot boot/img/boot.img
 8. Done. Device should boot your rootfs
+
+# MISK
+
+## elan-touchscreen xorg driver "mtev":
+1. Get it:
+  * $ git clone git://gitorious.org/gabrbedd/xorg-x11-drv-mtev.git
+2. Unpack archive:
+  * $ cd xorg-x11-drv-mtev
+  * $ tar xvf *.tar.gz
+3. Patch it to current Xorg api version and add button emulation:
+  * $ cd xorg-x11-drv-mtev
+  * $ patch -p1 < ../xorg-x11-drv-mtev-0.1.13-update-code-for-xserver-1.11.patch
+  * $ patch -p1 < ../xorg-x11-drv-mtev-0.1.13-add-right-mouse-button-emulation.patch
+4. Install deps:
+  * $ sudo apt-get install libxi-dev
+5. Build & install package:
+  * $ dpkg-buildpackage -b -uc -rfakeroot
+  * $ sudo dpkg -i ../xserver-xorg-input-mtev_0.1.13_armhf.deb
