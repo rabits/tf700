@@ -1,35 +1,21 @@
 #!/bin/sh
+#
+# Multi - initrd multiboot
+# Linux init start script
+#
 
-echo ''
-echo '====STARTING INITRD===='
-echo ''
+[ -d /etc ] || mkdir -m 0755 /etc
+[ -d /run ] || mkdir -m 0755 /run
 
-[ -d /dev ] || mkdir -m 0755 /dev
-[ -d /root ] || mkdir -m 0700 /root
-[ -d /sys ] || mkdir /sys
-[ -d /proc ] || mkdir /proc
-[ -d /tmp ] || mkdir /tmp
 mkdir -p /var/lock
-mount -t sysfs -o nodev,noexec,nosuid sysfs /sys
-mount -t proc -o nodev,noexec,nosuid proc /proc
 
 ln -sf /proc/mounts /etc/mtab
 
-if ! mount -t devtmpfs -o mode=0755 udev /dev; then
-    echo "W: devtmpfs not available, falling back to tmpfs for /dev"
-    mount -t tmpfs -o mode=0755 udev /dev
-    [ -e /dev/console ] || mknod -m 0600 /dev/console c 5 1
-    [ -e /dev/null ] || mknod /dev/null c 1 3
-fi
-mkdir /dev/pts
-mount -t devpts -o noexec,nosuid,gid=5,mode=0620 devpts /dev/pts || true
 mount -t tmpfs -o "nosuid,size=20%,mode=0755" tmpfs /run
-
 mkdir /run/initramfs
 ln -s /run/initramfs /dev/.initramfs
 
 export DPKG_ARCH=armhf
-export MODPROBE_OPTIONS="-qb"
 
 export ROOT=
 export init=/sbin/init
@@ -187,7 +173,6 @@ if [ ! -x "${rootmnt}/sbin/init" ]; then
 	fi
 fi
 
-unset MODPROBE_OPTIONS
 unset DPKG_ARCH
 unset ROOT
 
