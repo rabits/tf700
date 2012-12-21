@@ -8,7 +8,11 @@
 
 default_user="ubuntu"
 
+DIST_REPO=$(dirname $0)
+DIST_VER=$(git --git-dir="${DIST_REPO}" tag | tail -n1)
+
 head -n4 $0 | tail -n2
+echo "I: Preparing ${DIST_VER}"
 
 if [ "$USER" != "root" ]; then
     echo "E: This script must be run as root" 1>&2
@@ -88,3 +92,12 @@ rm -rf etc/NetworkManager/system-connections/* && echo " ok" || echo " fail"
 
 echo -n "I: Remove xorg specific configuration..."
 rm -rf etc/X11/xorg.conf.d/05-*.conf && echo " ok" || echo " fail"
+
+echo -n "I: Set lsb_version..."
+echo <<EOF
+DISTRIB_ID=Ubuntu
+DISTRIB_RELEASE=12.10
+DISTRIB_CODENAME=quantal
+DISTRIB_DESCRIPTION="Ubuntu 12.10 tf700${DIST_VER}"
+EOF > etc/lsb-release
+echo "Ubuntu 12.10 tf700${DIST_VER} \n \l" > etc/issue
