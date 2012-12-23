@@ -4,18 +4,21 @@
 # Initial script
 #
 
-. functions.sh
+. /lib/multi/functions.sh
 
 multiMount
 
-clear
+multiClear
 
 # Set console powerdown 0
-echo "\033[14;0]"
+echo -ne "\033[14;0]" > /dev/console
 # Set console blank 0
-echo "\033[9;0]"
+echo -ne "\033[9;0]" > /dev/console
 
 # Disable dmesg to console
-echo "4 1 1 7" > /proc/sys/kernel/printk
+echo "1 1 1 7" > /proc/sys/kernel/printk
 
-. 01-main_screen.sh
+export init=/sbin/init
+export rootmnt=/root
+
+. /lib/multi/01-main_screen.sh

@@ -18,8 +18,6 @@ ln -s /run/initramfs /dev/.initramfs
 export DPKG_ARCH=armhf
 
 export ROOT=
-export init=/sbin/init
-export rootmnt=/root
 
 if [ -f "/etc/hostname" ]; then
     /bin/hostname -b -F /etc/hostname 2>&1 1>/dev/null
@@ -27,78 +25,45 @@ fi
 
 # Parse command line options
 for x in $(cat /proc/cmdline); do
-	case $x in
-	init=*)
-		init=${x#init=}
-		;;
-	root=*)
-		ROOT=${x#root=}
-		case $ROOT in
-		LABEL=*)
-			ROOT="${ROOT#LABEL=}"
+    case $x in
+    init=*)
+        init=${x#init=}
+        ;;
+    root=*)
+        ROOT=${x#root=}
+        case $ROOT in
+        LABEL=*)
+            ROOT="${ROOT#LABEL=}"
 
-			# support any / in LABEL= path (escape to \x2f)
-			case "${ROOT}" in
-			*/*)
-			if command -v sed >/dev/null 2>&1; then
-				ROOT="$(echo ${ROOT} | sed 's,/,\\x2f,g')"
-			else
-				if [ "${ROOT}" != "${ROOT#/}" ]; then
-					ROOT="\x2f${ROOT#/}"
-				fi
-				if [ "${ROOT}" != "${ROOT%/}" ]; then
-					ROOT="${ROOT%/}\x2f"
-				fi
-				IFS='/'
-				newroot=
-				for s in $ROOT; do
-					newroot="${newroot:+${newroot}\\x2f}${s}"
-				done
-				unset IFS
-				ROOT="${newroot}"
-			fi
-			esac
-			ROOT="/dev/disk/by-label/${ROOT}"
-			;;
-		esac
-		;;
-	esac
+            # support any / in LABEL= path (escape to \x2f)
+            case "${ROOT}" in
+            */*)
+            if command -v sed >/dev/null 2>&1; then
+                ROOT="$(echo ${ROOT} | sed 's,/,\\x2f,g')"
+            else
+                if [ "${ROOT}" != "${ROOT#/}" ]; then
+                    ROOT="\x2f${ROOT#/}"
+                fi
+                if [ "${ROOT}" != "${ROOT%/}" ]; then
+                    ROOT="${ROOT%/}\x2f"
+                fi
+                IFS='/'
+                newroot=
+                for s in $ROOT; do
+                    newroot="${newroot:+${newroot}\\x2f}${s}"
+                done
+                unset IFS
+                ROOT="${newroot}"
+            fi
+            esac
+            ROOT="/dev/disk/by-label/${ROOT}"
+            ;;
+        esac
+        ;;
+    esac
 done
 
 export BOOT
-
-validate_init() {
-	checktarget="${1}"
-
-	# Work around absolute symlinks
-	if [ -d "${rootmnt}" ] && [ -h "${rootmnt}${checktarget}" ]; then
-		case $(readlink "${rootmnt}${checktarget}") in /*)
-			checktarget="$(chroot ${rootmnt} readlink ${checktarget})"
-			;;
-		esac
-	fi
-
-	# Make sure the specified init can be executed
-	if [ ! -x "${rootmnt}${checktarget}" ]; then
-		return 1
-	fi
-
-	# Upstart uses /etc/init as configuration directory :-/
-	if [ -d "${rootmnt}${checktarget}" ]; then
-		return 1
-	fi
-}
-
-panic()
-{
-    if command -v chvt >/dev/null 2>&1; then
-        chvt 1
-    fi
-
-    echo "$@"
-
-    /bin/sh -i </dev/console >/dev/console 2>&1
-}
 
 echo '----MOUNT ROOT----'
 if [ "$ROOT" ]; then
@@ -106,17 +71,7 @@ if [ "$ROOT" ]; then
     if ! mount -t ext4 ${ROOT} ${rootmnt}; then echo "  FAILED"; fi
 fi
 
-# Trying to boot external devices, then - internal mmcblk0p9
-for i in /dev/sda1 /dev/mmcblk1p1 /dev/sdb1 /dev/mmcblk0p9; do
-    if mount | grep -q ${rootmnt}; then break; fi
-    echo "Trying default root: $i"
-    if mount -t ext4 ${i} ${rootmnt}; then
-        if validate_init "$init"; then continue; fi
-        echo "  Target filesystem doesn't have requested ${init}.";
-        umount ${rootmnt}
-    fi
-    echo "  FAILED";
-done
+multiFindLinuxDevice noumount
 
 if mount | grep -q ${rootmnt};
     echo "Linux mount failed. Fallback to Android..."
@@ -130,17 +85,17 @@ echo '----DONE----'
 
 # Preserve information on old systems without /run on the rootfs
 if [ -d ${rootmnt}/run ]; then
-	mount -n -o move /run ${rootmnt}/run
+    mount -n -o move /run ${rootmnt}/run
 else
-	# The initramfs udev database must be migrated:
-	if [ -d /run/udev ] && [ ! -d /dev/.udev ]; then
-		mv /run/udev /dev/.udev
-	fi
-	# The initramfs debug info must be migrated:
-	if [ -d /run/initramfs ] && [ ! -d /dev/.initramfs ]; then
-		mv /run/initramfs /dev/.initramfs
-	fi
-	umount /run
+    # The initramfs udev database must be migrated:
+    if [ -d /run/udev ] && [ ! -d /dev/.udev ]; then
+        mv /run/udev /dev/.udev
+    fi
+    # The initramfs debug info must be migrated:
+    if [ -d /run/initramfs ] && [ ! -d /dev/.initramfs ]; then
+        mv /run/initramfs /dev/.initramfs
+    fi
+    umount /run
 fi
 
 # Move virtual filesystems over to the real filesystem
@@ -157,20 +112,20 @@ fi
 
 # Common case: /sbin/init is present
 if [ ! -x "${rootmnt}/sbin/init" ]; then
-	# ... if it's not available search for valid init
-	if [ -z "${init}" ] ; then
-		for inittest in /sbin/init /etc/init /bin/init /bin/sh; do
-			if validate_init "${inittest}"; then
-				init="$inittest"
-				break
-			fi
-		done
-	fi
+    # ... if it's not available search for valid init
+    if [ -z "${init}" ] ; then
+        for inittest in /sbin/init /etc/init /bin/init /bin/sh; do
+            if validate_init "${inittest}"; then
+                init="$inittest"
+                break
+            fi
+        done
+    fi
 
-	# No init on rootmount
-	if ! validate_init "${init}" ; then
-		panic "No init found. Try passing init= bootarg."
-	fi
+    # No init on rootmount
+    if ! validate_init "${init}" ; then
+        panic "No init found. Try passing init= bootarg."
+    fi
 fi
 
 unset DPKG_ARCH

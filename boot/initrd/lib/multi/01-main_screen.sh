@@ -3,10 +3,11 @@
 # Multi - initrd multiboot
 # Main screen
 #
-
-clear
-
 wait=10
+
+while true; do
+
+multiClear
 
 cat <<EOF
 
@@ -17,11 +18,13 @@ Please, select OS to boot:
  i         - Install
  s         - Shell
 ==========================
-You have $wait Seconds to choose...
 EOF
+
+[ $wait -gt 0 ] && echo "You have $wait Seconds to choose..."
 echo -n "Please Select (1,2(voldown),s) [1]: "
 read -n1 -t $wait inp
 echo
+wait=0
 
 case "$inp" in
   2|"")
@@ -34,18 +37,18 @@ case "$inp" in
   i)
     echo "Installing..."
     echo
-    . 02-install.sh
+    . /lib/multi/02-install.sh
     ;;
   s)
     echo "Welcome to HELL..."
     echo
     /bin/sh -i </dev/console >/dev/console 2>&1
-    exit 1
     ;;
   *)
     echo "Starting Linux"
     echo
-    . 03-boot_linux.sh "$@"
+    . /lib/multi/03-boot_linux.sh "$@"
     exit 1
     ;;
 esac
+done

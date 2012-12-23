@@ -4,8 +4,11 @@
 # Install screen
 #
 
+to_path="/data/media/linux.img"
+
 echo "Please, wait. Preparing for installation..."
 echo "====================================================="
+img_device=multiFindLinuxDevice
 echo " - Device with linux image:   ${img_device}"
 echo " - Install path:              ${to_path}"
 echo " - Image already present:     ${to_image_already_present}"
