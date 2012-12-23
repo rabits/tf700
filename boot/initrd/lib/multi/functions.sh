@@ -81,9 +81,9 @@ multiFindLinuxDevice()
         echo "Trying default root: ${dev}" 1>&2
         if mount -t ext4 ${dev} ${rootmnt} 1>&2; then
             if multiValidateRootInit "$init" 1>&2; then
-                if [ "x${option}" != "xnoumount" ]; then umount "${rootmnt}" 1>&2;fi
+                if [ "x${option}" != "xnoumount" ]; then umount "${rootmnt}" 1>&2; fi
                 device="${dev}"
-                continue
+                break
             fi
             echo "  Target filesystem doesn't have required ${init}." 1>&2
             umount ${rootmnt} 1>&2

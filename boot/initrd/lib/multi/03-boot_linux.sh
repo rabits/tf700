@@ -66,14 +66,10 @@ done
 export BOOT
 
 echo '----MOUNT ROOT----'
-if [ "$ROOT" ]; then
-    echo "Trying specified root: ${ROOT}..."
-    if ! mount -t ext4 ${ROOT} ${rootmnt}; then echo "  FAILED"; fi
-fi
 
 multiFindLinuxDevice noumount
 
-if mount | grep -q ${rootmnt};
+if ! mount | grep -q ${rootmnt}; then
     echo "Linux mount failed. Fallback to Android..."
     echo
     /init-android "$@"
@@ -101,32 +97,6 @@ fi
 # Move virtual filesystems over to the real filesystem
 mount -n -o move /sys ${rootmnt}/sys
 mount -n -o move /proc ${rootmnt}/proc
-
-# Check init bootarg
-if [ -n "${init}" ]; then
-    if ! validate_init "$init"; then
-        echo "Target filesystem doesn't have requested ${init}."
-        init=
-    fi
-fi
-
-# Common case: /sbin/init is present
-if [ ! -x "${rootmnt}/sbin/init" ]; then
-    # ... if it's not available search for valid init
-    if [ -z "${init}" ] ; then
-        for inittest in /sbin/init /etc/init /bin/init /bin/sh; do
-            if validate_init "${inittest}"; then
-                init="$inittest"
-                break
-            fi
-        done
-    fi
-
-    # No init on rootmount
-    if ! validate_init "${init}" ; then
-        panic "No init found. Try passing init= bootarg."
-    fi
-fi
 
 unset DPKG_ARCH
 unset ROOT
