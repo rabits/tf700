@@ -1,6 +1,6 @@
 # UNCONFIGURED FSTAB FOR BASE SYSTEM
-/dev/sda1      /                   ext4  noatime,nodiratime,discard,errors=remount-ro,commit=60 0 1
-/dev/mmcblk0p1 /mnt/android/system ext4  noatime,nodiratime,discard,errors=remount-ro,commit=60 0 2
-/dev/mmcblk0p8 /mnt/android/data   ext4  noatime,nodiratime,discard,errors=remount-ro,commit=60 0 2
+/dev/sda1      /                   ext4  defaults,noatime,nodiratime,discard,data=ordered,errors=remount-ro,commit=60 0 1
+/dev/mmcblk0p1 /mnt/android/system ext4  defaults,noatime,nodiratime,discard,data=ordered,errors=remount-ro,commit=60 0 2
+/dev/mmcblk0p8 /mnt/android/data   ext4  defaults,noatime,nodiratime,discard,data=ordered,errors=remount-ro,commit=60 0 2
 
 none           /tmp                tmpfs defaults,noatime,mode=1777                             0 0

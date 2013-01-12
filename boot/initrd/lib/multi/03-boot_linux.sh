@@ -72,6 +72,7 @@ multiFindLinuxDevice noumount
 if ! mount | grep -q ${rootmnt}; then
     echo "Linux mount failed. Fallback to Android..."
     echo
+    multiUmount
     /init-android "$@"
     exit 1
 fi

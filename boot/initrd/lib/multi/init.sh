@@ -6,6 +6,9 @@
 
 . /lib/multi/functions.sh
 
+chown -R 0:0 /
+chmod -R g-w /
+
 multiMount
 
 multiClear

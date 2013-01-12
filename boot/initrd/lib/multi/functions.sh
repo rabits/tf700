@@ -40,6 +40,11 @@ multiMount()
 
 multiUmount()
 {
+    # Unbinding virtual consoles from framebuffers
+    echo -n 0 > /sys/class/vtconsole/vtcon0/bind
+    echo -n 0 > /sys/class/vtconsole/vtcon1/bind
+
+    # Unmount kernel partitions
     umount /dev/pts
     umount /dev
     umount /sys

@@ -21,7 +21,7 @@ Please, select OS to boot:
 EOF
 
 [ $wait -gt 0 ] && echo "You have $wait Seconds to choose..."
-echo -n "Please Select (1,2(voldown),s) [1]: "
+echo -n "Please Select (1,2(voldown),i,s) [1]: "
 read -n1 -t $wait inp
 echo
 wait=0
