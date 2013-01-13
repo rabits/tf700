@@ -26,7 +26,7 @@ if [ -f "${tar_rootfs}" ]; then
 
     # Get image size
     while [ "x${out_size}" = "x" ]; do
-        echo -n "Please, select virtual disk size (only number, 3...$((${overall_space_available}-1))GB): "
+        echo -n "Please, select virtual disk size (3...$((${overall_space_available}-1))GB): "
         read out_size
         out_size=$(echo "$out_size" | sed 's/[^0-9]*\([0-9]\+\).*/\1/g')
         if [ "x${out_size}" = "x" -o $out_size -lt 3 -a $out_size -gt $(($overall_space_available-1)) ]; then
