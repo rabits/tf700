@@ -78,15 +78,12 @@ multiClear()
 
 multiFindLinuxDevice()
 {
-    option="${1}"
-
     # Trying to boot external devices, then - internal mmcblk0p9
     for dev in /dev/sda1 /dev/mmcblk1p1 /dev/sdb1 /dev/mmcblk0p9; do
         if mount | grep -q ${rootmnt} 1>&2; then break; fi
         echo "Trying default root: ${dev}" 1>&2
         if mount -t ext4 ${dev} ${rootmnt} 1>&2; then
             if multiValidateRootInit "$init" 1>&2; then
-                if [ "x${option}" != "xnoumount" ]; then umount "${rootmnt}" 1>&2; fi
                 device="${dev}"
                 break
             fi
@@ -96,6 +93,26 @@ multiFindLinuxDevice()
         echo "  FAILED"; 1>&2
         device=""
     done
+
+    # Trying to boot to virtual disk from internal ssd
+    if ! mount | grep -q ${rootmnt} 1>&2; then
+        mkdir /data
+        mount /dev/mmcblk0p8 /data
+        echo "Trying virtual disk rootfs file: ${indevice_rootfsfile}" 1>&2
+        if mount -t ext4 ${indevice_rootfsfile} ${rootmnt} 1>&2; then
+            if multiValidateRootInit "$init" 1>&2; then
+                device="${indevice_rootfsfile}"
+                [ -d /root/mnt/android/data ] || mkdir -p /root/mnt/android/data
+                mount --move /data /root/mnt/android/data
+            else
+                echo "  Target filesystem doesn't have required ${init}." 1>&2
+                umount ${rootmnt} 1>&2
+                losetup -d `losetup -a | awk -F: '{print $1}'` 1>&2
+                umount /data 1>&2
+            fi
+        fi
+        rmdir /data
+    fi
 
     echo $device
 }

@@ -70,10 +70,14 @@ if [ -f "${tar_rootfs}" ]; then
             if mount | grep -q "/mnt" 1>&2; then
                 cd /mnt
                 lzmp -dc ${tar_rootfs} | tar xp
-                echo "INFO: Removing android data from linux fstab - we use bind in boot process later"
+                echo "INFO: Removing android data from linux fstab - we use bind in boot process later..."
                 cp etc/fstab etc/fstab.back
                 cat etc/fstab.back | grep -v '/dev/mmcblk0p8' > etc/fstab
+                echo "" >> etc/fstab
+                echo "# WARNING!" >> etc/fstab
+                echo "# /dev/mmcblk0p8 /mnt/android/data ext4 - is mounted and moved by initrd (it mounted to use virtual disk ${indevice_rootfsfile})" >> etc/fstab
                 cd /
+                echo "INFO: Umounting device with rootfs archive and virtual disk image..."
                 umount /mnt
                 umount ${rootmnt}
                 echo "INFO: Done. Now you can boot as usual from main menu."

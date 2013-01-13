@@ -67,7 +67,7 @@ export BOOT
 
 echo '----MOUNT ROOT----'
 
-multiFindLinuxDevice noumount
+multiFindLinuxDevice
 
 if ! mount | grep -q ${rootmnt}; then
     echo "Linux mount failed. Fallback to Android..."
@@ -96,6 +96,7 @@ else
 fi
 
 # Move virtual filesystems over to the real filesystem
+mount --bind /dev ${rootmnt}/dev
 mount -n -o move /sys ${rootmnt}/sys
 mount -n -o move /proc ${rootmnt}/proc
 
