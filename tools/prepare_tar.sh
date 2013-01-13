@@ -1,9 +1,9 @@
 #!/bin/sh
 #
-# Clean Image
-# Script for cleaning img from personal and junk info, like history, users etc.
+# Prepare Tar
+# Script for preparing tar archive with rootfs from current directory rootfs
 #
-# Run it in root of mounted image 
+# Run it in root of mounted rootfs
 #
 
 default_user="ubuntu"
@@ -11,10 +11,26 @@ default_user="ubuntu"
 DIST_REPO=$(dirname $0)/../.git
 DIST_VER=$(git --git-dir="${DIST_REPO}" tag | tail -n1)
 
-head -n4 $0 | tail -n2
-echo "I: Preparing ${DIST_VER}"
+OUTPUT="$1"
 
-if [ "$USER" != "root" ]; then
+head -n4 $0 | tail -n2
+
+if [ "x${OUTPUT}" = "x" ]; then
+    echo "E: To create archive please specify output file" 1>&2
+    echo "Usage: $0 <output_file.tar.lzma>" 1>&2
+    exit 1
+fi
+touch "${OUTPUT}"
+if [ ! -f "${OUTPUT}" ]; then
+    echo "E: To create archive please specify valid output file" 1>&2
+    echo "Usage: $0 <output_file.tar.lzma>" 1>&2
+    exit 1
+fi
+rm -f "${OUTPUT}"
+
+echo "I: Preparing ${DIST_VER} tar file"
+
+if [ "x${USER}" != "xroot" ]; then
     echo "E: This script must be run as root" 1>&2
     exit 1
 fi
@@ -26,13 +42,22 @@ else
     echo "I: Recognized $PWD as tf700 root dir"
 fi
 
-echo "I: Cleaning users..."
+#################
+
+echo "I: Backupping some files..."
+[ -d  tmp/preparing/etc ] || mkdir -p tmp/preparing/etc
+cp -a etc/group etc/group- etc/passwd etc/passwd- etc/shadow etc/shadow- etc/gshadow- etc/gshadow etc/hostname etc/hosts tmp/preparing/etc/
+[ -d  tmp/preparing/ssh ] || mkdir -p tmp/preparing/ssh
+cp -a etc/ssh/ssh_host*_key* tmp/preparing/ssh/
+cp -a etc/NetworkManager/system-connections tmp/preparing/system-connections
+
+echo "I: Excluding users..."
 for i in home/*; do
     if [ "$i" != "home/${default_user}" ]; then
-        echo "I:  Delete '$i'"
-        rm -rf "$i"
+        echo "I:  Exclude '$i'"
+        excludes="${excludes} --exclude='./$i'"
         subuser=$(echo "$i" | sed 's|^home/||')
-        echo "I:   Remove '${subuser}' from passwd*, group*, shadow*, gsadow* "
+        echo "I:   Remove '${subuser}' from passwd*, group*, shadow*, gsadow*"
         sed -i "s/${subuser},\|,${subuser}\|${subuser}$//g" etc/group etc/group- etc/passwd etc/passwd- etc/shadow etc/shadow- etc/gshadow- etc/gshadow
         sed -i ":a;N;\$!ba;s/\n${subuser}[^\n]*//g" etc/group etc/group- etc/passwd etc/passwd- etc/shadow etc/shadow- etc/gshadow- etc/gshadow
     fi
@@ -85,7 +110,7 @@ echo -n "I: Remove ssh keys..."
 rm -rf etc/ssh/ssh_host*_key* && echo " ok" || echo " fail"
 
 echo -n "I: Disable ssh daemon..."
-mv etc/init/ssh.conf /etc/init/ssh.disabled && echo " ok" || echo " fail"
+mv etc/init/ssh.conf etc/init/ssh.disabled && echo " ok" || echo " fail"
 
 echo -n "I: Remove network-manager net configs..."
 rm -rf etc/NetworkManager/system-connections/* && echo " ok" || echo " fail"
@@ -103,5 +128,16 @@ EOF
 echo "Ubuntu 12.10 tf700${DIST_VER} \n \l" > etc/issue
 echo " ok"
 
+echo "I: Creating archive '${OUTPUT}' ..."
+tar cp --exclude=./lost+found --exclude='./proc/*' --exclude='./proc/.*' --exclude='./sys/*' --exclude='./sys/.*' --exclude='./dev/*' --exclude='./dev/.*' --exclude='./tmp/*' --exclude='./tmp/.*' --exclude='./var/cache/apt/archives/*.deb' $excludes . | lzma -9 > "$OUTPUT"
+echo "done"
+
+echo "I: Recover backupped files"
+mv -f tmp/preparing/etc/* etc/
+mv -f tmp/preparing/ssh/* etc/ssh/
+mv -f tmp/preparing/system-connections/* etc/NetworkManager/system-connections/
+mv -f etc/init/ssh.disabled etc/init/ssh.conf
+echo "done"
+
 echo
-echo "CLEANING OF IMAGE IS COMPLETE"
+echo "PREPARATION OF TAR ARCHIVE IS COMPLETE"

@@ -1,5 +1,4 @@
 source
-bin
 boot/img
 boot/initrd/lib/modules
 backup

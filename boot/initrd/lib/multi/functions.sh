@@ -100,6 +100,32 @@ multiFindLinuxDevice()
     echo $device
 }
 
+multiFindInstallArchive()
+{
+    # Trying to find archive on external devices
+    for dev in /dev/sda1 /dev/mmcblk1p1 /dev/sdb1; do
+        if mount | grep -q ${rootmnt} 1>&2; then break; fi
+        echo "Trying to find rootfs archive in ${dev}" 1>&2
+        if mount ${dev} ${rootmnt} 1>&2; then
+            file=$(find "${rootmnt}" -name 'tf700-rootfs*.tar.lzma' -maxdepth 1)
+            if [ "x${file}" != "x" ]; then
+                if [ -f "${file}" ]; then
+                    echo "  Rootfs archive ${file} found!" 1>&2
+                    out=$file
+                    break
+                fi
+                echo "  Found too many archives, skipping: ${file}" 1>&2
+            fi
+            echo "  Rootfs archive not found here." 1>&2
+            umount ${rootmnt} 1>&2
+            continue
+        fi
+        echo "  Can't mount ${dev}"; 1>&2
+    done
+
+    echo $out
+}
+
 multiValidateRootInit() {
     checktarget="${1}"
 
