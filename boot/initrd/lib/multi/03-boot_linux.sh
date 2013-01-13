@@ -81,7 +81,7 @@ echo "Mounted: $(mount | grep /root)"
 echo '----DONE----'
 
 # Update kernel modules on rootfs
-mount --bind /lib/modules /rootfs/lib/modules
+mount --bind /lib/modules ${rootmnt}/lib/modules
 
 # Preserve information on old systems without /run on the rootfs
 if [ -d ${rootmnt}/run ]; then
