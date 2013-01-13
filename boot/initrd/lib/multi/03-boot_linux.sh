@@ -81,7 +81,11 @@ echo "Mounted: $(mount | grep /root)"
 echo '----DONE----'
 
 # Update kernel modules on rootfs
-mount --bind /lib/modules ${rootmnt}/lib/modules
+kenrel_modules=`find /lib/modules -type d -mindepth 1 -maxdepth 1`
+if [ ! -d "${rootmnt}${kenrel_modules}" -o "${kenrel_modules}" -nt "${rootmnt}${kenrel_modules}" ]; then
+    rm -rf "${rootmnt}${kenrel_modules}"
+    cp -a "${kenrel_modules}" "${rootmnt}${kenrel_modules}"
+fi
 
 # Preserve information on old systems without /run on the rootfs
 if [ -d ${rootmnt}/run ]; then
