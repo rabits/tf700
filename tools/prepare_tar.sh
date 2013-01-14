@@ -55,7 +55,7 @@ echo "I: Excluding users..."
 for i in home/*; do
     if [ "$i" != "home/${default_user}" ]; then
         echo "I:  Exclude '$i'"
-        excludes="${excludes} --exclude='./$i'"
+        excludes="${excludes} --exclude=$i"
         subuser=$(echo "$i" | sed 's|^home/||')
         echo "I:   Remove '${subuser}' from passwd*, group*, shadow*, gsadow*"
         sed -i "s/${subuser},\|,${subuser}\|${subuser}$//g" etc/group etc/group- etc/passwd etc/passwd- etc/shadow etc/shadow- etc/gshadow- etc/gshadow
@@ -129,7 +129,7 @@ echo "Ubuntu 12.10 tf700${DIST_VER} \n \l" > etc/issue
 echo " ok"
 
 echo "I: Creating archive '${OUTPUT}' ..."
-tar cp --exclude=./lost+found --exclude='./proc/*' --exclude='./proc/.*' --exclude='./sys/*' --exclude='./sys/.*' --exclude='./dev/*' --exclude='./dev/.*' --exclude='./tmp/*' --exclude='./tmp/.*' --exclude='./var/cache/apt/archives/*.deb' $excludes . | lzma -9 > "$OUTPUT"
+tar cp --exclude=lost+found --exclude='proc/*' --exclude='proc/.*' --exclude='sys/*' --exclude='sys/.*' --exclude='dev/*' --exclude='dev/.*' --exclude='tmp/*' --exclude='tmp/.*' --exclude='var/cache/apt/archives/*.deb' $excludes . | lzma -9 > "$OUTPUT"
 echo "done"
 
 echo "I: Recover backupped files"
