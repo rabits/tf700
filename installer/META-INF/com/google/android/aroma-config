@@ -1,0 +1,68 @@
+﻿##
+# AROMA Installer 2.00 - AROMA Installer Test Script Configuration
+#       (c) 2011-2012 by Ahmad Amarullah
+#           amarullz - xda-developers
+#           http://www.amarullz.com/
+#
+#       Binary Version  : 2.00
+#       Binary Codename : Dahlia
+##
+#ini_set("force_colorspace","bgra");
+
+calibrate_matrix(
+  "221265.00",  "270.00",     "-2474132.50", "-750.00",
+  "210000.00", "1659876.00", "382435.00",  "20"
+);
+
+theme("miui");
+ini_set("rom_name",             "tf700 Dualboot Image Installer");
+ini_set("rom_version",          "0.7.2");
+ini_set("rom_author",           "rabits & sbdags");
+ini_set("rom_device",           "Asus Transformer TF700/T");
+ini_set("rom_date",             "14/01/2013");
+#splash(
+#   3000,
+#   "logo"
+#);
+
+fontresload( "0", "ttf/DroidSans.ttf;ttf/DroidSansArabic.ttf;ttf/DroidSansFallback.ttf;", "9" );
+
+viewbox(
+    "Welcome",
+    "You are about to flash <b>"+
+	  ini_get("rom_name")+
+	"</b> for the <b>"+ini_get("rom_device")+"</b>.\n\n"+
+    
+      "  VERSION\t: <b><#selectbg_g>"+ini_get("rom_version")+"</#></b>\n"+
+      "  AUTHOR\t: <b><#selectbg_g>"+ini_get("rom_author")+"</#></b>\n"+
+      "  RELEASED\t: <b><#selectbg_g>"+ini_get("rom_date")+"</#></b>\n\n\n"+
+
+    "Press Next to Continue the Installation...",
+    "@welcome"
+);
+
+selectbox(
+  "Select kernel configuration to install...",
+  "Must Choose One!",
+  "@personalize",
+  "kernel.prop",
+  "TF700: Clemsyn 1.5 - 1.8ghz 650GPU config","",0,
+  "TF700: Clemsyn 1.3 - 1.8ghz 650GPU config","",0,
+  "TF700: Clemsyn 1.3 - 1.5ghz 650GPU config","",0
+);
+
+install(
+  "Installing",
+  "Installing tf700 dualboot image configuration...\nPlease Wait Until it Finishes...",
+  "@install"
+);
+
+ini_set("text_next", "Finish");
+
+viewbox(
+  "Installation Completed",
+  "<#080>Congratulations...</#>\n\n"+
+  "tf700 dualboot image has been updated successfully.\n\n"+
+  "Press Finish, Wipe Cache & Dalvik Cache, Reboot and Inherit!\n\nEnjoy your tablet!",
+  "@info"
+);

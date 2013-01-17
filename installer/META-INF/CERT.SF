@@ -1,0 +1,434 @@
+Signature-Version: 1.0
+Created-By: 1.0 (Android SignApk)
+SHA1-Digest-Manifest: byFuDw8d+iED0SVC9UFn47ALxZ0=
+
+Name: META-INF/com/google/android/aroma/langs/ar.lang
+SHA1-Digest: IZPxBR+sMFnqvXeS8H4yALquA2I=
+
+Name: META-INF/com/google/android/aroma/langs/es.lang
+SHA1-Digest: EPGCi25QpnOIYWhKdUasoSVfwBU=
+
+Name: META-INF/com/google/android/aroma/themes/miui/Thumbs.db
+SHA1-Digest: wNady3LL1rHf9S/a46V6x8h+sTg=
+
+Name: kernel/tf300tstock/system/lib/modules/raw_ip_net.ko
+SHA1-Digest: kltcTJJwwxx2/MtHieBoRFLXDf4=
+
+Name: kernel/clemsyn/system1518/etc/cpu1.sh
+SHA1-Digest: 1tHFWcwgPu9kSg9ZuiJkT8DCNSs=
+
+Name: kernel/unters/system/lib/modules/raw_ip_net.ko
+SHA1-Digest: 9M4uOoHLW76fz2LWaAyFZHdByO8=
+
+Name: boot.blob
+SHA1-Digest: PqyByM0QhEPnp7XyxIFo63DOh4g=
+
+Name: META-INF/com/google/android/aroma/fonts/big.png
+SHA1-Digest: zA4ty7CJIpPtcm6S4zVNOGUCaYE=
+
+Name: META-INF/com/google/android/aroma/themes/miui/icon.customize.png
+SHA1-Digest: VOwOI8k7LhEQuXZw34v+av4iEC0=
+
+Name: META-INF/com/google/android/aroma/themes/miui/cb_on_sel.png
+SHA1-Digest: CMgMZF3HSipUCBxvW5GUOGknO0Y=
+
+Name: META-INF/com/google/android/updater-script
+SHA1-Digest: 62NMaTezjKxBMp9lmJkx7j4YauY=
+
+Name: kernel/stock/system/etc/cpu1.sh
+SHA1-Digest: Qq2f7euc0C0IXta+LCyTWiC6xoc=
+
+Name: kernel/unters/system/etc/init.d/99zram
+SHA1-Digest: EuqjoLqefVxbltsJ8mJGCU/n4WI=
+
+Name: kernel/unters/system/lib/modules/bcmdhd.ko
+SHA1-Digest: 3pn8ueApXXsw+B9wFUckHhRUTNU=
+
+Name: kernel/tf300tstock/system/lib/modules/bcmdhd_29.ko
+SHA1-Digest: ghgeash2iQmbIV86kwim6bcvrHE=
+
+Name: META-INF/com/google/android/aroma/ttf/Roboto-Regular.ttf
+SHA1-Digest: 0l575waVN9amM4HXjNBLQftgRko=
+
+Name: META-INF/com/google/android/aroma/icons/agreement.png
+SHA1-Digest: ibAcfqhbZ3H32/KMQIip/od/qkA=
+
+Name: kernel/clemsyn/system16/etc/cpu2.sh
+SHA1-Digest: i+Ym9fCAmyTN1pXV/vCbujH94h0=
+
+Name: META-INF/com/google/android/aroma/langs/en.lang
+SHA1-Digest: rW+dgD3Vcdd8snl0nFvV4LuUkyg=
+
+Name: META-INF/com/google/android/aroma/unicode/arabic.txt
+SHA1-Digest: aQMlV4FoK5ZPQzzo8S5oD484NWA=
+
+Name: kernel/clemsyn/system1318/etc/cpu2.sh
+SHA1-Digest: kIp6p/Rv3RQWTz18lnsk9o66qQM=
+
+Name: META-INF/com/google/android/aroma/icons/update.png
+SHA1-Digest: lkr8LjGc0VQptQ7ubRduxZr8zT0=
+
+Name: META-INF/com/google/android/update-binary-installer
+SHA1-Digest: lWP/Usrpzf8hTsOay8IXfzWYSsI=
+
+Name: META-INF/com/google/android/aroma/ttf/DroidSansArabic.ttf
+SHA1-Digest: 5mqXVgvYfqBrrlvZyv3amslgCjU=
+
+Name: META-INF/com/google/android/aroma/icons/default.png
+SHA1-Digest: Yhs0q06XbKp0vJUs91GNf1iJJjM=
+
+Name: kernel/clemsyn/system1318/etc/cpu1.sh
+SHA1-Digest: Z8PApJ3nXPd+WOr8HVFcWD+EFr8=
+
+Name: kernel5.blob
+SHA1-Digest: OSoBgh8xYJk2JdoYvXyltPws0iM=
+
+Name: META-INF/com/google/android/aroma/themes/miui/radio_on.png
+SHA1-Digest: 4RS1ZI/+HXaIl77iw6OA5F4XsX0=
+
+Name: META-INF/com/google/android/aroma/sample.png
+SHA1-Digest: 6K8yVtAgNKv0krR4+wZeqyA58TE=
+
+Name: kernel.blob
+SHA1-Digest: mX/WY1ySpTmgPbI0Lh3t4a8tEME=
+
+Name: kernel/tf300tstock/system/etc/cpu1.sh
+SHA1-Digest: hQI40ERoxE0ByAzhIsksHbPxYtQ=
+
+Name: META-INF/com/google/android/aroma/icons/personalize.png
+SHA1-Digest: J8xJz95qwUKrTDbgbqbfNFHoUus=
+
+Name: META-INF/com/google/android/aroma/exec_demo/sleep
+SHA1-Digest: YD49STY31+UJtkDuHOad4ioipm0=
+
+Name: META-INF/com/google/android/aroma/themes/miui/radio.png
+SHA1-Digest: OPROyyiR5bofGqr2W3gfHP9haK8=
+
+Name: META-INF/com/google/android/aroma/unicode/chinesse.txt
+SHA1-Digest: ZBIKMY4E92jaOiuidTvZ6FvCPao=
+
+Name: kernel/tf300tstock/system/lib/modules/bcmdhd_34.ko
+SHA1-Digest: mbz1/jwg2ACb9MI+bkhlw91ffME=
+
+Name: META-INF/com/google/android/aroma/themes/miui/cb_sel.png
+SHA1-Digest: IeB2kvBhbDiwsKNU0Jq319SXiPY=
+
+Name: META-INF/com/google/android/aroma/splash/a3.png
+SHA1-Digest: MThFDY3enw8GY7BQRwnEKuaPX9o=
+
+Name: META-INF/com/google/android/aroma/themes/miui/cb.png
+SHA1-Digest: SBpKUj0aj7NWanUkZ6yFFrFn8gs=
+
+Name: META-INF/com/google/android/aroma/exec_demo/exec_demo1.sh
+SHA1-Digest: xFW5yUzevjFApb1bl8t88z3Jlok=
+
+Name: META-INF/com/google/android/aroma/ttf/DroidSansFallback.ttf
+SHA1-Digest: ZDiksfKv3tgcOSgW0HxeKEPWJKQ=
+
+Name: META-INF/com/google/android/aroma/themes/miui/font.roboto.small.
+ png
+SHA1-Digest: aL+21kfhsS8hJdZ/5hkp+Grf7Iw=
+
+Name: kernel/unters/system/etc/cpu2.sh
+SHA1-Digest: d+XvpDw2x8dnRd3R6g6MlBF6+7A=
+
+Name: kernel/stock/system/etc/cpu2.sh
+SHA1-Digest: ELsYAxt1TzmNjMLczNmH1r/mnSo=
+
+Name: META-INF/com/google/android/aroma/unicode/russian_latin.txt
+SHA1-Digest: 4hYsQbQZRBZlfG41xw5fQBCxHgk=
+
+Name: kernel/unters/system/lib/modules/cfg80211.ko
+SHA1-Digest: OrbjRroXYn7/+DHky+pphKBexhA=
+
+Name: META-INF/com/google/android/aroma/themes/miui/titlebar.9.png
+SHA1-Digest: IuPh9BYB9e6tNJ8znmoa7Wij6DQ=
+
+Name: kernel2.blob
+SHA1-Digest: oYlSUJju56uhCsHQD1aHdtsikWk=
+
+Name: kernel6.blob
+SHA1-Digest: ljGlvSpsQBLjAEUuQIhWf+qjTaY=
+
+Name: META-INF/com/google/android/aroma/icons/Thumbs.db
+SHA1-Digest: 9ASUHJlkTRS99eoM99Rjy7QGeYs=
+
+Name: kernel/tf300tstock/system/etc/cpu2.sh
+SHA1-Digest: 1wE4FYbX7w5RZfeLLW3poO8325M=
+
+Name: META-INF/com/google/android/aroma/exec_demo/exec_demo2.sh
+SHA1-Digest: kCi1mu+u9/I+tjLgkBIuzGwVRpg=
+
+Name: META-INF/com/google/android/aroma/themes/miui/theme.prop
+SHA1-Digest: h2kMMDcMHdflOgmZUVwo/exEke4=
+
+Name: kernel4.blob
+SHA1-Digest: +BXctzyzOfPNT3geeKA2aFxEWFs=
+
+Name: META-INF/com/google/android/aroma/icons/customize.png
+SHA1-Digest: envvq/UioWgJ0FmKVyuWyqaZVwk=
+
+Name: META-INF/com/google/android/aroma/themes/miui/button_press.9.png
+SHA1-Digest: hjFXTYZzKk+3JTJPxplRzsFKpdU=
+
+Name: kernel/clemsyn/system16/etc/cpu1.sh
+SHA1-Digest: vTe1G61Hf0JBuH+0n21lMCzv7S0=
+
+Name: kernel/clemsyn/system1318/etc/cpu3.sh
+SHA1-Digest: aq4qPO1a3IuVr/NAPDqJJ2SQJYw=
+
+Name: kernel/unters/system/lib/modules/bcmdhd_29.ko
+SHA1-Digest: ai8WNCikAS4y9Mb0ncyAVJeg8XU=
+
+Name: META-INF/com/google/android/aroma/themes/miui/button.9.png
+SHA1-Digest: 0G0zgzcbPOtyBFeBSfd2acrHL74=
+
+Name: META-INF/com/google/android/aroma/logo.png
+SHA1-Digest: 15ZOVkSvZAC8CCD1Mbjv9N9tNKI=
+
+Name: META-INF/com/google/android/aroma/themes/miui/icon.agreement.png
+SHA1-Digest: f0NG0/xIrf2AipyasQV2uQKibKg=
+
+Name: META-INF/com/google/android/aroma/icons/alert.png
+SHA1-Digest: vg/4Y3GcDsD3gIqqDjClKzufnak=
+
+Name: META-INF/com/google/android/aroma/themes/miui/dialog_titlebar.9.
+ png
+SHA1-Digest: zL1ob0HSUxHw9gq53ecjzeWewt8=
+
+Name: kernel/unters/system/lib/modules/bcmdhd_34.ko
+SHA1-Digest: 6v1IuMCL92DtFpdK1FL6KA3cCD0=
+
+Name: META-INF/com/google/android/aroma/langs/cn.lang
+SHA1-Digest: o36v1lz+Q5L+7lQzBrba1j4jcd8=
+
+Name: META-INF/com/google/android/aroma/themes/miui/radio_sel.png
+SHA1-Digest: cX5GOGBwmS2ZXapFHUhN6N1h+Io=
+
+Name: kernel/unters/system/lib/modules/baseband_usb_chr.ko
+SHA1-Digest: 141Y5jI2MdPOcfwDFxez7VwVQv4=
+
+Name: META-INF/com/google/android/aroma/langs/he.lang
+SHA1-Digest: mhiptZl3nvNPhsqfRnwD7UUYLTo=
+
+Name: META-INF/com/google/android/aroma/changelog.txt
+SHA1-Digest: kW3yY4Eepkkibr73YVJDt9vR5KA=
+
+Name: META-INF/com/google/android/aroma/themes/miui/dialog.9.png
+SHA1-Digest: G9sOIiN3J8WpfLApHCJg1XY80xw=
+
+Name: kernel/unters/system/bin/exfat
+SHA1-Digest: THlbihEdankvtevVeKmCxIHh3Qk=
+
+Name: META-INF/com/google/android/aroma/langs/fr.lang
+SHA1-Digest: KBPtGyaoxl01xHCfCe+PmktuIuM=
+
+Name: META-INF/com/google/android/aroma/icons/info.png
+SHA1-Digest: OMR0gYOH02Qj+AfVmcCHrGdVya8=
+
+Name: META-INF/com/google/android/aroma/themes/miui/icon.confirm.png
+SHA1-Digest: 7uRRC5wUNbdbFwsoPaI3gyp7as0=
+
+Name: META-INF/com/google/android/aroma/themes/miui/select.9.png
+SHA1-Digest: uSTFcnL9j5mloJZgfRMi93o5IPI=
+
+Name: kernel/unters/system/lib/modules/cifs.ko
+SHA1-Digest: hzEg8wJ8/mPrGu2GYAEmBmqI974=
+
+Name: META-INF/com/google/android/aroma/splash/a1.png
+SHA1-Digest: i9K5Txs3LAFipOXASFjC3JyD1HI=
+
+Name: kernel/stock/system/etc/cpu3.sh
+SHA1-Digest: WOpl6rVjy3FNDvRG4AQTIOPolv4=
+
+Name: kernel/unters/system/bin/ntfs-3g
+SHA1-Digest: ZINinNLMwJf2M4HoN0iuO0CoHyk=
+
+Name: META-INF/com/google/android/aroma/themes/miui/button_focus.9.png
+SHA1-Digest: acX6v+tkjYWIXXi1QMqDBX9t/RY=
+
+Name: kernel/clemsyn/system1315/etc/cpu3.sh
+SHA1-Digest: O/aDtWBv/l4ZVTRhiZp+c5a3w9k=
+
+Name: META-INF/com/google/android/aroma/themes/miui/icon.apps.png
+SHA1-Digest: JtfXxnBSqwOUWyeJySkVnTNZqVQ=
+
+Name: META-INF/com/google/android/aroma/splash/a2.png
+SHA1-Digest: XoN0Vkadvc+/cR+TXn9Fu4JQusw=
+
+Name: META-INF/com/google/android/aroma/themes/miui/font.roboto.big.pn
+ g
+SHA1-Digest: Kf21hvTnk65v8O/BhI4gybqt3Ao=
+
+Name: kernel/clemsyn/system1315/etc/cpu2.sh
+SHA1-Digest: R+2hA/q9Ha/aQlTQeIeMvYIhLOk=
+
+Name: META-INF/com/google/android/aroma/icons/welcome.png
+SHA1-Digest: fYixHffIAobmHhXPb9KlqbdyR40=
+
+Name: kernel/unters/system/etc/cpu3.sh
+SHA1-Digest: rltv5wROj9lQVtkTrvVYYnDUZ4M=
+
+Name: META-INF/com/google/android/aroma/icons/confirm.png
+SHA1-Digest: tRQmwyaUo60uMn6QRe2DOPkRefU=
+
+Name: META-INF/com/google/android/aroma/themes/miui/icon.license.png
+SHA1-Digest: +EVel7kCDRbN3jXcoiXQWjufKOE=
+
+Name: META-INF/com/google/android/aroma/ttf/DroidSans.ttf
+SHA1-Digest: HANvcQ4XGPCRz37LTjJ5S1dlPnk=
+
+Name: META-INF/com/google/android/aroma/themes/miui/cb_on.png
+SHA1-Digest: s4KPHAi+h8AYmh1rQ6hDo2gQ4TA=
+
+Name: META-INF/com/google/android/aroma/icons/apps.png
+SHA1-Digest: j9InbiFfeCkXV+MZcnkZBbq9ALE=
+
+Name: META-INF/com/google/android/aroma/exec_demo/displaycapture
+SHA1-Digest: okTOnBbHcmym8VmmWoTDzkNtNvw=
+
+Name: META-INF/com/google/android/aroma/themes/miui/select_push.9.png
+SHA1-Digest: wQhp0rKwB8eM+VxN3d5s0K7ohxo=
+
+Name: META-INF/com/google/android/aroma/themes/miui/icon.info.png
+SHA1-Digest: 7ACFkL1Weyi8cZkKj4oyZr0W7jo=
+
+Name: kernel/unters/system/lib/modules/md4.ko
+SHA1-Digest: 8BtWZ/a5SoOI8b4DtZiuSZ8mFs4=
+
+Name: kernel/clemsyn/system1315/etc/cpu1.sh
+SHA1-Digest: VMpe0kuYUyuvlODjWhs3Mrm8Nu8=
+
+Name: kernel/clemsyn/system1518/etc/cpu3.sh
+SHA1-Digest: gID5fqUQgolRF6P3HkkLD0W8E9w=
+
+Name: kernel/unters/system/etc/init.d/98cifs
+SHA1-Digest: 6wdVfSrxSgsLwOJiWZImirp5s24=
+
+Name: META-INF/com/google/android/aroma/splash/a5.png
+SHA1-Digest: vxkU6pKARR69vHA+4krfh0pSb/c=
+
+Name: kernel3.blob
+SHA1-Digest: a7eI3ijY068wuT3JysW/E6sR6G8=
+
+Name: kernel/tf300tstock/system/lib/modules/bcm4329.ko
+SHA1-Digest: MS5uOPgd1qPd1P4AJ0FGXNHgEyw=
+
+Name: META-INF/com/google/android/aroma/icons/install.png
+SHA1-Digest: wumpyMrgwC25f10MrBJ2W1MnF2s=
+
+Name: META-INF/com/google/android/aroma/themes/miui/icon.default.png
+SHA1-Digest: ckKdPuthp/Pm5NskubEb4cXFHSg=
+
+Name: META-INF/com/google/android/aroma/fonts/Thumbs.db
+SHA1-Digest: dS3JZfeypHRrnQVhRepNwH3IFg8=
+
+Name: kernel/unters/system/etc/cpu1.sh
+SHA1-Digest: jsLN5ul+uXjfNE/RMqBTjTSEveQ=
+
+Name: META-INF/com/google/android/aroma/splash/a6.png
+SHA1-Digest: FCyDyUULsPDvu/EtdOH6n6e7MZo=
+
+Name: kernel/tf300tstock/system/etc/cpu3.sh
+SHA1-Digest: HDH3lMQa6+gTD0+uRtglQwfKj5U=
+
+Name: kernel/clemsyn/system1518/etc/cpu2.sh
+SHA1-Digest: 3QopdQnbmagCrwy9OSdGYVdCVVE=
+
+Name: META-INF/com/google/android/aroma/themes/miui/icon.welcome.png
+SHA1-Digest: lwr+KZtmtfnKZdSRG87Y8P318zI=
+
+Name: boot3.blob
+SHA1-Digest: ud1qZG+OVk5QVB2JIHHsLg/GNNo=
+
+Name: META-INF/com/google/android/aroma/langs/de.lang
+SHA1-Digest: dxAVnJu30fjYapbZZklSddR91dQ=
+
+Name: META-INF/com/google/android/aroma/langs/id.lang
+SHA1-Digest: Qh9RS6+orWi93U9EIQG7nL1xo1Q=
+
+Name: META-INF/com/google/android/aroma/fonts/small.png
+SHA1-Digest: R4bNQaJxHZ5nf6Q3RorElOsL2No=
+
+Name: META-INF/com/google/android/aroma/themes/miui/icon.personalize.p
+ ng
+SHA1-Digest: Vxm5MF/UiGRcpZwlrDIvmPf6fc0=
+
+Name: META-INF/com/google/android/aroma/themes/miui/radio_on_sel.png
+SHA1-Digest: xbOh4MAGxhAesKSSXGPDnFu8xDY=
+
+Name: META-INF/com/google/android/aroma/themes/miui/icon.install.png
+SHA1-Digest: mgkgweQQdEmMF7rc6ToLSFN5qHw=
+
+Name: META-INF/com/google/android/aroma/splash/a4.png
+SHA1-Digest: zqBUJkB/eTw6exw7i9yPxIYd2HM=
+
+Name: META-INF/com/google/android/aroma/license.txt
+SHA1-Digest: 1GlkbgHLMNIsyc6p/0lkjexbT2M=
+
+Name: META-INF/com/google/android/aroma/themes/miui/icon.alert.png
+SHA1-Digest: veLC3WhapqCmMJU998PrWAo+1Mc=
+
+Name: META-INF/com/google/android/aroma/icons/license.png
+SHA1-Digest: p42J8rgNtbZL30syGVJdpF13Y9s=
+
+Name: kernel/unters/system/lib/modules/bcm4329.ko
+SHA1-Digest: yiHauTgd3nGxYUrTpsW4QA44lA8=
+
+Name: kernel7.blob
+SHA1-Digest: GporBejohX+k/S0VIIDbQIaP2s0=
+
+Name: boot4.blob
+SHA1-Digest: vHQH4QxEncVnEyCrGQVptoClY+w=
+
+Name: kernel/unters/system/bin/vold
+SHA1-Digest: x17fTjZBCHIlWynkE8Q7T3p6RGY=
+
+Name: META-INF/com/google/android/aroma/themes/miui/nav.9.png
+SHA1-Digest: CyXrIw4lk8OLUJ8LB934EZ2bkGI=
+
+Name: META-INF/com/google/android/aroma/themes/miui/icon.update.png
+SHA1-Digest: dDMd/K/lDwXfsMwOHMz2ws46sIw=
+
+Name: META-INF/com/google/android/aroma/langs/ru.lang
+SHA1-Digest: fFVmmLOQbO6OzF/8cOop/SUaGDI=
+
+Name: META-INF/com/google/android/aroma/splash/Thumbs.db
+SHA1-Digest: wxwDdcfklU1f+izjqVdO07MiVbI=
+
+Name: kernel/clemsyn/system16/etc/cpu3.sh
+SHA1-Digest: 3cn699tjFiMPrcwQ1Jd+OT8ukUE=
+
+Name: META-INF/com/google/android/update-binary
+SHA1-Digest: +Hc5mmK0diiOVs20WtZ2N6S2LqI=
+
+Name: META-INF/com/google/android/aroma-config
+SHA1-Digest: Vww+MlH2FWFlCDy9XQGoaQ9ip3Q=
+
+Name: META-INF/com/google/android/aroma/langs/it.lang
+SHA1-Digest: A1ai5M9lcbZmbkl1SW3B7UXq88A=
+
+Name: kernel/clemsyn/system17/etc/cpu3.sh
+SHA1-Digest: U7CS8rt/+mVvjTboEllPW47lZ24=
+
+Name: kernel/clemsyn/system17/etc/cpu2.sh
+SHA1-Digest: L6pzQkbxhrtFSi1X/MJ1B3LCGVk=
+
+Name: kernel/clemsyn/system17/etc/cpu1.sh
+SHA1-Digest: 1vdA0qD7ixzpA0FXH2bw0xMAPLM=
+
+Name: kernel/tf300tstock/system/lib/modules/cfg80211.ko
+SHA1-Digest: QEUR+OnXk6aKhuKu+iId2Oz0FiE=
+
+Name: boot2.blob
+SHA1-Digest: r9s1yyMWXgxcb4F7ofPNmGgQJF0=
+
+Name: META-INF/com/google/android/aroma/ams_sample.txt
+SHA1-Digest: +WNSWYej0Rw3sf3glp+JVd20h4k=
+
+Name: kernel/tf300tstock/system/lib/modules/baseband_usb_chr.ko
+SHA1-Digest: AA9uZ4ZBk2BQhHjqGmVZ9JL3Ylc=
+
+Name: kernel/tf300tstock/system/lib/modules/bcmdhd.ko
+SHA1-Digest: sx8OYXkC8ssa/xlZ5lx08+XcJnw=
+

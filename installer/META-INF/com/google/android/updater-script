@@ -1,0 +1,49 @@
+# tf700 Dualboot installer
+ui_print("Hi! You run tf700 dualboot installer.");
+ui_print("-----------------------------------------------------");
+ui_print("This will take a few minutes!");
+
+set_progress(0.1);
+ui_print("Preparing File System...");
+
+mount("ext4", "EMMC", "/dev/block/mmcblk0p1", "/system");
+set_perm_recursive(0, 0, 0755, 0755, "/tmp");
+
+set_progress(0.3);
+ui_print("Installing boot image...");
+
+#-- Kernel --#
+ui_print("Kernel");
+if
+    file_getprop("/tmp/aroma-data/kernel.prop","selected.0") == "1"
+then
+    ui_print(" - Clemsyn's 1.5 - 1.8ghz Stock 650GPU config");
+    delete("/system/etc/cpu1.sh");
+    delete("/system/etc/cpu2.sh");
+    delete("/system/etc/cpu3.sh");
+    package_extract_dir("/kernel/clemsyn/system1518", "/system");
+endif;
+if
+    file_getprop("/tmp/aroma-data/kernel.prop","selected.0") == "2"
+then
+    ui_print(" - Clemsyn's 1.3 - 1.8ghz Stock 650GPU config");
+    delete("/system/etc/cpu1.sh");
+    delete("/system/etc/cpu2.sh");
+    delete("/system/etc/cpu3.sh");
+    package_extract_dir("kernel/clemsyn/system1318", "/system");
+endif;
+if
+    file_getprop("/tmp/aroma-data/kernel.prop","selected.0") == "3"
+then
+    ui_print(" - Clemsyn's 1.3 - 1.5ghz Stock 650GPU config");
+    delete("/system/etc/cpu1.sh");
+    delete("/system/etc/cpu2.sh");
+    delete("/system/etc/cpu3.sh");
+    package_extract_dir("kernel/clemsyn/system1315", "/system");
+endif;
+package_extract_file("boot.blob", "/dev/block/mmcblk0p4");
+set_progress(0.9);
+unmount("/system");
+set_progress(1.0);
+ui_print("---------------------------------------");
+ui_print("All Done!");
