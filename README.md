@@ -128,6 +128,11 @@ TODO
   * # fastboot boot boot/img/boot.img
 8. Done. Device should boot your rootfs
 
+# Create installation package
+1. Create boot.blob - blobed kernel with initrd
+2. Create zip archive:
+  * $ cd installer && zip -r -9 installer.zip . --exclude \*.zip && cd ..
+
 # MISK
 
 ## elan-touchscreen xorg driver "mtev":

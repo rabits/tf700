@@ -1,46 +1,89 @@
-﻿##
-# AROMA Installer 2.00 - AROMA Installer Test Script Configuration
+﻿### FILE INFO:
+#
+# AROMA Installer 2.51 - AROMA Installer Test Script Configuration
 #       (c) 2011-2012 by Ahmad Amarullah
 #           amarullz - xda-developers
 #           http://www.amarullz.com/
 #
-#       Binary Version  : 2.00
-#       Binary Codename : Dahlia
-##
-#ini_set("force_colorspace","bgra");
+#       Binary Version  : 2.56
+#       Binary Codename : Edelweis
+#
 
-calibrate_matrix(
-  "221265.00",  "270.00",     "-2474132.50", "-750.00",
-  "210000.00", "1659876.00", "382435.00",  "20"
-);
-
-theme("miui");
+# Initializing Rom Information
 ini_set("rom_name",             "tf700 Dualboot Image Installer");
 ini_set("rom_version",          "0.7.2");
-ini_set("rom_author",           "rabits & sbdags");
+ini_set("rom_author",           "rabits");
 ini_set("rom_device",           "Asus Transformer TF700/T");
 ini_set("rom_date",             "14/01/2013");
-#splash(
-#   3000,
-#   "logo"
-#);
 
-fontresload( "0", "ttf/DroidSans.ttf;ttf/DroidSansArabic.ttf;ttf/DroidSansFallback.ttf;", "9" );
 
-viewbox(
-    "Welcome",
-    "You are about to flash <b>"+
-	  ini_get("rom_name")+
-	"</b> for the <b>"+ini_get("rom_device")+"</b>.\n\n"+
-    
-      "  VERSION\t: <b><#selectbg_g>"+ini_get("rom_version")+"</#></b>\n"+
-      "  AUTHOR\t: <b><#selectbg_g>"+ini_get("rom_author")+"</#></b>\n"+
-      "  RELEASED\t: <b><#selectbg_g>"+ini_get("rom_date")+"</#></b>\n\n\n"+
-
-    "Press Next to Continue the Installation...",
-    "@welcome"
+# Show Simple Splash
+splash(
+    2000,
+    "logo"
 );
 
+# Set Small Font to Support all fonts
+fontresload( "0", "ttf/Roboto-Regular.ttf;ttf/DroidSansArabic.ttf;ttf/DroidSansFallback.ttf;", "12" );
+
+###################################################################################################################
+selectbox(
+    "Select Language",
+    "Please select installer language:",
+    "@default",
+    "lang.prop",
+  
+    "English", "Welcome to Installer", 1,
+    "Russian", "Добро пожаловать в установщик", 0
+);
+
+##
+# SET LANGUAGE & FONT FAMILY
+#
+if prop("lang.prop","selected.0")=="1" then
+  loadlang("langs/en.lang");
+endif;
+
+if prop("lang.prop","selected.0")=="2" then
+  loadlang("langs/ru.lang");
+endif;
+
+fontresload( "0", "ttf/Roboto-Regular.ttf", "12" ); #-- "0" = Small Font
+fontresload( "1", "ttf/Roboto-Regular.ttf", "18" ); #-- "1" = Big Font
+
+###################################################################################################################
+# Print welcome screen
+#
+textbox(
+    "<~welcome.title>",
+    "<~welcome.text1> <b>"+
+	  ini_get("rom_name")+
+	"</b> <~common.for> <b>"+ini_get("rom_device")+"</b>.\n\n"+
+    "<~welcome.text2>\n\n"+
+      "  <~welcome.version>\t: <b><#selectbg_g>"+ini_get("rom_version")+"</#></b>\n"+
+      "  <~welcome.updated>\t: <b><#selectbg_g>"+ini_get("rom_date")+"</#></b>\n\n\n",
+    "@welcome",
+    "<~welcome.multiline>\n\n"+
+    "<~welcome.next>"
+);
+
+
+###################################################################################################################
+# Some agreement
+#
+agreebox(
+    "<~terms.title>",
+    "<~terms.desc>",
+    "@license",
+    "<~terms.info>",
+    "<~terms.check>",
+    "<~terms.confirm>"
+);
+
+
+###################################################################################################################
+# Select kernel configuration
+#
 selectbox(
   "Select kernel configuration to install...",
   "Must Choose One!",
@@ -51,18 +94,38 @@ selectbox(
   "TF700: Clemsyn 1.3 - 1.5ghz 650GPU config","",0
 );
 
-install(
-  "Installing",
-  "Installing tf700 dualboot image configuration...\nPlease Wait Until it Finishes...",
-  "@install"
-);
+###################################################################################################################
+# Destination of img selection
+# * to in-device memory mmcblk0p8
+# * to sdcard sda1
+# * do not install image
+#
 
-ini_set("text_next", "Finish");
+###################################################################################################################
+# Options
+# [] Use mmcblk0p8 as /home
+# [] Replace ubuntu user if image already present
+# [] Encrypt virtual disk image
+#
 
-viewbox(
-  "Installation Completed",
-  "<#080>Congratulations...</#>\n\n"+
-  "tf700 dualboot image has been updated successfully.\n\n"+
-  "Press Finish, Wipe Cache & Dalvik Cache, Reboot and Inherit!\n\nEnjoy your tablet!",
-  "@info"
-);
+###################################################################################################################
+# Image size
+# * 3
+# * 4
+# * 5
+# * 6
+# * 7
+# * 8
+# * 9
+# * 10
+#
+
+###################################################################################################################
+# Preferences setting print, red button to install
+#
+
+###################################################################################################################
+# Finish screen
+#
+
+#---- FINISH
