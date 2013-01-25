@@ -110,7 +110,7 @@ echo -n "I: Remove ssh keys..."
 rm -rf etc/ssh/ssh_host*_key* && echo " ok" || echo " fail"
 
 echo -n "I: Disable ssh daemon..."
-mv etc/init/ssh.conf etc/init/ssh.disabled && echo " ok" || echo " fail"
+mv etc/init/ssh.conf etc/init/ssh.conf.disabled && echo " ok" || echo " fail"
 
 echo -n "I: Remove network-manager net configs..."
 rm -rf etc/NetworkManager/system-connections/* && echo " ok" || echo " fail"

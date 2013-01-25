@@ -1,0 +1,7 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=GPIO keys setup
+Type=Application
+Exec=sh /etc/X11/Xsession.d/32-custom-gpio-keys-setkbd
+Hidden=true
+NoDisplay=false

@@ -1,0 +1,12 @@
+#
+# tf700
+# Change gpio-keys keyboard configuration
+#
+
+gpiokeys_id=$(xinput list --id-only gpio-keys)
+if [ "x${gpiokeys_id}" != "x" ]; then
+    echo "GPIO-KEYS (${gpiokeys_id}) install done" >> /var/log/Xorg.0.log
+    setxkbmap -device ${gpiokeys_id} -model pc105 -option -layout us
+else
+    echo "GPIO-KEYS not found" >> /var/log/Xorg.0.log
+fi
