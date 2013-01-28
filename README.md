@@ -80,20 +80,17 @@ TODO
 # Create boot image
 1. Install abootimg tool:
   * # apt-get install abootimg
-2. Copy kernel modules to initrd:
-  * $ rm -rf boot/initrd/lib/modules
-  * $ cp -a source/kernel/out_modules/lib/modules boot/initrd/lib/
-3. Make initrd:
+2. Make initrd:
   * $ cd boot/initrd && find | cpio -H newc -o > ../img/initrd.cpio && cd ../img && gzip -9 initrd.cpio && mv initrd.cpio.gz initrd.img && cd ../..
-4. Build boot image:
+3. Build boot image:
   * $ abootimg --create boot/img/boot.img -k source/kernel/out/arch/arm/boot/zImage -f boot/bootimg.cfg -r boot/img/initrd.img
-5. Init blobtools:
+4. Init blobtools:
   * $ git submodule update --init tools/blobtools
-6. Build blobtools:
+5. Build blobtools:
   * $ cd tools/blobtools && make && cd ../..
-7. Prepare blob file:
+6. Prepare blob file:
   * $ tools/blobtools/blobpack boot/img/boot.blob LNX boot/img/boot.img
-8. Prepend header of the blob, thanx [that](http://forum.xda-developers.com/showpost.php?p=35408420&postcount=67):
+7. Prepend header of the blob, thanx [that](http://forum.xda-developers.com/showpost.php?p=35408420&postcount=67):
   * $ echo -n "-SIGNED-BY-SIGNBLOB-$(dd if=/dev/zero count=8 bs=1)" | cat - boot/img/boot.blob > boot/img/boot.blob.new
   * $ mv boot/img/boot.blob.new boot/img/boot.blob
 
