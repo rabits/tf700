@@ -1,6 +1,7 @@
 ﻿#--- COMMON SYSTEM STRING RESOURCE
 text_ok=OK
 text_next=Next >
+text_next.default=Next >
 text_back=< Back
 text_yes=Yes
 text_no=No
@@ -11,9 +12,6 @@ text_quit_msg=Are you sure to quit the installer?
 
 #-- CUSTOM STRING RESOURCE
 common.for=for
-
-themes.title=Select Theme
-themes.desc=Please select installer theme that you want to use in this installation test:
 
 welcome.title=Welcome
 welcome.text1=You are about to installing
@@ -38,3 +36,43 @@ terms.info=You use this software at you own risk!\
 If any problems occur, I'll try to help you with advice - but that's all.
 terms.check=I Agree with this Terms and Conditions...
 terms.confirm=Please check the agreement...
+
+kernel.title=Select kernel configuration...
+kernel.info=Please, select need configuration of kernel. This configuration - is powersave modes.
+
+rootfs.title=Rootfs destination...
+rootfs.info=Please select place that installer will prepare to setup Linux root file system
+rootfs.item1_title=/sdcard/linux-rootfs.img
+rootfs.item1_info=Virtual disk image file in userspace /dev/mmcblk0p8
+rootfs.item2_title=/dev/sda
+rootfs.item2_info=SDCard or USB-stick (dock)
+rootfs.item3_title=/dev/sdb
+rootfs.item3_info=SDCard or USB-stick (dock)
+rootfs.item4_title=/dev/mmcblk1
+rootfs.item4_info=microSDCard (in-device cardreader)
+rootfs.itemskip_title=Skip
+rootfs.itemskip_info=Do not prepare rootfs
+
+options.title=Select additional options...
+options.info=This is some additional options of this installator
+options.item1_title=Use /dev/mmcblk0p8 as /home
+options.item1_info=Place your home directory into device main emmc memory (/data in Android)
+options.item2_title=Replace ubuntu user
+options.item2_info=Previous ubuntu home directory will be moved to /home/ubuntu_old
+options.item3_title=Encrypt Linux rootfs
+options.item3_info=Use luks cryptsetup to encrypt Linux rootfs disk
+
+rootsize.title=Select rootfs size...
+rootsize.info=Please select size of rootfs partition
+
+ready.install=Install Now!
+ready.title=Ready to Install
+ready.info=The wizard is ready to begin installation.
+ready.print=Check your configuration:
+ready.kernel=Kernel config:
+ready.rootfs=Root device:
+ready.rootsize=Size:
+ready.options=Options:
+ready.endinfo=Press
+ready.endinfo2=to begin the installation.\
+If you want to review or change any of your installation settings, press <b>Back</b>.

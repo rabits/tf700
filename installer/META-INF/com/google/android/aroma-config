@@ -1,6 +1,6 @@
 ﻿### FILE INFO:
 #
-# AROMA Installer 2.51 - AROMA Installer Test Script Configuration
+# AROMA Installer 2.51
 #       (c) 2011-2012 by Ahmad Amarullah
 #           amarullz - xda-developers
 #           http://www.amarullz.com/
@@ -8,13 +8,15 @@
 #       Binary Version  : 2.56
 #       Binary Codename : Edelweis
 #
+# tf700 dualboot installer configuration
+#
 
 # Initializing Rom Information
-ini_set("rom_name",             "tf700 Dualboot Image Installer");
-ini_set("rom_version",          "0.7.2");
-ini_set("rom_author",           "rabits");
-ini_set("rom_device",           "Asus Transformer TF700/T");
-ini_set("rom_date",             "14/01/2013");
+ini_set("rom_name",    "TF700 Dualboot Installer");
+ini_set("rom_version", "v0.8.0");
+ini_set("rom_author",  "rabits");
+ini_set("rom_device",  "Asus Transformer TF700/T");
+ini_set("rom_date",    "28/01/2013");
 
 
 # Show Simple Splash
@@ -27,19 +29,19 @@ splash(
 fontresload( "0", "ttf/Roboto-Regular.ttf;ttf/DroidSansArabic.ttf;ttf/DroidSansFallback.ttf;", "12" );
 
 ###################################################################################################################
+# Set language
+#
 selectbox(
     "Select Language",
     "Please select installer language:",
     "@default",
     "lang.prop",
   
-    "English", "Welcome to Installer", 1,
-    "Russian", "Добро пожаловать в установщик", 0
+    "English", "Welcome to Installer",          1, #-- "selected.0" == "1"
+    "Russian", "Добро пожаловать в установщик", 0  #-- "selected.0" == "2"
 );
 
-##
 # SET LANGUAGE & FONT FAMILY
-#
 if prop("lang.prop","selected.0")=="1" then
   loadlang("langs/en.lang");
 endif;
@@ -57,8 +59,8 @@ fontresload( "1", "ttf/Roboto-Regular.ttf", "18" ); #-- "1" = Big Font
 textbox(
     "<~welcome.title>",
     "<~welcome.text1> <b>"+
-	  ini_get("rom_name")+
-	"</b> <~common.for> <b>"+ini_get("rom_device")+"</b>.\n\n"+
+      ini_get("rom_name")+
+    "</b> <~common.for> <b>"+ini_get("rom_device")+"</b>.\n\n"+
     "<~welcome.text2>\n\n"+
       "  <~welcome.version>\t: <b><#selectbg_g>"+ini_get("rom_version")+"</#></b>\n"+
       "  <~welcome.updated>\t: <b><#selectbg_g>"+ini_get("rom_date")+"</#></b>\n\n\n",
@@ -85,47 +87,137 @@ agreebox(
 # Select kernel configuration
 #
 selectbox(
-  "Select kernel configuration to install...",
-  "Must Choose One!",
-  "@personalize",
-  "kernel.prop",
-  "TF700: Clemsyn 1.5 - 1.8ghz 650GPU config","",0,
-  "TF700: Clemsyn 1.3 - 1.8ghz 650GPU config","",0,
-  "TF700: Clemsyn 1.3 - 1.5ghz 650GPU config","",0
+    "<~kernel.title>",
+    "<~kernel.info>",
+    "@personalize",
+    "kernel.prop",
+    "TF700: Clemsyn 1.5 - 1.8GHz CPU 650MHz GPU", "", 0, #-- "selected.0" == "1"
+    "TF700: Clemsyn 1.3 - 1.8GHz CPU 650MHz GPU", "", 0, #-- "selected.0" == "2"
+    "TF700: Clemsyn 1.3 - 1.5GHz CPU 650MHz GPU", "", 0  #-- "selected.0" == "3"
 );
 
 ###################################################################################################################
 # Destination of img selection
-# * to in-device memory mmcblk0p8
+# * to virtual image in device main memory mmcblk0p8
 # * to sdcard sda1
+# * to sdcard sdb1
+# * to msdcard mmcblk1
 # * do not install image
 #
+selectbox(
+    "<~rootfs.title>",
+    "<~rootfs.info>",
+    "@default",
+    "rootfs.prop",
+    "<~rootfs.item1_title>", "<~rootfs.item1_info>", 1, #-- "selected.0" == "1"
+    "<~rootfs.item2_title>", "<~rootfs.item2_info>", 0, #-- "selected.0" == "2"
+    "<~rootfs.item3_title>", "<~rootfs.item3_info>", 0, #-- "selected.0" == "3"
+    "<~rootfs.item4_title>", "<~rootfs.item4_info>", 0, #-- "selected.0" == "4"
+    "<~rootfs.itemskip_title>", "<~rootfs.itemskip_info>", 0 #-- "selected.0" == "5"
+);
 
 ###################################################################################################################
 # Options
 # [] Use mmcblk0p8 as /home
 # [] Replace ubuntu user if image already present
-# [] Encrypt virtual disk image
+# [] Encrypt rootfs disk
 #
+checkbox(
+    "<~options.title>Select Main Mods",
+    "<~options.info>",
+    "@update",
+    "options.prop",
+
+    "<~options.item1_title>", "<~options.item1_info>", 1, #-- item.1.1
+    "<~options.item2_title>", "<~options.item2_info>", 1, #-- item.1.2
+    "<~options.item3_title>", "<~options.item3_info>", 0, #-- item.1.3
+);
 
 ###################################################################################################################
 # Image size
-# * 3
-# * 4
-# * 5
-# * 6
-# * 7
-# * 8
-# * 9
-# * 10
 #
+selectbox(
+    "<~rootsize.title>",
+    "<~rootsize.info>",
+    "@default",
+    "rootsize.prop",
+    "3 Gb", "", 0,  #-- "selected.0" == "1"
+    "4 Gb", "", 0,  #-- "selected.0" == "2"
+    "5 Gb", "", 1,  #-- "selected.0" == "3"
+    "6 Gb", "", 0,  #-- "selected.0" == "4"
+    "7 Gb", "", 0,  #-- "selected.0" == "5"
+    "8 Gb", "", 0,  #-- "selected.0" == "6"
+    "10 Gb", "", 0, #-- "selected.0" == "7"
+    "12 Gb", "", 0, #-- "selected.0" == "8"
+    "15 Gb", "", 0, #-- "selected.0" == "9"
+    "20 Gb", "", 0  #-- "selected.0" == "10"
+);
 
 ###################################################################################################################
 # Preferences setting print, red button to install
 #
+ini_set("text_next", "<~ready.install>");
+viewbox(
+    "<~ready.title>",
+    "<~ready.info>\n\n"+
+      "<~ready.print>\n"+
+      " <~ready.kernel> " + "" + "\n"+
+      " <~ready.rootfs> " + "" + ", <~ready.rootsize> " + "" + "\n"+
+      " <~ready.options>" + "\n"+
+        "  <~options.item1_title>"+
+        "  <~options.item2_title>"+
+        "  <~options.item3_title>\n\n"+
+      "<~ready.endinfo> <b><~ready.install></b> " + "<~ready.endinfo2>",
+    "@install"
+);
+
+ini_set("text_next", "<~text_next.default>");
+
+###################################################################################################################
+# INSTALLATION PROCESS
+#
+#setvar("retstatus",
+#  install(
+#    #-- Title
+#      "Installing",
+#    #-- Installation Process message
+#      "<b>"+ini_get("rom_name")+"</b> are being installed.\n\n"+
+#      "Please wait while installation wizard installs <b>"+ini_get("rom_name")+
+#      "</b>. This may take several minutes.",
+#    #-- Installation Icon
+#      "@install",
+#    #-- Installation Finish Message
+#      "The installation wizard has successfully installed <b>"+ini_get("rom_name")+
+#      "</b>. Press Next to continue."
+#  )
+#);
 
 ###################################################################################################################
 # Finish screen
 #
+ini_set("text_next", "Finish");
+checkviewbox(
+  #-- Title
+    "Installation Completed",
+  #-- Text
+    "<#selectbg_g><b>Congratulation...</b></#>\n\n"+
+    "<b>"+ini_get("rom_name")+"</b> has been installed into your device.\n\n"+
+    "Installer Status: "+getvar("retstatus")+"\n\n",
+  #-- Icon
+    "@welcome",
+  #-- Checkbox Text
+    "Reboot your device now.",
+  #-- Initial Checkbox value ( 0=unchecked, 1=checked ) -  (Optional, default:0)
+    "1",
+  #-- Save checked value in variable "reboot_it" (Optional)
+    "reboot_it"
+);
+
+# Check if reboot checkbox was checked
+if
+  getvar("reboot_it")=="1"
+then
+  reboot("onfinish");
+endif;
 
 #---- FINISH
