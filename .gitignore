@@ -2,3 +2,5 @@ source
 boot/img
 backup
 installer/*.zip
+installer/boot.blob
+installer/rootfs.tar.lzma

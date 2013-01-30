@@ -16,10 +16,10 @@ ini_set("rom_name",    "TF700 Dualboot Installer");
 ini_set("rom_version", "v0.8.0");
 ini_set("rom_author",  "rabits");
 ini_set("rom_device",  "Asus Transformer TF700/T");
-ini_set("rom_date",    "28/01/2013");
+ini_set("rom_date",    "30/01/2013");
 
 
-# Show Simple Splash
+# Show Splash
 splash(
     2000,
     "logo"
@@ -32,13 +32,13 @@ fontresload( "0", "ttf/Roboto-Regular.ttf;ttf/DroidSansArabic.ttf;ttf/DroidSansF
 # Set language
 #
 selectbox(
-    "Select Language",
+    "Select Language...",
     "Please select installer language:",
     "@default",
     "lang.prop",
   
     "English", "Welcome to Installer",          1, #-- "selected.0" == "1"
-    "Russian", "Добро пожаловать в установщик", 0  #-- "selected.0" == "2"
+    "Русский", "Добро пожаловать в установщик", 0  #-- "selected.0" == "2"
 );
 
 # SET LANGUAGE & FONT FAMILY
@@ -69,6 +69,19 @@ textbox(
     "<~welcome.next>"
 );
 
+
+###################################################################################################################
+# Test device
+#
+if sysprop("ro.product.device")!="tf700" then
+    if sysprop("ro.product.device")!="tf700t" then
+        alert(
+            "<~common.warning>",
+            "<~isnotokdevice.info1>" + sysprop("ro.product.device") + "<~isnotokdevice.info2>",
+            "@alert"
+        );
+    endif;
+endif;
 
 ###################################################################################################################
 # Some agreement
@@ -119,23 +132,25 @@ selectbox(
 ###################################################################################################################
 # Options
 # [] Use mmcblk0p8 as /home
-# [] Replace ubuntu user if image already present
 # [] Encrypt rootfs disk
 #
 checkbox(
-    "<~options.title>Select Main Mods",
+    "<~options.title>",
     "<~options.info>",
     "@update",
     "options.prop",
 
     "<~options.item1_title>", "<~options.item1_info>", 1, #-- item.1.1
-    "<~options.item2_title>", "<~options.item2_info>", 1, #-- item.1.2
-    "<~options.item3_title>", "<~options.item3_info>", 0, #-- item.1.3
+    "<~options.item2_title>", "<~options.item3_info>", 0  #-- item.1.3
 );
 
 ###################################################################################################################
 # Image size
 #
+setvar(
+    "resexec_retstatus2",
+    resexec("exec_demo/exec_demo2.sh")
+);
 selectbox(
     "<~rootsize.title>",
     "<~rootsize.info>",
@@ -159,15 +174,7 @@ selectbox(
 ini_set("text_next", "<~ready.install>");
 viewbox(
     "<~ready.title>",
-    "<~ready.info>\n\n"+
-      "<~ready.print>\n"+
-      " <~ready.kernel> " + "" + "\n"+
-      " <~ready.rootfs> " + "" + ", <~ready.rootsize> " + "" + "\n"+
-      " <~ready.options>" + "\n"+
-        "  <~options.item1_title>"+
-        "  <~options.item2_title>"+
-        "  <~options.item3_title>\n\n"+
-      "<~ready.endinfo> <b><~ready.install></b> " + "<~ready.endinfo2>",
+    "<~ready.info>\n\n<~ready.endinfo> <b><~ready.install></b> <~ready.endinfo2> <b><~text_back></b>.",
     "@install"
 );
 
@@ -197,19 +204,12 @@ ini_set("text_next", "<~text_next.default>");
 #
 ini_set("text_next", "Finish");
 checkviewbox(
-  #-- Title
-    "Installation Completed",
-  #-- Text
-    "<#selectbg_g><b>Congratulation...</b></#>\n\n"+
-    "<b>"+ini_get("rom_name")+"</b> has been installed into your device.\n\n"+
-    "Installer Status: "+getvar("retstatus")+"\n\n",
-  #-- Icon
+    "<~finish.title>",
+    "<#selectbg_g><b><~finish.congrat></b></#>\n\n"+
+    "<b>"+ini_get("rom_name")+"</b> <~finish.info>"+getvar("retstatus")+"\n\n",
     "@welcome",
-  #-- Checkbox Text
-    "Reboot your device now.",
-  #-- Initial Checkbox value ( 0=unchecked, 1=checked ) -  (Optional, default:0)
+    "<~finish.reboot>",
     "1",
-  #-- Save checked value in variable "reboot_it" (Optional)
     "reboot_it"
 );
 

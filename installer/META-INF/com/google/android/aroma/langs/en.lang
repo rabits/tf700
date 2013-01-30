@@ -12,16 +12,17 @@ text_quit_msg=Are you sure to quit the installer?
 
 #-- CUSTOM STRING RESOURCE
 common.for=for
+common.warning=Warning!
 
 welcome.title=Welcome
 welcome.text1=You are about to installing
 welcome.text2=Information about installer:
 welcome.version=VERSION
-welcome.updated=UPDATED
+welcome.updated=DATE   
 welcome.next=Press Next to Continue the Installation...
-welcome.multiline=Ubuntu 12.10 installation wizard for Asus Infinity Tab TF700/T happy to welcome you!\
+welcome.multiline=<b>Ubuntu 13.04</b> installation wizard for <b>Asus Infinity Tab TF700/T</b> happy to welcome you!\
 \
-In next screens you'll have to go a little way to choice of optimal parameters of your Ubuntu installation.\
+In next screens you'll have to go a little way to choice of optimal parameters of your Linux installation.\
 \
 At any time before you start of the installation process on the last screen of this installer, you can abort install without any impact to your device.\
 \
@@ -29,13 +30,16 @@ If you find any problem in installation or usage - please, contact with me via t
 \
 Thanks for supporting of my development.
 
+isnotokdevice.info1=Your device ('
+isnotokdevice.info2=') is not TF700/T! Continuing of installation can damage your device!
+
 terms.title=Terms and Conditions
 terms.desc=Please read carefully risk information below.
 terms.info=You use this software at you own risk!\
 <b>You can break your device</b>, trying to do this installation process, and you know it - so be careful and cautions.\
 If any problems occur, I'll try to help you with advice - but that's all.
-terms.check=I Agree with this Terms and Conditions...
-terms.confirm=Please check the agreement...
+terms.check=I Agree with this Terms and Conditions.
+terms.confirm=Please check the agreement.
 
 kernel.title=Select kernel configuration...
 kernel.info=Please, select need configuration of kernel. This configuration - is powersave modes.
@@ -57,10 +61,8 @@ options.title=Select additional options...
 options.info=This is some additional options of this installator
 options.item1_title=Use /dev/mmcblk0p8 as /home
 options.item1_info=Place your home directory into device main emmc memory (/data in Android)
-options.item2_title=Replace ubuntu user
-options.item2_info=Previous ubuntu home directory will be moved to /home/ubuntu_old
-options.item3_title=Encrypt Linux rootfs
-options.item3_info=Use luks cryptsetup to encrypt Linux rootfs disk
+options.item2_title=Encrypt Linux rootfs
+options.item2_info=Use luks cryptsetup to encrypt Linux rootfs disk
 
 rootsize.title=Select rootfs size...
 rootsize.info=Please select size of rootfs partition
@@ -68,11 +70,13 @@ rootsize.info=Please select size of rootfs partition
 ready.install=Install Now!
 ready.title=Ready to Install
 ready.info=The wizard is ready to begin installation.
-ready.print=Check your configuration:
-ready.kernel=Kernel config:
-ready.rootfs=Root device:
-ready.rootsize=Size:
-ready.options=Options:
 ready.endinfo=Press
 ready.endinfo2=to begin the installation.\
-If you want to review or change any of your installation settings, press <b>Back</b>.
+If you want to review or change any of your installation settings, press
+
+finish.title=Installation completed
+finish.congrat=Congratulation!
+finish.info=has been installed into your device\
+\
+Installer Status: 
+finish.reboot=Reboot your device now.

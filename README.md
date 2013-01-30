@@ -126,9 +126,10 @@ TODO
 8. Done. Device should boot your rootfs
 
 # Create installation package
-1. Create boot.blob - blobed kernel with initrd
-2. Create zip archive:
-  * $ cd installer && zip -r -9 installer.zip . --exclude \*.zip && cd ..
+1. Prepare boot.blob - blobed kernel with initrd
+2. Prepare rootfs archive
+3. Create zip archive:
+  * $ tools/prepare_installer.sh installer.zip rootfs.tar.lzma [boot.blob]
 
 # MISK
 
