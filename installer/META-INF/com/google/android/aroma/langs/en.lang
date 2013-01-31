@@ -16,9 +16,15 @@ common.warning=Warning!
 
 welcome.title=Welcome
 welcome.text1=You are about to installing
-welcome.text2=Information about installer:
-welcome.version=VERSION
-welcome.updated=DATE   
+welcome.installerinfo=Installer Info
+welcome.version=Version        
+welcome.updated=Date               
+welcome.deviceinfo=Device Info
+welcome.model=Model              
+welcome.name=Name               
+welcome.device=Device Name 
+welcome.board=Board Name  
+welcome.manufacturer=Manufacturer
 welcome.next=Press Next to Continue the Installation...
 welcome.multiline=<b>Ubuntu 13.04</b> installation wizard for <b>Asus Infinity Tab TF700/T</b> happy to welcome you!\
 \
@@ -26,7 +32,7 @@ In next screens you'll have to go a little way to choice of optimal parameters o
 \
 At any time before you start of the installation process on the last screen of this installer, you can abort install without any impact to your device.\
 \
-If you find any problem in installation or usage - please, contact with me via thread on XDA forum: <b>http://forum.xda-developers.com/showthread.php?t=2014759</b> or via email: <b>home.rabits@gmail.com</b>\
+If you find any problem in installation or usage - please, contact with me via thread on XDA forum: <b>http://forum.xda-developers.com/showthread.php?t=2014759</b> or via email: <b>home@rabits.org</b>\
 \
 Thanks for supporting of my development.
 
@@ -46,16 +52,17 @@ kernel.info=Please, select need configuration of kernel. This configuration - is
 
 rootfs.title=Rootfs destination...
 rootfs.info=Please select place that installer will prepare to setup Linux root file system
-rootfs.item1_title=/sdcard/linux-rootfs.img
 rootfs.item1_info=Virtual disk image file in userspace /dev/mmcblk0p8
-rootfs.item2_title=/dev/sda
 rootfs.item2_info=SDCard or USB-stick (dock)
-rootfs.item3_title=/dev/sdb
 rootfs.item3_info=SDCard or USB-stick (dock)
-rootfs.item4_title=/dev/mmcblk1
 rootfs.item4_info=microSDCard (in-device cardreader)
 rootfs.itemskip_title=Skip
 rootfs.itemskip_info=Do not prepare rootfs
+
+vdoptions.title=Select virtual disk options...
+vdoptions.info=This is virtual disk image options
+vdoptions.item1_title=Don't replace virtual disk image
+vdoptions.item1_info=Backup current /sdcard/linux-rootfs.img to /sdcard/linux-rootfs_old.img
 
 options.title=Select additional options...
 options.info=This is some additional options of this installator
@@ -78,5 +85,5 @@ finish.title=Installation completed
 finish.congrat=Congratulation!
 finish.info=has been installed into your device\
 \
-Installer Status: 
+Installer Status
 finish.reboot=Reboot your device now.

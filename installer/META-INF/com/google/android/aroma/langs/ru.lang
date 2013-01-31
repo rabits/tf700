@@ -15,17 +15,23 @@ common.warning=Внимание!
 
 welcome.title=Добро пожаловать
 welcome.text1=Вы собираетесь установить
-welcome.text2=Информация об установщике:
-welcome.version=ВЕРСИЯ
-welcome.updated=ДАТА  
-welcome.next=Нажмите Далее для продолжения установки...
+welcome.installerinfo=Информация об установщике
+welcome.version=Версия                  
+welcome.updated=Дата                        
+welcome.deviceinfo=Информация об устройстве
+welcome.model=Модель                  
+welcome.name=Название            
+welcome.device=Устройство          
+welcome.board=Плата                    
+welcome.manufacturer=Производитель
+welcome.next=Нажмите <b>Далее</b> для продолжения установки...
 welcome.multiline=Мастер установки <b>Ubuntu 13.04</b> для планшета <b>Asus Infinity Tab TF700/T</b> рад приветствовать вас!\
 \
 Далее вам предстоит пройти небольшой путь по выбору оптимальных параметров установки вашего Linux .\
 \
 В любой момент до запуска процесса установки на последнем экране установщика, вы сможете отказаться от установки без каких-либо последствий для своего устройтва.\
 \
-Если в процессе установки или использования вы обнаружите какие-либо проблемы - прошу связаться со мной через специализированный тред на форуме <b>http://forum.xda-developers.com/showthread.php?t=2014759</b> или через почту <b>home.rabits@gmail.com</b>\
+Если в процессе установки или использования вы обнаружите какие-либо проблемы - прошу связаться со мной через специализированный тред на форуме <b>http://forum.xda-developers.com/showthread.php?t=2014759</b> или через почту <b>home@rabits.org</b>\
 \
 Спасибо вам за поддержку в разработке.
 
@@ -45,16 +51,17 @@ kernel.info=Пожалуйста, выберите необходимую кон
 
 rootfs.title=Устройство корневой ФС...
 rootfs.info=Пожалуйста, выберите устройство на котором установщик подготовит корневую файловую систему.
-rootfs.item1_title=/sdcard/linux-rootfs.img
 rootfs.item1_info=Файл виртуального диска в пользовательском разделе /dev/mmcblk0p8
-rootfs.item2_title=/dev/sda
 rootfs.item2_info=SD-карта или USB-флешка (док-клавиатура)
-rootfs.item3_title=/dev/sdb
 rootfs.item3_info=SD-карта или USB-флешка (док-клавиатура)
-rootfs.item4_title=/dev/mmcblk1
 rootfs.item4_info=Микро SD-карта (кардридер планшета)
 rootfs.itemskip_title=Пропустить
 rootfs.itemskip_info=Не создавать корневую файловую систему
+
+vdoptions.title=Выберите опции виртуального диска...
+vdoptions.info=Это дополнительные опции виртуального диска
+vdoptions.item1_title=Не заменять существующий виртуальный диск
+vdoptions.item1_info=Переименовать существующий файл /sdcard/linux-rootfs.img в /sdcard/linux-rootfs_old.img
 
 options.title=Выберите дополнительные опции...
 options.info=Это дополнительные опции установщика
@@ -74,8 +81,8 @@ ready.endinfo2=для начала процесса установки.\
 Если вы хотите просмотреть или изменить параметры, нажмите кнопку
 
 finish.title=Установка завершена
-finish.congrat=Пряздрявляем!
+finish.congrat=Поздравляем!
 finish.info=был установлен на ваше устройство\
 \
-Статус установки: 
+Статус установки
 finish.reboot=Перезагрузить устройство сейчас.

@@ -23,6 +23,6 @@ echo "1 1 1 7" > /proc/sys/kernel/printk
 
 export init=/sbin/init
 export rootmnt=/root
-export indevice_rootfsfile="/data/media/tf700-rootfs-linux.img"
+export indevice_rootfsfile="/data/media/linux-rootfs.img"
 
 . /lib/multi/01-main_screen.sh
