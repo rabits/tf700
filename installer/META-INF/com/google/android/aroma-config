@@ -16,7 +16,7 @@ ini_set("rom_name",    "TF700 Dualboot Installer");
 ini_set("rom_version", "v0.8.0");
 ini_set("rom_author",  "rabits");
 ini_set("rom_device",  "Asus Transformer TF700/T");
-ini_set("rom_date",    "31/01/2013");
+ini_set("rom_date",    "02/02/2013");
 
 
 # Show Splash
@@ -136,24 +136,11 @@ selectbox(
 );
 
 ###################################################################################################################
-# VDOptions (only if use virtual disk)
-# [] Do not replace virtual disk image
-#
-if prop("rootfs.prop","selected.0")=="1" then
-    checkbox(
-        "<~vdoptions.title>",
-        "<~vdoptions.info>",
-        "@update",
-        "vdoptions.prop",
-
-        "<~vdoptions.item1_title>", "<~vdoptions.item1_info>", 1 #-- item.1.1
-    );
-endif;
-
-###################################################################################################################
 # Options
 # [] Use mmcblk0p8 as /home
 # [] Encrypt rootfs disk
+# - VD Suboptions
+# [] Do not replace virtual disk image
 #
 checkbox(
     "<~options.title>",
@@ -162,32 +149,43 @@ checkbox(
     "options.prop",
 
     "<~options.item1_title>", "<~options.item1_info>", 1, #-- item.1.1
-    "<~options.item2_title>", "<~options.item2_info>", 0  #-- item.1.2
+    "<~options.item2_title>", "<~options.item2_info>", 0, #-- item.1.2
+    "<~options.vd_title>", "<~options.vd_info>", iif(cmp("1","==", prop("rootfs.prop","selected.0")),2,3), #-- item.2
+    "<~options.vd_item1_title>", "<~options.vd_item1_info> /sdcard/linux/rootfs.img <~common.to> /sdcard/linux/rootfs-old.img", iif(cmp("1","==", prop("rootfs.prop","selected.0")),1,3) #-- item.2.1
 );
 
 ###################################################################################################################
 # Image size
 #
-#setvar(
-#    "_retstatus2",
-#    resexec("exec/.sh")
-#);
-selectbox(
-    "<~rootsize.title>",
-    "<~rootsize.info>",
-    "@default",
-    "rootsize.prop",
-    "3 Gb", "", 0,  #-- "selected.0" == "1"
-    "4 Gb", "", 0,  #-- "selected.0" == "2"
-    "5 Gb", "", 1,  #-- "selected.0" == "3"
-    "6 Gb", "", 0,  #-- "selected.0" == "4"
-    "7 Gb", "", 0,  #-- "selected.0" == "5"
-    "8 Gb", "", 0,  #-- "selected.0" == "6"
-    "10 Gb", "", 0, #-- "selected.0" == "7"
-    "12 Gb", "", 0, #-- "selected.0" == "8"
-    "15 Gb", "", 0, #-- "selected.0" == "9"
-    "20 Gb", "", 0  #-- "selected.0" == "10"
+setvar(
+    "available_space_retstatus",
+    resexec("exec/available_space.sh")
 );
+if cmp("3","<=", getvar("available_space_retstatus")) then
+    selectbox(
+        "<~rootsize.title>",
+        "<~rootsize.info>",
+        "@default",
+        "rootsize.prop",
+        "3 Gb", "",  1,  #-- "selected.0" == "1"
+        "4 Gb", "",  iif(cmp("4","<=", getvar("available_space_retstatus")),1,3),  #-- "selected.0" == "2"
+        "5 Gb", "",  iif(cmp("5","<=", getvar("available_space_retstatus")),1,3),  #-- "selected.0" == "3"
+        "6 Gb", "",  iif(cmp("6","<=", getvar("available_space_retstatus")),0,3),  #-- "selected.0" == "4"
+        "7 Gb", "",  iif(cmp("7","<=", getvar("available_space_retstatus")),0,3),  #-- "selected.0" == "5"
+        "8 Gb", "",  iif(cmp("8","<=", getvar("available_space_retstatus")),0,3),  #-- "selected.0" == "6"
+        "10 Gb", "", iif(cmp("10","<=", getvar("available_space_retstatus")),0,3), #-- "selected.0" == "7"
+        "12 Gb", "", iif(cmp("12","<=", getvar("available_space_retstatus")),0,3), #-- "selected.0" == "8"
+        "15 Gb", "", iif(cmp("15","<=", getvar("available_space_retstatus")),0,3), #-- "selected.0" == "9"
+        "20 Gb", "", iif(cmp("20","<=", getvar("available_space_retstatus")),0,3)  #-- "selected.0" == "10"
+    );
+else
+    alert(
+        "<~common.error>",
+        "<~nospaceavailable.info1> " + getvar("available_space_retstatus") + "Gb <~nospaceavailable.info2>" ,
+        "@alert"
+    );
+    back("7"); #-- Go back to device select
+endif;
 
 ###################################################################################################################
 # Preferences setting print, red button to install

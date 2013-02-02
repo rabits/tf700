@@ -12,7 +12,9 @@ text_quit_msg=Are you sure to quit the installer?
 
 #-- CUSTOM STRING RESOURCE
 common.for=for
+common.to=to
 common.warning=Warning!
+common.error=Error!
 
 welcome.title=Welcome
 welcome.text1=You are about to installing
@@ -59,17 +61,20 @@ rootfs.item4_info=microSDCard (in-device cardreader)
 rootfs.itemskip_title=Skip
 rootfs.itemskip_info=Do not prepare rootfs
 
-vdoptions.title=Select virtual disk options...
-vdoptions.info=This is virtual disk image options
-vdoptions.item1_title=Don't replace virtual disk image
-vdoptions.item1_info=Backup current /sdcard/linux-rootfs.img to /sdcard/linux-rootfs_old.img
-
 options.title=Select additional options...
 options.info=This is some additional options of this installator
 options.item1_title=Use /dev/mmcblk0p8 as /home
 options.item1_info=Place your home directory into device main emmc memory (/data in Android)
 options.item2_title=Encrypt Linux rootfs
 options.item2_info=Use luks cryptsetup to encrypt Linux rootfs disk
+
+options.vd_title=Virtual disk options...
+options.vd_info=Virtual disk image options
+options.vd_item1_title=Don't replace virtual disk image
+options.vd_item1_info=Backup current
+
+nospaceavailable.info1=You have only
+nospaceavailable.info2=in your selected disk. Installation required 3Gb as a minimum. Please, select different disk.
 
 rootsize.title=Select rootfs size...
 rootsize.info=Please select size of rootfs partition

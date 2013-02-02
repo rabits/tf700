@@ -11,7 +11,9 @@ text_quit_msg=Вы действительно хотите покинуть ус
 
 #-- CUSTOM STRING RESOURCE
 common.for=для
+common.to=в
 common.warning=Внимание!
+common.error=Ошибка!
 
 welcome.title=Добро пожаловать
 welcome.text1=Вы собираетесь установить
@@ -58,17 +60,20 @@ rootfs.item4_info=Микро SD-карта (кардридер планшета)
 rootfs.itemskip_title=Пропустить
 rootfs.itemskip_info=Не создавать корневую файловую систему
 
-vdoptions.title=Выберите опции виртуального диска...
-vdoptions.info=Это дополнительные опции виртуального диска
-vdoptions.item1_title=Не заменять существующий виртуальный диск
-vdoptions.item1_info=Переименовать существующий файл /sdcard/linux-rootfs.img в /sdcard/linux-rootfs_old.img
-
 options.title=Выберите дополнительные опции...
 options.info=Это дополнительные опции установщика
 options.item1_title=Использовать /dev/mmcblk0p8 как /home
 options.item1_info=Поместить домашнюю директорию пользователя в основную память устройства (/data в Android)
 options.item2_title=Зашифровать корневую ФС
 options.item2_info=Использовать luks cryptsetup для шифрования корневой файловой системы Linux
+
+options.vd_title=Виртуальный диск
+options.vd_info=Дополнительные опции виртуального диска
+options.vd_item1_title=Не заменять существующий виртуальный диск
+options.vd_item1_info=Переименовать существующий файл
+
+nospaceavailable.info1=У вас есть всего
+nospaceavailable.info2=на выбранном вами устройстве. Установа требует как минимум 3Gb свободного пространства на диске. Выберите другой носитель.
 
 rootsize.title=Размер корневой ФС...
 rootsize.info=Выберите размер раздела корневой файловой системы
