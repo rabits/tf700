@@ -57,10 +57,7 @@ TODO
 3. Unpack it to source/toolchain dir:
   * $ tar xvf gcc-linaro-arm-linux-gnueabihf-*.tar.bz2 --strip-components=1 -C source/toolchain
 4. Set need environment:
-  * $ export KERNEL_OUT=../out
-  * $ export MODULES_OUT=../out_modules
-  * $ export CROSS_COMPILE=../../toolchain/bin/arm-linux-gnueabihf-
-  * $ export ARCH=arm
+  * $ export KERNEL_OUT=../out MODULES_OUT=../out_modules CROSS_COMPILE=../../toolchain/bin/arm-linux-gnueabihf-  ARCH=arm
 5. Unpack it to source/kernel/src directory:
   * $ cd source/kernel/src
   * $ unrar x ../../10_4_4_20_kernel.rar
@@ -125,11 +122,19 @@ TODO
   * # fastboot boot boot/img/boot.img
 8. Done. Device should boot your rootfs
 
+# Build busybox
+1. $ git submodule update --init source/busybox/src
+2. $ cd source/busybox/src
+3. $ export KBUILD_OUTPUT=../out ARCH=arm CROSS_COMPILE=../../toolchain/bin/arm-linux-gnueabihf-
+4. $ make -j4 install
+5. $ cd ../../..
+
 # Create installation package
 1. Prepare boot.blob - blobed kernel with initrd
 2. Prepare rootfs archive
-3. Create zip archive:
-  * $ tools/prepare_installer.sh installer.zip rootfs.tar.lzma [boot.blob]
+3. Prepare busybox binary
+4. Create zip archive:
+  * $ tools/prepare_installer.sh installer.zip rootfs.tar.lzma
 
 # MISK
 

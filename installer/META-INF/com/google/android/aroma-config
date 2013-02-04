@@ -16,7 +16,7 @@ ini_set("rom_name",    "TF700 Dualboot Installer");
 ini_set("rom_version", "v0.8.0");
 ini_set("rom_author",  "rabits");
 ini_set("rom_device",  "Asus Transformer TF700/T");
-ini_set("rom_date",    "02/02/2013");
+ini_set("rom_date",    "04/02/2013");
 
 
 # Show Splash
@@ -24,6 +24,9 @@ splash(
     2000,
     "logo"
 );
+
+#-- Extract cool busybox to /tmp/aroma/busybox
+restotmp("exec/busybox","busybox");
 
 # Set Small Font to Support all fonts
 fontresload( "0", "ttf/Roboto-Regular.ttf;ttf/DroidSansArabic.ttf;ttf/DroidSansFallback.ttf;", "12" );
@@ -92,14 +95,21 @@ endif;
 ###################################################################################################################
 # Some agreement
 #
-agreebox(
+checkviewbox(
     "<~terms.title>",
-    "<~terms.desc>",
+    "<b><~terms.desc></b>\n<~terms.info>",
     "@license",
-    "<~terms.info>",
     "<~terms.check>",
-    "<~terms.confirm>"
+    "1",
+    "terms_agreed"
 );
+if getvar("terms_agreed")!="1" then
+    if confirm("<~terms.notconfirm.title>", "<~terms.notconfirm.info>", "@alert")=="yes" then
+        exit();
+    else
+        back("1")
+    endif;
+endif;
 
 
 ###################################################################################################################
@@ -123,45 +133,84 @@ selectbox(
 # * to msdcard mmcblk1
 # * do not install image
 #
+setvar(
+    "available_disks_retstatus",
+    resexec("exec/available_disks.sh")
+);
+writetmpfile(getvar("sdcard_location")+"linux-debug-available_disks.log", getvar("exec_buffer")+"\n\n<b>RETURN STATUS : "+getvar("resexec_retstatus"));
+
+if cmp("1","==", getvar("available_disks_retstatus")) then
+    alert(
+        "<~common.error>",
+        "<~nodiskavailable.info>",
+        "@alert"
+    );
+    back("6"); #-- Go back to device select
+endif;
+
 selectbox(
     "<~rootfs.title>",
     "<~rootfs.info>",
     "@default",
     "rootfs.prop",
-    "/sdcard/linux-rootfs.img", "<~rootfs.item1_info>", 1, #-- "selected.0" == "1"
-    "/dev/sda1",                "<~rootfs.item2_info>", 0, #-- "selected.0" == "2"
-    "/dev/sdb1",                "<~rootfs.item3_info>", 0, #-- "selected.0" == "3"
-    "/dev/mmcblk1p1",           "<~rootfs.item4_info>", 0, #-- "selected.0" == "4"
-    "<~rootfs.itemskip_title>", "<~rootfs.itemskip_info>", 0 #-- "selected.0" == "5"
+    #-- "selected.0" == "1"
+    "<~rootfs.itemskip_title>", "<~rootfs.itemskip_info>", 0,
+    #-- "selected.0" == "2" Used by "Options"
+    "/sdcard/linux-rootfs.img "+file_getprop("/tmp/available_disks.prop","available.mmcblk0p8.info")
+        +" ("+file_getprop("/tmp/available_disks.prop","available.mmcblk0p8")
+        +"Mb <~common.total>)", "<~rootfs.item1_info>", 1,
+    #-- "selected.0" == "?" Used by available_size.sh
+    "/dev/sda1"+file_getprop("/tmp/available_disks.prop","available.sda.info")
+        +" ("+file_getprop("/tmp/available_disks.prop","available.sda")
+        +"Mb <~common.total>)", "<~rootfs.item2_info>", iif(cmp("1","<=", file_getprop("/tmp/available_disks.prop","available.sda")),0,3),
+    #-- "selected.0" == "?" Used by available_size.sh
+    "/dev/sdb1"+file_getprop("/tmp/available_disks.prop","available.sdb.info")
+        +" ("+file_getprop("/tmp/available_disks.prop","available.sdb")
+        +"Mb <~common.total>)", "<~rootfs.item3_info>", iif(cmp("1","<=", file_getprop("/tmp/available_disks.prop","available.sdb")),0,3),
+    #-- "selected.0" == "?" Used by available_size.sh
+    "/dev/mmcblk1p1"+file_getprop("/tmp/available_disks.prop","available.mmcblk1.info")
+        +" ("+file_getprop("/tmp/available_disks.prop","available.mmcblk1")
+        +"Mb <~common.total>)", "<~rootfs.item4_info>", iif(cmp("1","<=", file_getprop("/tmp/available_disks.prop","available.mmcblk1")),0,3)
 );
 
-###################################################################################################################
-# Options
-# [] Use mmcblk0p8 as /home
-# [] Encrypt rootfs disk
-# - VD Suboptions
-# [] Do not replace virtual disk image
-#
-checkbox(
-    "<~options.title>",
-    "<~options.info>",
-    "@update",
-    "options.prop",
+if cmp("1","!=", prop("rootfs.prop","selected.0")) then
+    ###################################################################################################################
+    # Options
+    # [] Use mmcblk0p8 as /home
+    # [] Encrypt rootfs disk
+    # - VD Suboptions
+    # [] Do not replace virtual disk image
+    #
+    checkbox(
+        "<~options.title>",
+        "<~options.info>",
+        "@update",
+        "options.prop",
 
-    "<~options.item1_title>", "<~options.item1_info>", 1, #-- item.1.1
-    "<~options.item2_title>", "<~options.item2_info>", 0, #-- item.1.2
-    "<~options.vd_title>", "<~options.vd_info>", iif(cmp("1","==", prop("rootfs.prop","selected.0")),2,3), #-- item.2
-    "<~options.vd_item1_title>", "<~options.vd_item1_info> /sdcard/linux/rootfs.img <~common.to> /sdcard/linux/rootfs-old.img", iif(cmp("1","==", prop("rootfs.prop","selected.0")),1,3) #-- item.2.1
-);
+        "<~options.item1_title>", "<~options.item1_info>", 1, #-- item.0.1
+        "<~options.item2_title>", "<~options.item2_info>", 0, #-- item.0.2
+        "<~options.vd_title>", "<~options.vd_info>", iif(cmp("2","==", prop("rootfs.prop","selected.0")),2,3), #-- item.1
+        "<~options.vd_item1_title>", "<~options.vd_item1_info> /sdcard/linux/rootfs.img <~common.to> /sdcard/linux/rootfs-old.img", iif(cmp("2","==", prop("rootfs.prop","selected.0")),1,3) #-- item.1.1 used by exec/available_space.sh
+    );
 
-###################################################################################################################
-# Image size
-#
-setvar(
-    "available_space_retstatus",
-    resexec("exec/available_space.sh")
-);
-if cmp("3","<=", getvar("available_space_retstatus")) then
+    ###################################################################################################################
+    # Image size
+    #
+    setvar(
+        "available_space_retstatus",
+        resexec("exec/available_space.sh")
+    );
+    writetmpfile(getvar("sdcard_location")+"linux-debug-available_space.log", getvar("exec_buffer")+"\n\n<b>RETURN STATUS : "+getvar("resexec_retstatus"));
+
+    if cmp("3",">", getvar("available_space_retstatus")) then
+        alert(
+            "<~common.error>",
+            "<~nospaceavailable.info1> " + getvar("available_space_retstatus") + "Gb <~nospaceavailable.info2>",
+            "@alert"
+        );
+        back("2"); #-- Go back to device select
+    endif;
+
     selectbox(
         "<~rootsize.title>",
         "<~rootsize.info>",
@@ -178,13 +227,6 @@ if cmp("3","<=", getvar("available_space_retstatus")) then
         "15 Gb", "", iif(cmp("15","<=", getvar("available_space_retstatus")),0,3), #-- "selected.0" == "9"
         "20 Gb", "", iif(cmp("20","<=", getvar("available_space_retstatus")),0,3)  #-- "selected.0" == "10"
     );
-else
-    alert(
-        "<~common.error>",
-        "<~nospaceavailable.info1> " + getvar("available_space_retstatus") + "Gb <~nospaceavailable.info2>" ,
-        "@alert"
-    );
-    back("7"); #-- Go back to device select
 endif;
 
 ###################################################################################################################
@@ -202,21 +244,14 @@ ini_set("text_next", "<~text_next.default>");
 ###################################################################################################################
 # INSTALLATION PROCESS
 #
-#setvar("retstatus",
-#  install(
-#    #-- Title
-#      "Installing",
-#    #-- Installation Process message
-#      "<b>"+ini_get("rom_name")+"</b> are being installed.\n\n"+
-#      "Please wait while installation wizard installs <b>"+ini_get("rom_name")+
-#      "</b>. This may take several minutes.",
-#    #-- Installation Icon
-#      "@install",
-#    #-- Installation Finish Message
-#      "The installation wizard has successfully installed <b>"+ini_get("rom_name")+
-#      "</b>. Press Next to continue."
-#  )
-#);
+setvar("retstatus",
+  install(
+      "<~install.title>",
+      "<b>"+ini_get("rom_name")+"</b> <~install.info> (~10 <~common.min>)",
+      "@install",
+      "<~install.finish> <b>"+ini_get("rom_name")+"</b>. <~install.finish2> Next <~install.finish3>"
+  )
+);
 
 ###################################################################################################################
 # Finish screen

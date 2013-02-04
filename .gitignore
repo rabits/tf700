@@ -4,3 +4,4 @@ backup
 installer/*.zip
 installer/boot.blob
 installer/rootfs.tar.lzma
+installer/META-INF/com/google/android/aroma/exec/busybox

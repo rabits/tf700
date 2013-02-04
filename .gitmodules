@@ -1,3 +1,6 @@
 [submodule "tools/blobtools"]
 	path = tools/blobtools
 	url = git@github.com:AndroidRoot/BlobTools.git
+[submodule "source/busybox/src"]
+	path = source/busybox/src
+	url = git://git.busybox.net/busybox

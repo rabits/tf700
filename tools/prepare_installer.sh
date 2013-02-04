@@ -9,6 +9,7 @@
 OUTPUT="$1"
 ROOTFS="$2"
 BOOTBLOB="$3"
+BUSYBOX="$4"
 
 DIST_VER=$(git tag | tail -n1)
 DIST_DATE=$(date "+%d/%m/%Y")
@@ -25,6 +26,7 @@ else
 fi
 
 [ "x${BOOTBLOB}" = "x" ] && BOOTBLOB="boot/img/boot.blob"
+[ "x${BUSYBOX}" = "x" ] && BUSYBOX="source/busybox/out/_install/bin/busybox"
 
 if [ "x${OUTPUT}" = "x" ]; then
     echo "E: To create installer, please specify output file" 1>&2
@@ -34,25 +36,31 @@ fi
 touch "${OUTPUT}"
 if [ ! -w "${OUTPUT}" ]; then
     echo "E: To create installer, please specify writable output file, ${OUTPUT} - not found." 1>&2
-    echo "Usage: $0 <output_file.zip> <rootfs.tar.lzma> [boot.blob]" 1>&2
+    echo "Usage: $0 <output_file.zip> <rootfs.tar.lzma> [boot.blob] [busybox]" 1>&2
     rm -f "${OUTPUT}"
     exit 1
 fi
 rm -f "${OUTPUT}"
 if [ ! -r "${ROOTFS}" ]; then
     echo "E: To create installer, please specify readable rootfs file, ${ROOTFS} - not found." 1>&2
-    echo "Usage: $0 <output_file.zip> <rootfs.tar.lzma> [boot.blob]" 1>&2
+    echo "Usage: $0 <output_file.zip> <rootfs.tar.lzma> [boot.blob] [busybox]" 1>&2
     exit 1
 fi
 if [ ! -r "${BOOTBLOB}" ]; then
     echo "E: To create installer, please specify readable output file, ${BOOTBLOB} - not found." 1>&2
-    echo "Usage: $0 <output_file.zip> <rootfs.tar.lzma> [boot.blob]" 1>&2
+    echo "Usage: $0 <output_file.zip> <rootfs.tar.lzma> [boot.blob] [busybox]" 1>&2
+    exit 1
+fi
+if [ ! -r "${BUSYBOX}" ]; then
+    echo "E: To create installer, please specify readable output file, ${BUSYBOX} - not found." 1>&2
+    echo "Usage: $0 <output_file.zip> <rootfs.tar.lzma> [boot.blob] [busybox]" 1>&2
     exit 1
 fi
 
 OUTPUT=`readlink -f "${OUTPUT}"`
 ROOTFS=`readlink -f "${ROOTFS}"`
 BOOTBLOB=`readlink -f "${BOOTBLOB}"`
+BUSYBOX=`readlink -f "${BUSYBOX}"`
 
 
 echo "I: Preparing ${DIST_VER} installer zip: ${OUTPUT}"
@@ -68,6 +76,9 @@ ln -sf "${BOOTBLOB}" installer/boot.blob && echo " ok" || echo " fail"
 
 echo -n "I: Linking ${ROOTFS} as rootfs.tar.lzma file into archive..."
 ln -sf "${ROOTFS}" installer/rootfs.tar.lzma && echo " ok" || echo " fail"
+
+echo -n "I: Linking ${BUSYBOX} as busybox file into archive..."
+ln -sf "${BUSYBOX}" installer/META-INF/com/google/android/aroma/exec/busybox && echo " ok" || echo " fail"
 
 echo "I: Creating ${OUTPUT} zip installer file..."
 cd installer && zip -r -9 "${OUTPUT}" . --exclude \*.zip && echo " DONE" || echo " FAILED" ; cd ..

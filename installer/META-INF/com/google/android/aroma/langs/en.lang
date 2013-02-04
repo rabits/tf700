@@ -13,6 +13,8 @@ text_quit_msg=Are you sure to quit the installer?
 #-- CUSTOM STRING RESOURCE
 common.for=for
 common.to=to
+common.total=total
+common.min=min.
 common.warning=Warning!
 common.error=Error!
 
@@ -47,17 +49,20 @@ terms.info=You use this software at you own risk!\
 <b>You can break your device</b>, trying to do this installation process, and you know it - so be careful and cautions.\
 If any problems occur, I'll try to help you with advice - but that's all.
 terms.check=I Agree with this Terms and Conditions.
-terms.confirm=Please check the agreement.
+terms.notconfirm.title=Terms isn't agreed...
+terms.notconfirm.info=You didn't accept the conditions. Exit the installation wizard now?
 
 kernel.title=Select kernel configuration...
 kernel.info=Please, select need configuration of kernel. This configuration - is powersave modes.
 
+nodiskavailable.info=I can't find any available device to install rootfs. Please, check your system (mmcblk0p8) and other devices (sda, sdb, mmcblk1).
+
 rootfs.title=Rootfs destination...
 rootfs.info=Please select place that installer will prepare to setup Linux root file system
-rootfs.item1_info=Virtual disk image file in userspace /dev/mmcblk0p8
-rootfs.item2_info=SDCard or USB-stick (dock)
-rootfs.item3_info=SDCard or USB-stick (dock)
-rootfs.item4_info=microSDCard (in-device cardreader)
+rootfs.item1_info=Virtual disk image file in userspace /dev/mmcblk0p8.
+rootfs.item2_info=SDCard or USB-stick (dock). <b>Warning!</b> Installation process will remove all data from the device!
+rootfs.item3_info=SDCard or USB-stick (dock). <b>Warning!</b> Installation process will remove all data from the device!
+rootfs.item4_info=microSDCard (in-device cardreader). <b>Warning!</b> Installation process will remove all data from the device!
 rootfs.itemskip_title=Skip
 rootfs.itemskip_info=Do not prepare rootfs
 
@@ -85,6 +90,24 @@ ready.info=The wizard is ready to begin installation.
 ready.endinfo=Press
 ready.endinfo2=to begin the installation.\
 If you want to review or change any of your installation settings, press
+
+install.title=Installing...
+install.info=are being installed.\
+\
+Please wait while wizard processing installation. This may take several minutes
+install.finish=The installation wizard has successfully installed
+install.finish2=Press
+install.finish3=to continue
+
+process.intro=running.
+process.info=This will take a few minutes!
+process.bootimg.prepare=Preparing File System...
+process.bootimg.install=Installing boot image...
+process.bootimg.config=Kernel configuration
+process.bootimg.blob=Blob boot image
+process.bootimg.blobdone=...done
+process.rootfs.prepare=Installing linux root file system...
+process.done=All Done!
 
 finish.title=Installation completed
 finish.congrat=Congratulation!
