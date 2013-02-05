@@ -16,7 +16,7 @@ ini_set("rom_name",    "TF700 Dualboot Installer");
 ini_set("rom_version", "v0.8.0");
 ini_set("rom_author",  "rabits");
 ini_set("rom_device",  "Asus Transformer TF700/T");
-ini_set("rom_date",    "04/02/2013");
+ini_set("rom_date",    "05/02/2013");
 
 
 # Show Splash
@@ -97,10 +97,10 @@ endif;
 #
 checkviewbox(
     "<~terms.title>",
-    "<b><~terms.desc></b>\n<~terms.info>",
+    "<b><~terms.desc></b>\n\n<~terms.info>",
     "@license",
     "<~terms.check>",
-    "1",
+    "0",
     "terms_agreed"
 );
 if getvar("terms_agreed")!="1" then
