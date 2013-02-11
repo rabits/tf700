@@ -63,7 +63,6 @@ else
     echo "install.to=${diskdevice}" >> /tmp/install.prop
     echo "install.moveto=" >> /tmp/install.prop
     echo "install.available=${overall_space_available}" >> /tmp/install.prop
-    echo "install.moveto=" >> /tmp/install.prop
 fi
 
 # Get image size
