@@ -92,7 +92,8 @@ TODO
   * $ mv boot/img/boot.blob.new boot/img/boot.blob
 
 # Create rootfs on SD card
-TODO
+1. Name of rootfs archive file should start with "rootfs-" string
+2. You can use tar.lzma (by default), tar.gz, tar.bz2, tar.xz rootfs file extensions
 
 # Pack rootfs
 1. Copy rootfs from device to rootfs,img file:
@@ -131,10 +132,9 @@ TODO
 
 # Create installation package
 1. Prepare boot.blob - blobed kernel with initrd
-2. Prepare rootfs archive
-3. Prepare busybox binary
-4. Create zip archive:
-  * $ tools/prepare_installer.sh installer.zip rootfs.tar.lzma
+2. Prepare busybox binary
+3. Create zip archive:
+  * $ tools/prepare_installer.sh installer.zip
 
 # MISK
 

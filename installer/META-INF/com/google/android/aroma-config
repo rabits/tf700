@@ -16,8 +16,12 @@ ini_set("rom_name",    "TF700 Dualboot Installer");
 ini_set("rom_version", "v0.8.0");
 ini_set("rom_author",  "rabits");
 ini_set("rom_device",  "Asus Transformer TF700/T");
-ini_set("rom_date",    "05/02/2013");
+ini_set("rom_date",    "11/02/2013");
 
+setvar("terms_agreed", "0");
+
+# Set theme
+theme("miui");
 
 # Show Splash
 splash(
@@ -25,11 +29,12 @@ splash(
     "logo"
 );
 
-#-- Extract cool busybox to /tmp/aroma/busybox
+# Extract cool busybox to /tmp/aroma/busybox
 restotmp("exec/busybox","busybox");
 
-# Set Small Font to Support all fonts
-fontresload( "0", "ttf/Roboto-Regular.ttf;ttf/DroidSansArabic.ttf;ttf/DroidSansFallback.ttf;", "12" );
+# Set fonts
+fontresload( "0", "ttf/Roboto-Regular.ttf", "12" ); #-- "0" = Small Font
+fontresload( "1", "ttf/Roboto-Regular.ttf", "16" ); #-- "1" = Big Font
 
 ###################################################################################################################
 # Set language
@@ -52,9 +57,6 @@ endif;
 if prop("lang.prop","selected.0")=="2" then
   loadlang("langs/ru.lang");
 endif;
-
-fontresload( "0", "ttf/Roboto-Regular.ttf", "12" ); #-- "0" = Small Font
-fontresload( "1", "ttf/Roboto-Regular.ttf", "18" ); #-- "1" = Big Font
 
 ###################################################################################################################
 # Print welcome screen
@@ -97,10 +99,10 @@ endif;
 #
 checkviewbox(
     "<~terms.title>",
-    "<b><~terms.desc></b>\n\n<~terms.info>",
+    "<~terms.desc> <b><~text_next.default></b>\n\n<~terms.info>",
     "@license",
     "<~terms.check>",
-    "0",
+    getvar("terms_agreed"),
     "terms_agreed"
 );
 if getvar("terms_agreed")!="1" then
@@ -110,7 +112,6 @@ if getvar("terms_agreed")!="1" then
         back("1")
     endif;
 endif;
-
 
 ###################################################################################################################
 # Select kernel configuration
@@ -137,7 +138,7 @@ setvar(
     "available_disks_retstatus",
     resexec("exec/available_disks.sh")
 );
-writetmpfile(getvar("sdcard_location")+"linux-debug-available_disks.log", getvar("exec_buffer")+"\n\n<b>RETURN STATUS : "+getvar("resexec_retstatus"));
+write("/tmp/linux-debug-available_disks.log", getvar("exec_buffer")+"\n\nRETURN STATUS : "+getvar("available_disks_retstatus"));
 
 if cmp("1","==", getvar("available_disks_retstatus")) then
     alert(
@@ -145,7 +146,7 @@ if cmp("1","==", getvar("available_disks_retstatus")) then
         "<~nodiskavailable.info>",
         "@alert"
     );
-    back("6"); #-- Go back to device select
+    exit();
 endif;
 
 selectbox(
@@ -156,24 +157,41 @@ selectbox(
     #-- "selected.0" == "1"
     "<~rootfs.itemskip_title>", "<~rootfs.itemskip_info>", 0,
     #-- "selected.0" == "2" Used by "Options"
-    "/sdcard/linux-rootfs.img "+file_getprop("/tmp/available_disks.prop","available.mmcblk0p8.info")
+    "/sdcard/linux/rootfs.img "+file_getprop("/tmp/available_disks.prop","available.mmcblk0p8.info")
         +" ("+file_getprop("/tmp/available_disks.prop","available.mmcblk0p8")
         +"Mb <~common.total>)", "<~rootfs.item1_info>", 1,
     #-- "selected.0" == "?" Used by available_size.sh
-    "/dev/sda1"+file_getprop("/tmp/available_disks.prop","available.sda.info")
+    "/dev/sda1 "+file_getprop("/tmp/available_disks.prop","available.sda.info")
         +" ("+file_getprop("/tmp/available_disks.prop","available.sda")
         +"Mb <~common.total>)", "<~rootfs.item2_info>", iif(cmp("1","<=", file_getprop("/tmp/available_disks.prop","available.sda")),0,3),
     #-- "selected.0" == "?" Used by available_size.sh
-    "/dev/sdb1"+file_getprop("/tmp/available_disks.prop","available.sdb.info")
+    "/dev/sdb1 "+file_getprop("/tmp/available_disks.prop","available.sdb.info")
         +" ("+file_getprop("/tmp/available_disks.prop","available.sdb")
         +"Mb <~common.total>)", "<~rootfs.item3_info>", iif(cmp("1","<=", file_getprop("/tmp/available_disks.prop","available.sdb")),0,3),
     #-- "selected.0" == "?" Used by available_size.sh
-    "/dev/mmcblk1p1"+file_getprop("/tmp/available_disks.prop","available.mmcblk1.info")
+    "/dev/mmcblk1p1 "+file_getprop("/tmp/available_disks.prop","available.mmcblk1.info")
         +" ("+file_getprop("/tmp/available_disks.prop","available.mmcblk1")
         +"Mb <~common.total>)", "<~rootfs.item4_info>", iif(cmp("1","<=", file_getprop("/tmp/available_disks.prop","available.mmcblk1")),0,3)
 );
 
-if cmp("1","!=", prop("rootfs.prop","selected.0")) then
+if cmp("1","==", prop("rootfs.prop","selected.0")) then
+    # Write install.prop file to prevent hang on skip
+    write("/tmp/install.prop",
+        "install.rootfs_name=\n"+
+        "install.rootfs_dev=\n"+
+        "install.disk=\n"+
+        "install.to=\n"+
+        "install.moveto=\n"+
+        "install.rootsize=\n"
+    );
+
+    # Write options.prop tmp file to prevent hang on skip
+    writetmpfile("options.prop",
+        "item.0.1=1\n"+
+        "item.0.2=0\n"+
+        "item.1.1=1\n"
+    );
+else
     ###################################################################################################################
     # Options
     # [] Use mmcblk0p8 as /home
@@ -188,7 +206,8 @@ if cmp("1","!=", prop("rootfs.prop","selected.0")) then
         "options.prop",
 
         "<~options.item1_title>", "<~options.item1_info>", 1, #-- item.0.1
-        "<~options.item2_title>", "<~options.item2_info>", 0, #-- item.0.2
+#       TODO: Not implemented yet
+#        "<~options.item2_title>", "<~options.item2_info>", 0, #-- item.0.2
         "<~options.vd_title>", "<~options.vd_info>", iif(cmp("2","==", prop("rootfs.prop","selected.0")),2,3), #-- item.1
         "<~options.vd_item1_title>", "<~options.vd_item1_info> /sdcard/linux/rootfs.img <~common.to> /sdcard/linux/rootfs-old.img", iif(cmp("2","==", prop("rootfs.prop","selected.0")),1,3) #-- item.1.1 used by exec/available_space.sh
     );
@@ -200,7 +219,7 @@ if cmp("1","!=", prop("rootfs.prop","selected.0")) then
         "available_space_retstatus",
         resexec("exec/available_space.sh")
     );
-    writetmpfile(getvar("sdcard_location")+"linux-debug-available_space.log", getvar("exec_buffer")+"\n\n<b>RETURN STATUS : "+getvar("resexec_retstatus"));
+    write("/tmp/linux-debug-available_space.log", getvar("exec_buffer")+"\n\nRETURN STATUS : "+getvar("available_space_retstatus"));
 
     if cmp("3",">", getvar("available_space_retstatus")) then
         alert(
@@ -227,6 +246,78 @@ if cmp("1","!=", prop("rootfs.prop","selected.0")) then
         "15 Gb", "", iif(cmp("15","<=", getvar("available_space_retstatus")),0,3), #-- "selected.0" == "9"
         "20 Gb", "", iif(cmp("20","<=", getvar("available_space_retstatus")),0,3)  #-- "selected.0" == "10"
     );
+    setvar(
+        "root_size_retstatus",
+        resexec("exec/root_size.sh")
+    );
+
+    ###################################################################################################################
+    # Select rootfs source archive file
+    #
+    setvar(
+        "available_rootfs_retstatus",
+        resexec("exec/available_rootfs.sh")
+    );
+    write("/tmp/linux-debug-available_rootfs.log", getvar("exec_buffer")+"\n\nRETURN STATUS : "+getvar("available_rootfs_retstatus"));
+
+    if cmp("0","==", getvar("available_rootfs_retstatus")) then
+        alert(
+            "<~common.error>",
+            "<~rootfs_source.notavailable> 'rootfs-' <~rootfs_source.notavailable2> '.tar.lzma', '.tar.bz2', '.tar.gz' <~common.or> '.tar.xz') <~rootfs_source.notavailable3>",
+            "@alert"
+        );
+        back("2");
+    else
+        if cmp("1","==", getvar("available_rootfs_retstatus")) then
+            alert(
+                "<~common.info>",
+                "<~rootfs_source.oneavailable> '"+file_getprop("/tmp/available_rootfs.prop","available.rootfs1.name")+"' ("
+                    +file_getprop("/tmp/available_rootfs.prop","available.rootfs1.size")+") <~common.on> "
+                    +file_getprop("/tmp/available_rootfs.prop","available.rootfs1.disk")+" <~rootfs_source.oneavailable2>",
+                "@alert"
+            );
+            write("/tmp/aroma-data/rootfs_source.prop", "selected.0=1");
+        else
+            selectbox(
+                "<~rootfs_source.title>",
+                "<~rootfs_source.info>",
+                "@default",
+                "rootfs_source.prop",
+                #-- "selected.0" == "1"
+                file_getprop("/tmp/available_rootfs.prop","available.rootfs1.name")+" ("+file_getprop("/tmp/available_rootfs.prop","available.rootfs1.size")
+                    +"Mb)", file_getprop("/tmp/available_rootfs.prop","available.rootfs1.disk"), 1,
+                #-- "selected.0" == "2"
+                file_getprop("/tmp/available_rootfs.prop","available.rootfs2.name")+" ("+file_getprop("/tmp/available_rootfs.prop","available.rootfs2.size")
+                    +"Mb)", file_getprop("/tmp/available_rootfs.prop","available.rootfs2.disk"), iif(cmp("1","<=", file_getprop("/tmp/available_rootfs.prop","available.rootfs2.size")),0,3),
+                #-- "selected.0" == "3"
+                file_getprop("/tmp/available_rootfs.prop","available.rootfs3.name")+" ("+file_getprop("/tmp/available_rootfs.prop","available.rootfs3.size")
+                    +"Mb)", file_getprop("/tmp/available_rootfs.prop","available.rootfs3.disk"), iif(cmp("1","<=", file_getprop("/tmp/available_rootfs.prop","available.rootfs3.size")),0,3),
+                #-- "selected.0" == "4"
+                file_getprop("/tmp/available_rootfs.prop","available.rootfs4.name")+" ("+file_getprop("/tmp/available_rootfs.prop","available.rootfs4.size")
+                    +"Mb)", file_getprop("/tmp/available_rootfs.prop","available.rootfs4.disk"), iif(cmp("1","<=", file_getprop("/tmp/available_rootfs.prop","available.rootfs4.size")),0,3),
+                #-- "selected.0" == "5"
+                file_getprop("/tmp/available_rootfs.prop","available.rootfs5.name")+" ("+file_getprop("/tmp/available_rootfs.prop","available.rootfs5.size")
+                    +"Mb)", file_getprop("/tmp/available_rootfs.prop","available.rootfs5.disk"), iif(cmp("1","<=", file_getprop("/tmp/available_rootfs.prop","available.rootfs5.size")),0,3),
+                #-- "selected.0" == "6"
+                file_getprop("/tmp/available_rootfs.prop","available.rootfs6.name")+" ("+file_getprop("/tmp/available_rootfs.prop","available.rootfs6.size")
+                    +"Mb)", file_getprop("/tmp/available_rootfs.prop","available.rootfs6.disk"), iif(cmp("1","<=", file_getprop("/tmp/available_rootfs.prop","available.rootfs6.size")),0,3),
+                #-- "selected.0" == "7"
+                file_getprop("/tmp/available_rootfs.prop","available.rootfs7.name")+" ("+file_getprop("/tmp/available_rootfs.prop","available.rootfs7.size")
+                    +"Mb)", file_getprop("/tmp/available_rootfs.prop","available.rootfs7.disk"), iif(cmp("1","<=", file_getprop("/tmp/available_rootfs.prop","available.rootfs7.size")),0,3),
+                #-- "selected.0" == "8"
+                file_getprop("/tmp/available_rootfs.prop","available.rootfs8.name")+" ("+file_getprop("/tmp/available_rootfs.prop","available.rootfs8.size")
+                    +"Mb)", file_getprop("/tmp/available_rootfs.prop","available.rootfs8.disk"), iif(cmp("1","<=", file_getprop("/tmp/available_rootfs.prop","available.rootfs8.size")),0,3),
+                #-- "selected.0" == "9"
+                file_getprop("/tmp/available_rootfs.prop","available.rootfs9.name")+" ("+file_getprop("/tmp/available_rootfs.prop","available.rootfs9.size")
+                    +"Mb)", file_getprop("/tmp/available_rootfs.prop","available.rootfs9.disk"), iif(cmp("1","<=", file_getprop("/tmp/available_rootfs.prop","available.rootfs9.size")),0,3)
+            );
+        endif;
+        setvar(
+            "selected_rootfs_retstatus",
+            resexec("exec/selected_rootfs.sh")
+        );
+        write("/tmp/linux-debug-selected_rootfs.log", getvar("exec_buffer")+"\n\nRETURN STATUS : "+getvar("selected_rootfs_retstatus"));
+    endif;
 endif;
 
 ###################################################################################################################
@@ -235,7 +326,18 @@ endif;
 ini_set("text_next", "<~ready.install>");
 viewbox(
     "<~ready.title>",
-    "<~ready.info>\n\n<~ready.endinfo> <b><~ready.install></b> <~ready.endinfo2> <b><~text_back></b>.",
+    "<~ready.info>\n\n"+iif(cmp("1","!=", prop("rootfs.prop","selected.0")),
+        "<b><~ready.params></b>:"
+            +"\n  <~ready.rootfs>\t: <#selectbg_g>'"+file_getprop("/tmp/install.prop","install.rootfs_name")+"' ("+file_getprop("/tmp/install.prop","install.rootfs_dev")+")</#>"
+            +"\n  <~ready.install_disk>\t: <#selectbg_g>"+file_getprop("/tmp/install.prop","install.disk")+"</#>"
+            +"\n  <~ready.install_path>\t: <#selectbg_g>"+file_getprop("/tmp/install.prop","install.to")+"</#>"
+            +iif(cmp("1","==", prop("options.prop","item.1.1")), "\n  <~ready.install_oldmove>\t: <#selectbg_g>"+file_getprop("/tmp/install.prop","install.moveto")+"</#>", "")
+            +"\n  <~ready.install_size>\t: <#selectbg_g>"+file_getprop("/tmp/install.prop","install.rootsize")+"Gb</#>"
+            +"\n  <~ready.home_separate>\t: <#selectbg_g>"+iif(cmp("1","==", prop("options.prop","item.0.1")), "<~ready.home_separated>", "<~ready.home_notseparated>")+"</#>"
+#            TODO: Not implemented yet
+#            +"\n  <b><~ready.root_encrypt></b>\t: <#selectbg_g>"+iif(prop("options.prop","item.0.2"), "<~ready.root_encrypted>", "<~ready.root_notencrypted>")+"</#>"
+        , "<b><~ready.skiprootinstall></b>.")
+    +"\n\n<~ready.endinfo> <b><~ready.install></b> <~ready.endinfo2> <b><~text_back></b>.",
     "@install"
 );
 

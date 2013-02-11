@@ -12,15 +12,18 @@ for disk in mmcblk0p8 sda sdb mmcblk1; do
     disksize=$(grep "${disk}$" /proc/partitions | awk '{print $3}')
     if [ "x${disksize}" != "x" ]; then
         echo "Found ${disk}, size ${disksize}Kb"
-        diskvendor=""
-        diskmodel=""
         # Disk size in Mb!
         echo "available.${disk}=$($bb expr ${disksize} / 1024)" >> /tmp/available_disks.prop
         echo "${disk}" >> /tmp/available_disks.list
-        [ -e "/sys/class/block/${disk}/device/vendor" ] && diskvendor=$(cat "/sys/class/block/${disk}/device/vendor")
-        [ -e "/sys/class/block/${disk}/device/model" ] && diskmodel=$(cat "/sys/class/block/${disk}/device/model")
-        [ "x${diskvendor} ${diskmodel}" != "x " ] && echo "available.${disk}.info='${diskvendor} ${diskmodel}'" >> /tmp/available_disks.prop
-        echo "Writed ${disk} to prop"
+        diskinfo=""
+        [ "x${disk}" = "xmmcblk0p8" ] && device="mmcblk0" || device="${disk}"
+        [ -e "/sys/class/block/${device}/device/name" ]   && diskinfo="${diskinfo} $(cat "/sys/class/block/${device}/device/name")"
+        [ -e "/sys/class/block/${device}/device/type" ]   && diskinfo="${diskinfo} $(cat "/sys/class/block/${device}/device/type")"
+        [ -e "/sys/class/block/${device}/device/vendor" ] && diskinfo="${diskinfo} $(cat "/sys/class/block/${device}/device/vendor")"
+        [ -e "/sys/class/block/${device}/device/model" ]  && diskinfo="${diskinfo} $(cat "/sys/class/block/${device}/device/model")"
+        diskinfo=$(echo "${diskinfo}" | tr -s "[:space:]" | sed 's/^[ \t]*//;s/[ \t]*$//') 
+        [ "x${diskinfo}" != "x" ] && echo "available.${disk}.info='${diskinfo}'" >> /tmp/available_disks.prop
+        echo "Writed ${disk} (${diskinfo}) to prop"
         out=0
     fi
 done

@@ -13,13 +13,16 @@ text_quit_msg=Вы действительно хотите покинуть ус
 #-- CUSTOM STRING RESOURCE
 common.for=для
 common.to=в
+common.or=или
+common.on=на
 common.total=всего
 common.min=мин.
+common.info=Информация
 common.warning=Внимание!
-common.error=Ошибка!
+common.error=Ощибка!!!
 
 welcome.title=Добро пожаловать
-welcome.text1=Вы собираетесь установить
+welcome.text1=Вы собираетесь установить Linux при помощи
 welcome.installerinfo=Информация об установщике
 welcome.version=Версия                  
 welcome.updated=Дата                        
@@ -30,7 +33,7 @@ welcome.device=Устройство
 welcome.board=Плата                    
 welcome.manufacturer=Производитель
 welcome.next=Нажмите <b>Далее</b> для продолжения установки...
-welcome.multiline=Мастер установки <b>Ubuntu 13.04</b> для планшета <b>Asus Infinity Tab TF700/T</b> рад приветствовать вас!\
+welcome.multiline=Мастер установки <b>Linux</b> для планшета <b>Asus Infinity Tab TF700/T</b> рад приветствовать вас!\
 \
 Далее вам предстоит пройти небольшой путь по выбору оптимальных параметров установки вашего Linux .\
 \
@@ -44,7 +47,10 @@ isnotokdevice.info1=Ваше устройство ('
 isnotokdevice.info2=') не является TF700/T! Продолжение установки может повлечь необратимую порчу устройства!
 
 terms.title=Важная информация
-terms.desc=Пожалуйста внимательно прочитайте условия использования установщика.
+terms.desc=\
+Пожалуйста, внимательно прочитайте условия использования программы.\
+\
+Если вы хотите покинуть установщик - снимите флажок и нажмите
 terms.info=Вы используете это ПО на свой страх и риск!\
 <b>Вы можете испортить свое устройство</b>, пытаясь совершить установку, и вы об этом знаете - так что будьте внимательны и осторожны.\
 Я, конечно, постараюсь помочь советом в случае возникновения проблем - но не более.
@@ -84,12 +90,34 @@ nospaceavailable.info2=на выбранном вами устройстве. У
 rootsize.title=Размер корневой ФС...
 rootsize.info=Выберите размер раздела корневой файловой системы
 
+rootfs_source.notavailable=Архив с корневой ФС не найден ни на одном носителе (внутренней памяти /sdcard, SD-кардридерах и USB-накопителях).\
+Пожалуйста, скопируйте файл (имя файла должно начинаться с
+rootfs_source.notavailable2=и расширение должно быть
+rootfs_source.notavailable3=, содержащий корневую файловую систему Linux на внутренний или внешний накопитель и попробуйте снова.
+rootfs_source.oneavailable=Найден один архив с корневой файловой системой
+rootfs_source.oneavailable2=носителе. Он будет использован для установки корневой файловой системы Linux
+rootfs_source.title=Выберите установочный архив...
+rootfs_source.info=Пожалуйста, выберите нужный архив с корневой файловой системой Linux, который будет использован при установке.
+
 ready.install=Установить!
-ready.title=Готов к установке
-ready.info=Установщик готов у началу установки системы
+ready.title=Все готово для установки
+ready.info=Установщик готов к началу установки системы
+ready.params=Пожалуйста, проверьте параметры установки:
+ready.rootfs=Архив с rootfs                    
+ready.install_disk=Устройство назначения
+ready.install_path=Путь назначения             
+ready.install_oldmove=Бекап старой rootfs в        
+ready.install_size=Размер диска                    
+ready.home_separate=Отделить /home                
+ready.home_separated=Да, в /dev/mmcblk0p8
+ready.home_notseparated=Нет
+ready.root_encrypt=Зашифровать диск
+ready.root_encrypted=Да
+ready.root_notencrypted=Нет
+ready.skiprootinstall=Во время установки корневая файловая система Linux установлена не будет. Только загрузочный образ (вместе с ядром) будет заменен
 ready.endinfo=Нажмите кнопку
 ready.endinfo2=для начала процесса установки.\
-Если вы хотите просмотреть или изменить параметры, нажмите кнопку
+Если вы хотите изменить параметры, нажмите кнопку
 
 install.title=Установка...
 install.info=будет установлен.\
@@ -109,9 +137,9 @@ process.bootimg.blobdone=...ок
 process.rootfs.prepare=Установка корневой файловой системы linux...
 process.done=Порядок!
 
-finish.title=Установка завершена
+finish.title=Установка завершена!
 finish.congrat=Поздравляем!
-finish.info=был установлен на ваше устройство\
+finish.info=закончил установку Linux на ваше устройство.\
 \
 Статус установки
 finish.reboot=Перезагрузить устройство сейчас.

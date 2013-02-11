@@ -7,7 +7,6 @@
 #
 
 OUTPUT="$1"
-ROOTFS="$2"
 BOOTBLOB="$3"
 BUSYBOX="$4"
 
@@ -30,35 +29,29 @@ fi
 
 if [ "x${OUTPUT}" = "x" ]; then
     echo "E: To create installer, please specify output file" 1>&2
-    echo "Usage: $0 <output_file.tar.lzma>" 1>&2
+    echo "Usage: $0 <output_file.zip>" 1>&2
     exit 1
 fi
 touch "${OUTPUT}"
 if [ ! -w "${OUTPUT}" ]; then
     echo "E: To create installer, please specify writable output file, ${OUTPUT} - not found." 1>&2
-    echo "Usage: $0 <output_file.zip> <rootfs.tar.lzma> [boot.blob] [busybox]" 1>&2
+    echo "Usage: $0 <output_file.zip> [boot.blob] [busybox]" 1>&2
     rm -f "${OUTPUT}"
     exit 1
 fi
 rm -f "${OUTPUT}"
-if [ ! -r "${ROOTFS}" ]; then
-    echo "E: To create installer, please specify readable rootfs file, ${ROOTFS} - not found." 1>&2
-    echo "Usage: $0 <output_file.zip> <rootfs.tar.lzma> [boot.blob] [busybox]" 1>&2
-    exit 1
-fi
 if [ ! -r "${BOOTBLOB}" ]; then
     echo "E: To create installer, please specify readable output file, ${BOOTBLOB} - not found." 1>&2
-    echo "Usage: $0 <output_file.zip> <rootfs.tar.lzma> [boot.blob] [busybox]" 1>&2
+    echo "Usage: $0 <output_file.zip> [boot.blob] [busybox]" 1>&2
     exit 1
 fi
 if [ ! -r "${BUSYBOX}" ]; then
     echo "E: To create installer, please specify readable output file, ${BUSYBOX} - not found." 1>&2
-    echo "Usage: $0 <output_file.zip> <rootfs.tar.lzma> [boot.blob] [busybox]" 1>&2
+    echo "Usage: $0 <output_file.zip> [boot.blob] [busybox]" 1>&2
     exit 1
 fi
 
 OUTPUT=`readlink -f "${OUTPUT}"`
-ROOTFS=`readlink -f "${ROOTFS}"`
 BOOTBLOB=`readlink -f "${BOOTBLOB}"`
 BUSYBOX=`readlink -f "${BUSYBOX}"`
 
@@ -73,9 +66,6 @@ sed -i "s|ini_set(\"rom_version\".*|ini_set(\"rom_version\", \"${DIST_VER}\");|g
 
 echo -n "I: Linking ${BOOTBLOB} as boot.blob file into archive..."
 ln -sf "${BOOTBLOB}" installer/boot.blob && echo " ok" || echo " fail"
-
-echo -n "I: Linking ${ROOTFS} as rootfs.tar.lzma file into archive..."
-ln -sf "${ROOTFS}" installer/rootfs.tar.lzma && echo " ok" || echo " fail"
 
 echo -n "I: Linking ${BUSYBOX} as busybox file into archive..."
 ln -sf "${BUSYBOX}" installer/META-INF/com/google/android/aroma/exec/busybox && echo " ok" || echo " fail"

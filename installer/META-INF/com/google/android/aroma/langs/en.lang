@@ -13,13 +13,16 @@ text_quit_msg=Are you sure to quit the installer?
 #-- CUSTOM STRING RESOURCE
 common.for=for
 common.to=to
+common.or=or
+common.on=on
 common.total=total
 common.min=min.
+common.info=Info
 common.warning=Warning!
-common.error=Error!
+common.error=Error!!!
 
 welcome.title=Welcome
-welcome.text1=You are about to installing
+welcome.text1=You are about to installing Linux by
 welcome.installerinfo=Installer Info
 welcome.version=Version        
 welcome.updated=Date               
@@ -29,8 +32,8 @@ welcome.name=Name
 welcome.device=Device Name 
 welcome.board=Board Name  
 welcome.manufacturer=Manufacturer
-welcome.next=Press Next to Continue the Installation...
-welcome.multiline=<b>Ubuntu 13.04</b> installation wizard for <b>Asus Infinity Tab TF700/T</b> happy to welcome you!\
+welcome.next=Press <b>Next</b> to Continue the Installation...
+welcome.multiline=<b>Linux</b> installation wizard for <b>Asus Infinity Tab TF700/T</b> happy to welcome you!\
 \
 In next screens you'll have to go a little way to choice of optimal parameters of your Linux installation.\
 \
@@ -44,7 +47,10 @@ isnotokdevice.info1=Your device ('
 isnotokdevice.info2=') is not TF700/T! Continuing of installation can damage your device!
 
 terms.title=Terms and Conditions
-terms.desc=Please read carefully risk information below.
+terms.desc=\
+Please read carefully risk information below.\
+\
+If you want to leave the installer - uncheck the checkbox and press
 terms.info=You use this software at you own risk!\
 <b>You can break your device</b>, trying to do this installation process, and you know it - so be careful and cautions.\
 If any problems occur, I'll try to help you with advice - but that's all.
@@ -60,9 +66,9 @@ nodiskavailable.info=I can't find any available device to install rootfs. Please
 rootfs.title=Rootfs destination...
 rootfs.info=Please select place that installer will prepare to setup Linux root file system
 rootfs.item1_info=Virtual disk image file in userspace /dev/mmcblk0p8.
-rootfs.item2_info=SDCard or USB-stick (dock). <b>Warning!</b> Installation process will remove all data from the device!
-rootfs.item3_info=SDCard or USB-stick (dock). <b>Warning!</b> Installation process will remove all data from the device!
-rootfs.item4_info=microSDCard (in-device cardreader). <b>Warning!</b> Installation process will remove all data from the device!
+rootfs.item2_info=SD Card or USB-stick (dock). <b>Warning!</b> Installation process will remove all data from the device!
+rootfs.item3_info=SD Card or USB-stick (dock). <b>Warning!</b> Installation process will remove all data from the device!
+rootfs.item4_info=MicroSD Card (in-device cardreader). <b>Warning!</b> Installation process will remove all data from the device!
 rootfs.itemskip_title=Skip
 rootfs.itemskip_info=Do not prepare rootfs
 
@@ -84,12 +90,34 @@ nospaceavailable.info2=in your selected disk. Installation required 3Gb as a min
 rootsize.title=Select rootfs size...
 rootsize.info=Please select size of rootfs partition
 
+rootfs_source.notavailable=Rootfs archive not found on any media (internal /sdcard, SD-cardriders and USB-media).\
+Please, copy rootfs archive file (with name starts with
+rootfs_source.notavailable2=and the extension is
+rootfs_source.notavailable3=to internal or external storage and try again.
+rootfs_source.oneavailable=Found one rootfs archive
+rootfs_source.oneavailable2=storage. It will be used to installing Linux root file system.
+rootfs_source.title=Select rootfs archive...
+rootfs_source.info=Please, select need Linux root filesystem archive to use it in rootfs installation process.
+
 ready.install=Install Now!
 ready.title=Ready to Install
 ready.info=The wizard is ready to begin installation.
+ready.params=Please check installation params
+ready.rootfs=Rootfs archive    
+ready.install_disk=Target device        
+ready.install_path=Target path            
+ready.install_oldmove=Old rootfs backup
+ready.install_size=Root size               
+ready.home_separate=Separate /home    
+ready.home_separated=Yeah, to /dev/mmcblk0p8
+ready.home_notseparated=No
+ready.root_encrypt=Encrypt root    
+ready.root_encrypted=Yes
+ready.root_notencrypted=No
+ready.skiprootinstall=During the installation Linux rootfs will not be installed. Only the boot image (with the kernel) will be replaced
 ready.endinfo=Press
 ready.endinfo2=to begin the installation.\
-If you want to review or change any of your installation settings, press
+If you want to change any of your installation settings, press
 
 install.title=Installing...
 install.info=are being installed.\
@@ -109,9 +137,9 @@ process.bootimg.blobdone=...done
 process.rootfs.prepare=Installing linux root file system...
 process.done=All Done!
 
-finish.title=Installation completed
+finish.title=Installation completed!
 finish.congrat=Congratulation!
-finish.info=has been installed into your device\
+finish.info=installed Linux into your device.\
 \
 Installer Status
 finish.reboot=Reboot your device now.
