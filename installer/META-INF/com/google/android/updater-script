@@ -4,53 +4,57 @@ ui_print("-----------------------------------------------------");
 ui_print("<~process.info>");
 
 set_progress(0.0);
-
-#-- Kernel & boot image --#
-show_progress(0.2, "-5000");
-ui_print("@ <~process.bootimg.prepare>");
-mount("ext4", "EMMC", "/dev/block/mmcblk0p1", "/system");
 set_perm_recursive(0, 0, 0755, 0755, "/tmp");
-
-ui_print("");
-ui_print("@ <~process.bootimg.install>");
-
-ui_print("<~process.bootimg.config>");
-if file_getprop("/tmp/aroma-data/kernel.prop","selected.0") == "1" then
-    ui_print(" - 1.5 - 1.8GHz, 650MHz GPU");
-    delete("/system/etc/cpu1.sh");
-    delete("/system/etc/cpu2.sh");
-    delete("/system/etc/cpu3.sh");
-    package_extract_dir("/kernel/clemsyn/system1518", "/system");
-endif;
-if file_getprop("/tmp/aroma-data/kernel.prop","selected.0") == "2" then
-    ui_print(" - 1.3 - 1.8GHz, 650MHz GPU");
-    delete("/system/etc/cpu1.sh");
-    delete("/system/etc/cpu2.sh");
-    delete("/system/etc/cpu3.sh");
-    package_extract_dir("kernel/clemsyn/system1318", "/system");
-endif;
-if file_getprop("/tmp/aroma-data/kernel.prop","selected.0") == "3" then
-    ui_print(" - 1.3 - 1.5GHz, 650MHz GPU");
-    delete("/system/etc/cpu1.sh");
-    delete("/system/etc/cpu2.sh");
-    delete("/system/etc/cpu3.sh");
-    package_extract_dir("kernel/clemsyn/system1315", "/system");
-endif;
-ui_print("<~process.bootimg.blob>");
-package_extract_file("boot.blob", "/dev/block/mmcblk0p4");
-ui_print("<~process.bootimg.blobdone>");
-
-unmount("/system");
-ui_print("");
 
 #-- Root disk --#
 ui_print("@ <~process.rootfs.prepare>");
-ui_print("<~process.rootfs.prepare.info>");
+ui_print("<~process.rootfs.prepare.info>...");
 
 if file_getprop("/tmp/aroma-data/rootfs.prop","selected.0") != "1" then
-    show_progress(0.9, "-700000");
+    show_progress(0.9, "-800000");
     set_perm(0,0,0755,"/tmp/aroma-data/start_install.sh");
     run_program("/tmp/aroma-data/start_install.sh");
+endif;
+
+#-- Kernel & boot image --#
+
+if file_getprop("/tmp/install_exit.prop","exit") == "0" then
+    ui_print("");
+    ui_print("@ <~process.bootimg.install>");
+
+    show_progress(1.0, "-5000");
+    mount("ext4", "EMMC", "/dev/block/mmcblk0p1", "/system");
+
+    ui_print("<~process.bootimg.config>...");
+
+    delete("/system/etc/cpu1.sh");
+    delete("/system/etc/cpu2.sh");
+    delete("/system/etc/cpu3.sh");
+
+    if file_getprop("/tmp/aroma-data/kernel.prop","selected.0") == "1" then
+        ui_print(" - 1.5 - 1.8GHz, 650MHz GPU");
+        package_extract_dir("/kernel/clemsyn/system1518", "/system");
+    endif;
+    if file_getprop("/tmp/aroma-data/kernel.prop","selected.0") == "2" then
+        ui_print(" - 1.3 - 1.8GHz, 650MHz GPU");
+        package_extract_dir("kernel/clemsyn/system1318", "/system");
+    endif;
+    if file_getprop("/tmp/aroma-data/kernel.prop","selected.0") == "3" then
+        ui_print(" - 1.3 - 1.5GHz, 650MHz GPU");
+        package_extract_dir("kernel/clemsyn/system1315", "/system");
+    endif;
+    ui_print("<~process.bootimg.blob>...");
+    if file_getprop("/tmp/aroma-data/rootfs.prop","selected.1") == "1" then
+        ui_print(" - <~kernel.initrd.default>");
+        package_extract_file("boot.blob", "/dev/block/mmcblk0p4");
+    endif
+    if file_getprop("/tmp/aroma-data/rootfs.prop","selected.1") == "2" then
+        ui_print(" - <~kernel.initrd.data2sd>");
+        package_extract_file("boot-data2sd.blob", "/dev/block/mmcblk0p4");
+    endif
+
+    unmount("/system");
+    ui_print("");
 endif;
 
 set_progress(1.0);

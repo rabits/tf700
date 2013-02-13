@@ -60,6 +60,10 @@ terms.notconfirm.info=Вы не приняли условия использов
 
 kernel.title=Выберите конфигурацию ядра
 kernel.info=Пожалуйста, выберите необходимую конфигурацию ядра. Эта конфигурация относится к режимам энергосбережения.
+kernel.initrd.title=Выберите конфигурацию инициализационного диска (initrd)
+kernel.initrd.default=По умолчанию
+kernel.initrd.data2sd=Data2SD
+kernel.initrd.data2sd.info=Только если вы знаете, что это такое!
 
 nodiskavailable.info=Я не могу найти какое-либо устройство для установки на него корневой файловой системы. Пожалуйста, проверьте систему (mmcblk0p8) и другие диски (sda, sdb, mmcblk1).
 
@@ -129,11 +133,9 @@ install.finish3=для продолжения
 
 process.intro=запущен.
 process.info=Это займет некоторое время!
-process.bootimg.prepare=Подготовка файловой системы...
 process.bootimg.install=Установка загрузочного образа...
 process.bootimg.config=Конфигурация ядра
 process.bootimg.blob=Блоб загрузчика
-process.bootimg.blobdone=...ок
 process.rootfs.prepare=Установка корневой файловой системы linux...
 process.rootfs.prepare.info=Выполняется распаковка архива с корневой файловой системой Linux.
 process.done=Порядок!
