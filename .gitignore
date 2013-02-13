@@ -4,5 +4,6 @@ boot/initrd/lib/modules/
 backup
 installer/*.zip
 installer/boot.blob
+installer/boot-data2sd.blob
 installer/rootfs.tar.lzma
 installer/META-INF/com/google/android/aroma/exec/busybox
