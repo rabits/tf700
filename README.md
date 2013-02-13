@@ -52,7 +52,7 @@ TODO
   * # dd if=/dev/block/mmcblk0 of=backup/block/09_GP1.img ibs=4096 bs=4096 skip=11136 count=256
 
 # Build Linux Kernel
-1. Get kernel source from [Clemsyn overclock kernel](http://forum.xda-developers.com/showthread.php?t=1950039) or [Asus support](http://support.asus.com/Download.aspx?SLanguage=en&m=ASUS+Transformer+Pad+Infinity+TF700T&p=28&s=1)
+1. Get kernel source from [Asus support](http://support.asus.com/Download.aspx?SLanguage=en&m=ASUS+Transformer+Pad+Infinity+TF700T&p=28&s=1)
 2. Get linaro armhf gcc 4.7 toolchain from [Linaro release site](http://www.linaro.org/downloads/)
 3. Unpack it to source/toolchain dir:
   * $ tar xvf gcc-linaro-arm-linux-gnueabihf-*.tar.bz2 --strip-components=1 -C source/toolchain
@@ -60,19 +60,21 @@ TODO
   * $ export KERNEL_OUT=../out MODULES_OUT=../out_modules CROSS_COMPILE=../../toolchain/bin/arm-linux-gnueabihf-  ARCH=arm
 5. Unpack it to source/kernel/src directory:
   * $ cd source/kernel/src
-  * $ unrar x ../../10_4_4_20_kernel.rar
-  * $ tar xvf 10_4_4_20_kernel/*.tar.gz
-  * $ rm -rf 10_4_4_20_kernel
+  * $ unrar x ../../10_4_4_25_kernel.rar
+  * $ tar xvf 10_4_4_25_kernel/*.tar.gz
+  * $ rm -rf 10_4_4_25_kernel
 6. Apply [UKSM patch](http://kerneldedup.org/projects/uksm/download/):
   * $ patch -p1 < ../../../kernel/patch/uksm/uksm*.patch
   * $ patch -p1 < ../../../kernel/patch/uksm/0*.patch
-6. Change configuration of kernel:
+7. Apply additional patches (clemsyn-oc, fsync-control, include-fix, ROW-scheduler):
+  * $ patch -p1 < ../../../kernel/patch/*.patch
+8. Change configuration of kernel:
   * $ make O=$KERNEL_OUT menuconfig
-7. Build kernel and install modules:
+9. Build kernel and install modules:
   * $ make -j4 O=$KERNEL_OUT zImage
   * $ make -j4 modules O=$KERNEL_OUT DESTDIR=$MODULES_OUT
   * $ make -j4 modules_install O=$KERNEL_OUT INSTALL_MOD_PATH=$MODULES_OUT
-8. Done
+10. Done
 
 # Create boot image
 1. Install abootimg tool:

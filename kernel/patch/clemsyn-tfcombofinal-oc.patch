@@ -1,0 +1,801 @@
+diff -urN a/arch/arm/mach-tegra/Kconfig b/arch/arm/mach-tegra/Kconfig
+--- a/arch/arm/mach-tegra/Kconfig	2012-09-19 12:45:32.000000000 +0200
++++ b/arch/arm/mach-tegra/Kconfig	2012-10-24 16:06:07.000000000 +0200
+@@ -306,6 +306,15 @@
+ 	depends on TEGRA_SILICON_PLATFORM
+ 	default n
+ 
++config VOLTAGE_CONTROL
++	bool "Enable user voltage control on Tegra CPU"
++	depends on TEGRA_SILICON_PLATFORM
++	default n
++	help
++	User custom voltage control interface
++
++
++
+ config TEGRA_CPU_DVFS
+ 	bool "Enable voltage scaling on Tegra CPU"
+ 	depends on TEGRA_SILICON_PLATFORM
+diff -urN a/arch/arm/mach-tegra/common.c b/arch/arm/mach-tegra/common.c
+--- a/arch/arm/mach-tegra/common.c	2012-09-19 12:45:32.000000000 +0200
++++ b/arch/arm/mach-tegra/common.c	2012-11-05 03:02:24.000000000 +0100
+@@ -101,7 +101,7 @@
+ static struct board_info display_board_info;
+ static struct board_info camera_board_info;
+ 
+-static int pmu_core_edp = 1300;	/* default 1.2V EDP limit */
++static int pmu_core_edp = 1400;	/* default 1.2V EDP limit */
+ static int board_panel_type;
+ static enum power_supply_type pow_supply_type = POWER_SUPPLY_TYPE_MAINS;
+ 
+diff -urN a/arch/arm/mach-tegra/cpu-tegra.c b/arch/arm/mach-tegra/cpu-tegra.c
+--- a/arch/arm/mach-tegra/cpu-tegra.c	2012-09-19 12:45:32.000000000 +0200
++++ b/arch/arm/mach-tegra/cpu-tegra.c	2012-11-06 12:34:23.000000000 +0100
+@@ -51,9 +51,12 @@
+ #define SYSTEM_NORMAL_MODE	(0)
+ #define SYSTEM_BALANCE_MODE	(1)
+ #define SYSTEM_PWRSAVE_MODE	(2)
+-#define SYSTEM_MODE_END 		(SYSTEM_PWRSAVE_MODE + 1)
++#define SYSTEM_OVERCLOCK_1P5G_MODE		(3)
++#define SYSTEM_MODE_END 		(SYSTEM_OVERCLOCK_1P5G_MODE + 1)
+ #define SYSTEM_PWRSAVE_MODE_MAX_FREQ	(1000000)
+-unsigned int power_mode_table[SYSTEM_MODE_END] = {1000000,1200000,1400000};
++#define ASUS_OVERCLOCK
++
++unsigned int power_mode_table[SYSTEM_MODE_END] = {1000000,1200000,1400000,1500000};
+ 
+ #define CAMERA_ENABLE_EMC_MINMIAM_RATE (667000000)
+ /* tegra throttling and edp governors require frequencies in the table
+@@ -68,6 +71,7 @@
+ static DEFINE_MUTEX(tegra_cpu_lock);
+ static bool is_suspended;
+ static int suspend_index;
++static bool edp_enable = 0;
+ static bool force_policy_max;
+  int  gps_enable=0;
+ 
+@@ -265,10 +269,14 @@
+ 	ret = param_set_int(arg, kp);
+ 	if (ret == 0) {
+ 		printk("system_mode_set system_mode=%u\n",system_mode);
++#ifdef ASUS_OVERCLOCK
++		if( (system_mode<SYSTEM_NORMAL_MODE) || (system_mode>SYSTEM_OVERCLOCK_1P5G_MODE))
++			system_mode=SYSTEM_NORMAL_MODE;
++#else
+ 
+ 		if((system_mode < SYSTEM_NORMAL_MODE) || (system_mode > SYSTEM_PWRSAVE_MODE))
+ 			system_mode = SYSTEM_NORMAL_MODE;
+-
++#endif
+ 		tegra_cpu_set_speed_cap(NULL);
+ 	}
+ 
+@@ -342,12 +350,18 @@
+ 	else  if((system_mode == SYSTEM_NORMAL_MODE) && (requested_speed > power_mode_table[SYSTEM_NORMAL_MODE]))
+ 		new_speed = power_mode_table[SYSTEM_NORMAL_MODE];
+ 
++#ifdef ASUS_OVERCLOCK
++        else  if( (system_mode==SYSTEM_OVERCLOCK_1P5G_MODE ) && ( requested_speed > power_mode_table[SYSTEM_OVERCLOCK_1P5G_MODE] ))
++		new_speed=power_mode_table[SYSTEM_OVERCLOCK_1P5G_MODE] ;
++
++#endif
++
+ 	return new_speed;
+ }
+ 
+ static unsigned int cpu_user_cap;
+ 
+-static inline void _cpu_user_cap_set_locked(void)
++/*static inline void _cpu_user_cap_set_locked(void)
+ {
+ #ifndef CONFIG_TEGRA_CPU_CAP_EXACT_FREQ
+ 	if (cpu_user_cap != 0) {
+@@ -371,7 +385,7 @@
+ 	_cpu_user_cap_set_locked();
+ 
+ 	mutex_unlock(&tegra_cpu_lock);
+-}
++}*/
+ 
+ static int cpu_user_cap_set(const char *arg, const struct kernel_param *kp)
+ {
+@@ -380,11 +394,25 @@
+ 	mutex_lock(&tegra_cpu_lock);
+ 
+ 	ret = param_set_uint(arg, kp);
+-	if (ret == 0)
+-		_cpu_user_cap_set_locked();
++	if (ret == 0) {
++#ifndef CONFIG_TEGRA_CPU_CAP_EXACT_FREQ
++		if (cpu_user_cap != 0) {
++			int i;
++			for (i = 0; freq_table[i].frequency !=
++				CPUFREQ_TABLE_END; i++) {
++				if (freq_table[i].frequency > cpu_user_cap)
++					break;
++			}
++			i = (i == 0) ? 0 : i - 1;
++			cpu_user_cap = freq_table[i].frequency;
++		}
++#endif
++		tegra_cpu_set_speed_cap(NULL);
++	}
+ 
+ 	mutex_unlock(&tegra_cpu_lock);
+ 	return ret;
++
+ }
+ 
+ static int cpu_user_cap_get(char *buffer, const struct kernel_param *kp)
+@@ -484,6 +512,14 @@
+ 	int nlimits = cpu_edp_limits_size;
+ 	int index;
+ 
++#ifdef ASUS_OVERCLOCK
++	if(temperature >= 75 && temperature < 85) {
++		edp_enable = 1;
++	} else {
++		edp_enable = 0;
++	}
++#endif
++
+ 	if (!cpu_edp_limits)
+ 		return -EINVAL;
+ 
+@@ -692,10 +728,11 @@
+ 	int i;
+ 
+ 	seq_printf(s, "-- CPU power mode table --\n");
+-	seq_printf(s, "Power Saving=%u \n Balanced=%u \n Normal=%u \n \n",
++	seq_printf(s, "Power Saving=%u \n Balanced=%u \n Normal=%u \n Over 1=%u\n",
+ 			   power_mode_table[2],
+ 			   power_mode_table[1],
+-			   power_mode_table[0]);
++			   power_mode_table[0],
++                           power_mode_table[3]);
+ 	return 0;
+ }
+ 
+@@ -758,9 +795,9 @@
+ 
+ 	if (tegra_edp_debug_init(cpu_tegra_debugfs_root))
+ 		goto err_out;
+-        if (!debugfs_create_file("pwr_mode_table", 0644, cpu_tegra_debugfs_root,
+-		 NULL, &pwr_mode_table_debugfs_fops))
+-		goto err_out;
++     //   if (!debugfs_create_file("pwr_mode_table", 0644, cpu_tegra_debugfs_root,
++	//	 NULL, &pwr_mode_table_debugfs_fops))
++		//goto err_out;
+ 
+ 	return 0;
+ 
+@@ -911,7 +948,19 @@
+ 
+        new_speed = ASUS_governor_speed(new_speed);
+ 	new_speed = tegra_throttle_governor_speed(new_speed);
++#ifdef ASUS_OVERCLOCK
++	if(system_mode == SYSTEM_OVERCLOCK_1P5G_MODE) {
++		if(edp_enable) {
++			pr_info("%s : EDP enable\n", __func__);
++			new_speed = edp_governor_speed(new_speed);
++		} 
++	} else {
++		new_speed = edp_governor_speed(new_speed);
++	}
++#else
+ 	new_speed = edp_governor_speed(new_speed);
++#endif
++
+ 
+ 	//new_speed = user_cap_speed(new_speed);
+ 	if (speed_cap)
+@@ -932,7 +981,18 @@
+ 
+ 	/* apply only "hard" caps */
+ 	new_speed = tegra_throttle_governor_speed(new_speed);
++        #ifdef ASUS_OVERCLOCK
++	if(system_mode == SYSTEM_OVERCLOCK_1P5G_MODE){
++		if(edp_enable){
++			pr_info("%s : EDP enable\n", __func__);
++			new_speed = edp_governor_speed(new_speed);
++		}
++	}else
++		new_speed = edp_governor_speed(new_speed);
++	#else
+ 	new_speed = edp_governor_speed(new_speed);
++	#endif
++
+ 
+ 	return tegra_update_cpu_speed(new_speed);
+ }
+@@ -1006,9 +1066,11 @@
+ 
+ void rebuild_max_freq_table(max_rate)
+ {
+-	power_mode_table[SYSTEM_NORMAL_MODE] = max_rate;
+-	power_mode_table[SYSTEM_BALANCE_MODE] = max_rate - 200000;
++	power_mode_table[SYSTEM_NORMAL_MODE] =  1500000;
++	power_mode_table[SYSTEM_BALANCE_MODE] = 1300000;
+ 	power_mode_table[SYSTEM_PWRSAVE_MODE] = SYSTEM_PWRSAVE_MODE_MAX_FREQ;
++        power_mode_table[SYSTEM_OVERCLOCK_1P5G_MODE]=1800000;
++
+ }
+ 
+ static int tegra_cpu_init(struct cpufreq_policy *policy)
+@@ -1035,7 +1097,7 @@
+ 	target_cpu_speed[policy->cpu] = policy->cur;
+ 
+ 	/* FIXME: what's the actual transition time? */
+-	policy->cpuinfo.transition_latency = 300 * 1000;
++	policy->cpuinfo.transition_latency = 40 * 1000;
+ 
+ 	policy->shared_type = CPUFREQ_SHARED_TYPE_ALL;
+ 	cpumask_copy(policy->related_cpus, cpu_possible_mask);
+diff -urN a/arch/arm/mach-tegra/tegra3_clocks.c b/arch/arm/mach-tegra/tegra3_clocks.c
+--- a/arch/arm/mach-tegra/tegra3_clocks.c	2012-09-19 12:45:32.000000000 +0200
++++ b/arch/arm/mach-tegra/tegra3_clocks.c	2012-11-05 17:51:42.000000000 +0100
+@@ -3299,6 +3299,14 @@
+ };
+ 
+ static struct clk_pll_freq_table tegra_pll_c_freq_table[] = {
++
++        { 12000000, 1400000000, 700,  6,  1, 8},
++	{ 13000000, 1400000000, 969,  9,  1, 8},	/* actual: 1399.7 MHz */
++	{ 16800000, 1400000000, 583,  7, 1, 8},
++	{ 19200000, 1400000000, 533,  8, 1, 8},
++	{ 26000000, 1400000000, 700,  13, 1, 8},
++
++
+ 	{ 12000000, 1200000000, 600,  6, 1, 8},
+ 	{ 13000000, 1200000000, 923, 10, 1, 8},		/* actual: 1199.9 MHz */
+ 	{ 16800000, 1200000000, 500,  7, 1, 8},
+@@ -3627,6 +3635,14 @@
+ };
+ 
+ static struct clk_pll_freq_table tegra_pll_x_freq_table[] = {
++
++         /*1.8 GHz */
++	{ 12000000, 1800000000, 850,  6,  1, 8},
++	{ 13000000, 1800000000, 915,  7,  1, 8},
++	{ 16800000, 1800000000, 708,  7,  1, 8},
++	{ 19200000, 1800000000, 885,  10, 1, 8},
++	{ 26000000, 1800000000, 900,  13, 1, 8},
++
+ 	/* 1.7 GHz */
+ 	{ 12000000, 1700000000, 850,  6,  1, 8},
+ 	{ 13000000, 1700000000, 915,  7,  1, 8},	/* actual: 1699.2 MHz */
+@@ -3692,14 +3708,14 @@
+ 	.ops       = &tegra_pll_ops,
+ 	.reg       = 0xe0,
+ 	.parent    = &tegra_pll_ref,
+-	.max_rate  = 1700000000,
++	.max_rate  = 1800000000,
+ 	.u.pll = {
+ 		.input_min = 2000000,
+ 		.input_max = 31000000,
+ 		.cf_min    = 1000000,
+ 		.cf_max    = 6000000,
+ 		.vco_min   = 20000000,
+-		.vco_max   = 1700000000,
++		.vco_max   = 1800000000,
+ 		.freq_table = tegra_pll_x_freq_table,
+ 		.lock_delay = 300,
+ 	},
+@@ -3977,7 +3993,7 @@
+ 	.inputs	= mux_cclk_g,
+ 	.reg	= 0x368,
+ 	.ops	= &tegra_super_ops,
+-	.max_rate = 1700000000,
++	.max_rate = 1800000000,
+ };
+ 
+ static struct clk tegra_clk_cclk_lp = {
+@@ -4002,7 +4018,7 @@
+ 	.name      = "cpu_g",
+ 	.parent    = &tegra_clk_cclk_g,
+ 	.ops       = &tegra_cpu_ops,
+-	.max_rate  = 1700000000,
++	.max_rate  = 1800000000,
+ 	.u.cpu = {
+ 		.main      = &tegra_pll_x,
+ 		.backup    = &tegra_pll_p,
+@@ -4032,7 +4048,7 @@
+ 	.name      = "cpu",
+ 	.inputs    = mux_cpu_cmplx,
+ 	.ops       = &tegra_cpu_cmplx_ops,
+-	.max_rate  = 1700000000,
++	.max_rate  = 1800000000,
+ };
+ 
+ static struct clk tegra_clk_cop = {
+@@ -4341,12 +4357,12 @@
+ 	PERIPH_CLK("bsea",	"tegra-avp",		"bsea",	62,	0,	250000000, mux_clk_m, 			0),
+ 	PERIPH_CLK("bsev",	"tegra-aes",		"bsev",	63,	0,	250000000, mux_clk_m, 			0),
+ 	PERIPH_CLK("cec",	"tegra_cec",		NULL,	136,	0,	26000000,  mux_clk_m,			PERIPH_ON_APB),
+-	PERIPH_CLK("vde",	"vde",			NULL,	61,	0x1c8,	600000000, mux_pllp_pllc_pllm_clkm,	MUX | DIV_U71 | DIV_U71_INT),
++	PERIPH_CLK("vde",	"vde",			NULL,	61,	0x1c8,	650000000, mux_pllp_pllc_pllm_clkm,	MUX | DIV_U71 | DIV_U71_INT),
+ 	PERIPH_CLK("csite",	"csite",		NULL,	73,	0x1d4,	144000000, mux_pllp_pllc_pllm_clkm,	MUX | DIV_U71 | PERIPH_ON_APB), /* max rate ??? */
+ 	PERIPH_CLK("la",	"la",			NULL,	76,	0x1f8,	26000000,  mux_pllp_pllc_pllm_clkm,	MUX | DIV_U71 | PERIPH_ON_APB),
+ 	PERIPH_CLK("owr",	"tegra_w1",		NULL,	71,	0x1cc,	26000000,  mux_pllp_pllc_pllm_clkm,	MUX | DIV_U71 | PERIPH_ON_APB),
+ 	PERIPH_CLK("nor",	"tegra-nor",		NULL,	42,	0x1d0,	127000000, mux_pllp_pllc_pllm_clkm,	MUX | DIV_U71), /* requires min voltage */
+-	PERIPH_CLK("mipi",	"mipi",			NULL,	50,	0x174,	60000000,  mux_pllp_pllc_pllm_clkm,	MUX | DIV_U71 | PERIPH_ON_APB), /* scales with voltage */
++	PERIPH_CLK("mipi",	"mipi",			NULL,	50,	0x174,	65000000,  mux_pllp_pllc_pllm_clkm,	MUX | DIV_U71 | PERIPH_ON_APB), /* scales with voltage */
+ 	PERIPH_CLK("i2c1",	"tegra-i2c.0",		"i2c-div",	12,	0x124,	26000000,  mux_pllp_clkm,	MUX | DIV_U16 | PERIPH_ON_APB),
+ 	PERIPH_CLK("i2c2",	"tegra-i2c.1",		"i2c-div",	54,	0x198,	26000000,  mux_pllp_clkm,	MUX | DIV_U16 | PERIPH_ON_APB),
+ 	PERIPH_CLK("i2c3",	"tegra-i2c.2",		"i2c-div",	67,	0x1b8,	26000000,  mux_pllp_clkm,	MUX | DIV_U16 | PERIPH_ON_APB),
+@@ -4369,12 +4385,12 @@
+ 	PERIPH_CLK("uarte_dbg",	"serial8250.0",		"uarte", 66,	0x1c4,	900000000, mux_pllp_clkm,		MUX | DIV_U151 | DIV_U151_UART | PERIPH_ON_APB),
+ 	PERIPH_CLK_EX("vi",	"tegra_camera",		"vi",	20,	0x148,	470000000, mux_pllm_pllc_pllp_plla,	MUX | DIV_U71 | DIV_U71_INT,	&tegra_vi_clk_ops),
+ 	PERIPH_CLK("vi_sensor",	"tegra_camera",		"vi_sensor",	20,	0x1a8,	150000000, mux_pllm_pllc_pllp_plla,	MUX | DIV_U71 | PERIPH_NO_RESET),
+-	PERIPH_CLK("3d",	"3d",			NULL,	24,	0x158,	600000000, mux_pllm_pllc_pllp_plla,	MUX | DIV_U71 | DIV_U71_INT | DIV_U71_IDLE | PERIPH_MANUAL_RESET),
+-	PERIPH_CLK("3d2",       "3d2",			NULL,	98,	0x3b0,	600000000, mux_pllm_pllc_pllp_plla,	MUX | DIV_U71 | DIV_U71_INT | DIV_U71_IDLE | PERIPH_MANUAL_RESET),
+-	PERIPH_CLK("2d",	"2d",			NULL,	21,	0x15c,	600000000, mux_pllm_pllc_pllp_plla,	MUX | DIV_U71 | DIV_U71_INT | DIV_U71_IDLE),
+-	PERIPH_CLK("epp",	"epp",			NULL,	19,	0x16c,	600000000, mux_pllm_pllc_pllp_plla,	MUX | DIV_U71 | DIV_U71_INT),
+-	PERIPH_CLK("mpe",	"mpe",			NULL,	60,	0x170,	600000000, mux_pllm_pllc_pllp_plla,	MUX | DIV_U71 | DIV_U71_INT),
+-	PERIPH_CLK("host1x",	"host1x",		NULL,	28,	0x180,	300000000, mux_pllm_pllc_pllp_plla,	MUX | DIV_U71 | DIV_U71_INT),
++	PERIPH_CLK("3d",	"3d",			NULL,	24,	0x158,	650000000, mux_pllm_pllc_pllp_plla,	MUX | DIV_U71 | DIV_U71_INT | DIV_U71_IDLE | PERIPH_MANUAL_RESET),
++	PERIPH_CLK("3d2",       "3d2",			NULL,	98,	0x3b0,	650000000, mux_pllm_pllc_pllp_plla,	MUX | DIV_U71 | DIV_U71_INT | DIV_U71_IDLE | PERIPH_MANUAL_RESET),
++	PERIPH_CLK("2d",	"2d",			NULL,	21,	0x15c,	650000000, mux_pllm_pllc_pllp_plla,	MUX | DIV_U71 | DIV_U71_INT | DIV_U71_IDLE),
++	PERIPH_CLK("epp",	"epp",			NULL,	19,	0x16c,	650000000, mux_pllm_pllc_pllp_plla,	MUX | DIV_U71 | DIV_U71_INT),
++	PERIPH_CLK("mpe",	"mpe",			NULL,	60,	0x170,	650000000, mux_pllm_pllc_pllp_plla,	MUX | DIV_U71 | DIV_U71_INT),
++	PERIPH_CLK("host1x",	"host1x",		NULL,	28,	0x180,	325000000, mux_pllm_pllc_pllp_plla,	MUX | DIV_U71 | DIV_U71_INT),
+ 	PERIPH_CLK("cve",	"cve",			NULL,	49,	0x140,	250000000, mux_pllp_plld_pllc_clkm,	MUX | DIV_U71), /* requires min voltage */
+ 	PERIPH_CLK("tvo",	"tvo",			NULL,	49,	0x188,	250000000, mux_pllp_plld_pllc_clkm,	MUX | DIV_U71), /* requires min voltage */
+ 	PERIPH_CLK_EX("dtv",	"dtv",			NULL,	79,	0x1dc,	250000000, mux_clk_m,			PERIPH_ON_APB,	&tegra_dtv_clk_ops),
+@@ -4401,7 +4417,7 @@
+ 	PERIPH_CLK("i2cslow",	"i2cslow",		NULL,	81,	0x3fc,	26000000,  mux_pllp_pllc_clk32_clkm,	MUX | DIV_U71 | PERIPH_ON_APB),
+ 	PERIPH_CLK("pcie",	"tegra-pcie",		"pcie",	70,	0,	250000000, mux_clk_m, 			0),
+ 	PERIPH_CLK("afi",	"tegra-pcie",		"afi",	72,	0,	250000000, mux_clk_m, 			0),
+-	PERIPH_CLK("se",	"se",			NULL,	127,	0x42c,	625000000, mux_pllp_pllc_pllm_clkm,	MUX | DIV_U71 | DIV_U71_INT | PERIPH_ON_APB),
++	PERIPH_CLK("se",	"se",			NULL,	127,	0x42c,	650000000, mux_pllp_pllc_pllm_clkm,	MUX | DIV_U71 | DIV_U71_INT | PERIPH_ON_APB),
+ 	PERIPH_CLK("mselect",	"mselect",		NULL,	99,	0x3b4,	108000000, mux_pllp_clkm,		MUX | DIV_U71),
+ 
+ 	SHARED_CLK("avp.sclk",	"tegra-avp",		"sclk",	&tegra_clk_sbus_cmplx, NULL, 0, 0),
+@@ -4826,6 +4842,25 @@
+ 	{15, CPUFREQ_TABLE_END },
+ };
+ 
++static struct cpufreq_frequency_table freq_table_1p8GHz[] = {
++	{ 0,   51000 },
++	{ 1,  102000 },
++	{ 2,  204000 },
++	{ 3,  370000 },
++	{ 4,  475000 },
++	{ 5,  620000 },
++	{ 6,  760000 },
++	{ 7,  910000 },
++	{ 8, 1150000 },
++	{ 9, 1300000 },
++	{10, 1400000 },
++	{11, 1500000 },
++	{12, 1600000 },
++	{13, 1700000 },
++	{14, 1800000 },
++	{15, CPUFREQ_TABLE_END },
++};
++
+ static struct tegra_cpufreq_table_data cpufreq_tables[] = {
+ 	{ freq_table_300MHz, 0,  1 },
+ 	{ freq_table_1p0GHz, 2,  8 },
+@@ -4833,6 +4868,7 @@
+ 	{ freq_table_1p4GHz, 2, 11 },
+ 	{ freq_table_1p5GHz, 2, 12 },
+ 	{ freq_table_1p7GHz, 2, 12 },
++        { freq_table_1p8GHz, 2, 12 },
+ };
+ 
+ static int clip_cpu_rate_limits(
+diff -urN a/arch/arm/mach-tegra/tegra3_dvfs.c b/arch/arm/mach-tegra/tegra3_dvfs.c
+--- a/arch/arm/mach-tegra/tegra3_dvfs.c	2012-09-19 12:45:32.000000000 +0200
++++ b/arch/arm/mach-tegra/tegra3_dvfs.c	2012-11-06 02:28:59.000000000 +0100
+@@ -30,8 +30,13 @@
+ #include "tegra3_emc.h"
+ #include <mach/board-cardhu-misc.h>
+ 
++#ifdef CONFIG_VOLTAGE_CONTROL
++int user_mv_table[MAX_DVFS_FREQS] = {
++        750, 775, 787, 800, 825, 837, 850, 862, 875, 887, 900, 912, 916, 925, 937, 950, 962, 975, 987, 1000, 1007, 1012, 1025, 1037, 1050, 1062, 1075, 1087, 1100, 1112, 1125, 1137, 1150, 1162, 1175, 1187, 1200, 1250, 1300, 1350};
++#endif
++
+ #define CPU_MILLIVOLTS {\
+-	750, 762, 775, 787, 800, 825, 837, 850, 862, 875, 887, 900, 912, 916, 925, 937, 950, 962, 975, 987, 1000, 1007, 1012, 1025, 1037, 1050, 1062, 1075, 1087, 1100, 1112, 1125, 1137, 1150, 1162, 1175, 1187, 1200, 1212, 1237};
++	750, 775, 787, 800, 825, 837, 850, 862, 875, 887, 900, 912, 916, 925, 937, 950, 962, 975, 987, 1000, 1007, 1012, 1025, 1037, 1050, 1062, 1075, 1087, 1100, 1112, 1125, 1137, 1150, 1162, 1175, 1187, 1200, 1250, 1300, 1350};
+ 
+ static bool tegra_dvfs_cpu_disabled;
+ static bool tegra_dvfs_core_disabled;
+@@ -42,7 +47,7 @@
+ static const int cpu_millivolts_aged[MAX_DVFS_FREQS] = CPU_MILLIVOLTS;
+ 
+ static const unsigned int cpu_cold_offs_mhz[MAX_DVFS_FREQS] = {
+-	 50,  50,  50,  50,  50,  50,  50,  50,  50,  50,  50,  50,  50,  50,  50,  50,  50,  50,  50,  50,   50,   50,   50,   50,   50,   50,   50,   50,   50,   50,   50,   50,   50,   50,   50,   50,   50,   50,   50,   50};
++	 50,  50,  50,  50,  50,  50,  50,  50,  50,  50,  50,  50,  50,  50,  50,  50,  50,  50,  50,   50,   50,   50,   50,   50,   50,   50,   50,   50,   50,   50,   50,   50,   50,   50,   50,   50,   50,   50,   50, 50};
+ 
+ static const int core_millivolts[MAX_DVFS_FREQS] = {
+ 	950, 1000, 1050, 1100, 1150, 1200, 1250, 1300, 1350};
+@@ -59,7 +64,7 @@
+ 
+ static struct dvfs_rail tegra3_dvfs_rail_vdd_cpu = {
+ 	.reg_id = "vdd_cpu",
+-	.max_millivolts = 1250,
++	.max_millivolts = 1350,
+ 	.min_millivolts = 725,
+ 	.step = VDD_SAFE_STEP,
+ 	.jmp_to_zero = true,
+@@ -85,15 +90,14 @@
+ 		return 1000;
+ 	if (cpu_mv < 1000)
+ 		return 1100;
+-	if ((tegra_cpu_speedo_id() < 2) ||
++	if ((tegra_cpu_speedo_id() < 1) ||
+ 	    (tegra_cpu_speedo_id() == 4) ||
+-	    (tegra_cpu_speedo_id() == 7) ||
+ 	    (tegra_cpu_speedo_id() == 8))
+ 		return 1200;
+ 	if (cpu_mv < 1100)
+ 		return 1200;
+-	if (cpu_mv <= 1250)
+-		return 1300;
++	if (cpu_mv <= 1350)
++		return 1350;
+ 	BUG();
+ }
+ 
+@@ -147,14 +151,14 @@
+ 	}
+ 
+ static struct dvfs cpu_dvfs_table[] = {
+-	/* Cpu voltages (mV):         750, 762, 775, 787, 800, 825, 837, 850, 862, 875, 887,  900,  912,  916,  925,  937,  950,  962,  975,  987, 1000, 1007, 1012, 1025, 1037, 1050, 1062, 1075, 1087, 1100, 1112, 1125, 1137, 1150, 1162, 1175, 1187, 1200, 1212, 1237 */
++	/* Cpu voltages (mV):         750, 775, 787, 800, 825, 837, 850, 862, 875, 887, 900, 912, 916, 925, 937, 950, 962, 975, 987, 1000, 1007, 1012, 1025, 1037, 1050, 1062, 1075, 1087, 1100, 1112, 1125, 1137, 1150, 1162, 1175, 1187, 1200, 1250, 1300, 1350 */
+ 	CPU_DVFS("cpu_g",  0, 0, MHZ,   1,   1,   1,   1,   1,   1,   1, 684, 684, 684, 684,  817,  817,  817,  817,  817,  817,  817, 1026, 1026, 1102, 1102, 1102, 1149, 1149, 1187, 1187, 1225, 1225, 1282, 1282, 1300),
+ 	CPU_DVFS("cpu_g",  0, 1, MHZ,   1,   1,   1,   1,   1,   1,   1, 807, 807, 807, 807,  948,  948,  948,  948,  948,  948,  948, 1117, 1117, 1171, 1171, 1171, 1206, 1206, 1300),
+ 	CPU_DVFS("cpu_g",  0, 2, MHZ,   1,   1,   1,   1,   1,   1,   1, 883, 883, 883, 883, 1039, 1039, 1039, 1039, 1039, 1039, 1039, 1178, 1178, 1206, 1206, 1206, 1300),
+ 	CPU_DVFS("cpu_g",  0, 3, MHZ,   1,   1,   1,   1,   1,   1,   1, 931, 931, 931, 931, 1102, 1102, 1102, 1102, 1102, 1102, 1102, 1216, 1216, 1300, 1300, 1300),
+ 
+-	CPU_DVFS("cpu_g",  1, 0, MHZ,   1,   1,   1,   1, 460, 460, 460, 550, 550, 550, 550,  680,  680,  680,  680,  680,  680,  680,  820,  820,  970,  970,  970, 1040, 1040, 1080, 1080, 1150, 1150, 1200, 1200, 1280, 1280, 1300),
+-	CPU_DVFS("cpu_g",  1, 1, MHZ,   1,   1,   1,   1, 480, 480, 480, 650, 650, 650, 650,  780,  780,  780,  780,  780,  780,  780,  990,  990, 1040, 1040, 1040, 1100, 1100, 1200, 1200, 1300),
++	CPU_DVFS("cpu_g",  1, 0, MHZ,  1,  475, 475, 475, 620, 620, 620, 620, 760, 760, 760, 760,  760,  910,  910,  1000,  1000, 1000, 1000, 1150, 1150, 1150, 1150, 1150, 1300, 1300, 1300, 1300, 1400, 1400, 1400, 1400, 1500, 1500, 1500, 1500, 1500, 1600, 1700, 1800),
++	CPU_DVFS("cpu_g",  1, 1, MHZ,   1,  475, 475, 475, 620, 620, 620, 620, 760, 760, 760, 760,  760,  910,  910,  1000,  1000, 1000, 1000, 1150, 1150, 1150, 1150, 1150, 1300, 1300, 1300, 1300, 1400, 1400, 1400, 1400, 1500, 1500, 1500, 1500, 1500, 1500, 1700, 1800),
+ 	CPU_DVFS("cpu_g",  1, 2, MHZ,   1,   1,   1,   1, 520, 520, 520, 700, 700, 700, 700,  860,  860,  860,  860,  860,  860,  860, 1050, 1050, 1150, 1150, 1150, 1200, 1200, 1300),
+ 	CPU_DVFS("cpu_g",  1, 3, MHZ,   1,   1,   1,   1, 550, 550, 550, 770, 770, 770, 770,  910,  910,  910,  910,  910,  910,  910, 1150, 1150, 1230, 1230, 1230, 1300),
+ 
+@@ -162,26 +166,26 @@
+ 	CPU_DVFS("cpu_g",  2, 2, MHZ,   1,   1,   1,   1, 520, 520, 520, 700, 700, 700, 700,  860,  860,  860,  860,  860,  860,  860, 1050, 1050, 1150, 1150, 1150, 1200, 1200, 1280, 1280, 1300, 1300, 1350, 1350, 1400),
+ 	CPU_DVFS("cpu_g",  2, 3, MHZ,   1,   1,   1,   1, 550, 550, 550, 770, 770, 770, 770,  910,  910,  910,  910,  910,  910,  910, 1150, 1150, 1230, 1230, 1230, 1280, 1280, 1300, 1300, 1350, 1350, 1400),
+ 
+-	CPU_DVFS("cpu_g",  3, 1, MHZ,   1,   1,   1,   1, 480, 480, 480, 650, 650, 650, 650,  780,  780,  780,  780,  780,  780,  780,  990,  990, 1040, 1040, 1040, 1100, 1100, 1200, 1200, 1250, 1250, 1300, 1300, 1330, 1330, 1400),
+-	CPU_DVFS("cpu_g",  3, 2, MHZ,   1,   1,   1,   1, 520, 520, 520, 700, 700, 700, 700,  860,  860,  860,  860,  860,  860,  860, 1050, 1050, 1150, 1150, 1150, 1200, 1200, 1280, 1280, 1300, 1300, 1350, 1350, 1400),
+-	CPU_DVFS("cpu_g",  3, 3, MHZ,   1,   1,   1,   1, 550, 550, 550, 770, 770, 770, 770,  910,  910,  910,  910,  910,  910,  910, 1150, 1150, 1230, 1230, 1230, 1280, 1280, 1300, 1300, 1350, 1350, 1400),
++	CPU_DVFS("cpu_g",  3, 1, MHZ,   1,  475, 475, 475, 620, 620, 620, 620, 760, 760, 760, 760,  760,  910,  910,  1000,  1000, 1000, 1000, 1150, 1150, 1150, 1150, 1150, 1300, 1300, 1300, 1300, 1400, 1400, 1400, 1400, 1500, 1500, 1500, 1500, 1500, 1600, 1700, 1800),
++	CPU_DVFS("cpu_g",  3, 2, MHZ,   1,  475, 475, 475, 620, 620, 620, 620, 760, 760, 760, 760,  760,  910,  910,  1000,  1000, 1000, 1000, 1150, 1150, 1150, 1150, 1150, 1300, 1300, 1300, 1300, 1400, 1400, 1400, 1400, 1500, 1500, 1500, 1500, 1500, 1600, 1700, 1800),
++	CPU_DVFS("cpu_g",  3, 3, MHZ,   1,  475, 475, 475, 620, 620, 620, 620, 760, 760, 760, 760,  760,  910,  910,  1000,  1000, 1000, 1000, 1150, 1150, 1150, 1150, 1150, 1300, 1300, 1300, 1300, 1400, 1400, 1400, 1400, 1500, 1500, 1500, 1500, 1500, 1600, 1700, 1800),
+ 
+ 	CPU_DVFS("cpu_g",  4, 0, MHZ,   1,   1,   1,   1, 460, 460, 460, 550, 550, 550, 550,  680,  680,  680,  680,  680,  680,  680,  820,  820,  970,  970,  970, 1040, 1040, 1080, 1080, 1150, 1150, 1200, 1200, 1240, 1240, 1280, 1280, 1320, 1320, 1360, 1360, 1500),
+ 	CPU_DVFS("cpu_g",  4, 1, MHZ,   1,   1,   1,   1, 480, 480, 480, 650, 650, 650, 650,  780,  780,  780,  780,  780,  780,  780,  990,  990, 1040, 1040, 1040, 1100, 1100, 1200, 1200, 1250, 1250, 1300, 1300, 1330, 1330, 1360, 1360, 1400, 1400, 1500),
+ 	CPU_DVFS("cpu_g",  4, 2, MHZ,   1,   1,   1,   1, 520, 520, 520, 700, 700, 700, 700,  860,  860,  860,  860,  860,  860,  860, 1050, 1050, 1150, 1150, 1150, 1200, 1200, 1280, 1280, 1300, 1300, 1340, 1340, 1380, 1380, 1500),
+ 	CPU_DVFS("cpu_g",  4, 3, MHZ,   1,   1,   1,   1, 550, 550, 550, 770, 770, 770, 770,  910,  910,  910,  910,  910,  910,  910, 1150, 1150, 1230, 1230, 1230, 1280, 1280, 1330, 1330, 1370, 1370, 1400, 1400, 1500),
+ 
+-	CPU_DVFS("cpu_g",  5, 3, MHZ,   1,   1,   1,   1, 550, 550, 550, 770, 770, 770, 770,  910,  910,  910,  910,  910,  910,  910, 1150, 1150, 1230, 1230, 1230, 1280, 1280, 1330, 1330, 1370, 1370, 1400, 1400, 1470, 1470, 1500, 1500, 1500, 1500, 1540, 1540, 1700),
+-	CPU_DVFS("cpu_g",  5, 4, MHZ,   1,   1,   1,   1, 550, 550, 550, 770, 770, 770, 770,  940,  940,  940,  940,  940,  940,  940, 1160, 1160, 1240, 1240, 1240, 1280, 1280, 1360, 1360, 1390, 1390, 1470, 1470, 1500, 1500, 1520, 1520, 1520, 1520, 1590, 1700),
++	CPU_DVFS("cpu_g",  5, 3, MHZ,   1,   1,   1, 550, 550, 550, 770, 770, 770, 770,  910,  910,  910,  910,  910,  910,  910, 1150, 1150, 1230, 1230, 1230, 1280, 1280, 1330, 1330, 1370, 1370, 1400, 1400, 1470, 1470, 1500, 1500, 1500, 1500, 1540, 1540, 1700, 1800),
++	CPU_DVFS("cpu_g",  5, 4, MHZ,   1,   1,   1, 550, 550, 550, 770, 770, 770, 770,  940,  940,  940,  940,  940,  940,  940, 1160, 1160, 1240, 1240, 1240, 1280, 1280, 1360, 1360, 1390, 1390, 1470, 1470, 1500, 1500, 1520, 1520, 1520, 1520, 1590, 1700, 1800),
+ 
+ 	CPU_DVFS("cpu_g",  6, 3, MHZ,   1,   1,   1,   1, 550, 550, 550, 770, 770, 770, 770,  910,  910,  910,  910,  910,  910,  910, 1150, 1150, 1230, 1230, 1230, 1280, 1280, 1330, 1330, 1370, 1370, 1400, 1400, 1470, 1470, 1500, 1500, 1500, 1500, 1540, 1540, 1700),
+ 	CPU_DVFS("cpu_g",  6, 4, MHZ,   1,   1,   1,   1, 550, 550, 550, 770, 770, 770, 770,  940,  940,  940,  940,  940,  940,  940, 1160, 1160, 1240, 1240, 1240, 1280, 1280, 1360, 1360, 1390, 1390, 1470, 1470, 1500, 1500, 1520, 1520, 1520, 1520, 1590, 1700),
+ 
+-	CPU_DVFS("cpu_g",  7, 0, MHZ,   1,   1,   1,   1, 460, 460, 460, 550, 550, 550, 550,  680,  680,  680,  680,  680,  680,  680,  820,  820,  970,  970,  970, 1040, 1040, 1080, 1080, 1150, 1150, 1200, 1200, 1280, 1280, 1300),
+-	CPU_DVFS("cpu_g",  7, 1, MHZ,   1,   1,   1,   1, 480, 480, 480, 650, 650, 650, 650,  780,  780,  780,  780,  780,  780,  780,  990,  990, 1040, 1040, 1040, 1100, 1100, 1200, 1200, 1300),
+-	CPU_DVFS("cpu_g",  7, 2, MHZ,   1,   1,   1,   1, 520, 520, 520, 700, 700, 700, 700,  860,  860,  860,  860,  860,  860,  860, 1050, 1050, 1150, 1150, 1150, 1200, 1200, 1300),
+-	CPU_DVFS("cpu_g",  7, 3, MHZ,   1,   1,   1,   1, 550, 550, 550, 770, 770, 770, 770,  910,  910,  910,  910,  910,  910,  910, 1150, 1150, 1230, 1230, 1230, 1300),
+-	CPU_DVFS("cpu_g",  7, 4, MHZ,   1,   1,   1,   1, 550, 550, 550, 770, 770, 770, 770,  940,  940,  940,  940,  940,  940,  940, 1160, 1160, 1300, 1300, 1300),
++	CPU_DVFS("cpu_g",  7, 0, MHZ,   1,  475, 475, 475, 620, 620, 620, 620, 760, 760, 760, 760,  760,  910,  910,  1000,  1000, 1000, 1000, 1150, 1150, 1150, 1150, 1150, 1300, 1300, 1300, 1300, 1400, 1400, 1400, 1400, 1500, 1500, 1500, 1500, 1500, 1600, 1700, 1800),
++	CPU_DVFS("cpu_g",  7, 1, MHZ,   1,  475, 475, 475, 620, 620, 620, 620, 760, 760, 760, 760,  760,  910,  910,  1000,  1000, 1000, 1000, 1150, 1150, 1150, 1150, 1150, 1300, 1300, 1300, 1300, 1400, 1400, 1400, 1400, 1500, 1500, 1500, 1500, 1500, 1600, 1700, 1800),
++	CPU_DVFS("cpu_g",  7, 2, MHZ,   1,  475, 475, 475, 620, 620, 620, 620, 760, 760, 760, 760,  760,  910,  910,  1000,  1000, 1000, 1000, 1150, 1150, 1150, 1150, 1150, 1300, 1300, 1300, 1300, 1400, 1400, 1400, 1400, 1500, 1500, 1500, 1500, 1500, 1600, 1700, 1800),
++	CPU_DVFS("cpu_g",  7, 3, MHZ,   1,  475, 475, 475, 620, 620, 620, 620, 760, 760, 760, 760,  760,  910,  910,  1000,  1000, 1000, 1000, 1150, 1150, 1150, 1150, 1150, 1300, 1300, 1300, 1300, 1400, 1400, 1400, 1400, 1500, 1500, 1500, 1500, 1500, 1600, 1700, 1800),
++	CPU_DVFS("cpu_g",  7, 4, MHZ,   1,  475, 475, 475, 620, 620, 620, 620, 760, 760, 760, 760,  760,  910,  910,  1000,  1000, 1000, 1000, 1150, 1150, 1150, 1150, 1150, 1300, 1300, 1300, 1300, 1400, 1400, 1400, 1400, 1500, 1500, 1500, 1500, 1500, 1600, 1700, 1800),
+ 
+ 	CPU_DVFS("cpu_g",  8, 0, MHZ,   1,   1,   1,   1, 460, 460, 460, 550, 550, 550, 550,  680,  680,  680,  680,  680,  680,  680,  820,  820,  970,  970,  970, 1040, 1040, 1080, 1080, 1150, 1150, 1200, 1200, 1280, 1280, 1300),
+ 	CPU_DVFS("cpu_g",  8, 1, MHZ,   1,   1,   1,   1, 480, 480, 480, 650, 650, 650, 650,  780,  780,  780,  780,  780,  780,  780,  990,  990, 1040, 1040, 1040, 1100, 1100, 1200, 1200, 1300),
+@@ -195,12 +199,11 @@
+ 	CPU_DVFS("cpu_g", 14, -1, MHZ,  1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,    1,    1,    1,    1,    1,  900,  900,  900,  900,  900,  900,  900,  900,  900,  900,  900,  900,  900,  900,  900,  900,  900,  900),
+ 	CPU_DVFS("cpu_g", 15, -1, MHZ,  1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,  900,  900,  900,  900,  900,  900,  900,  900,  900,  900,  900,  900,  900,  900,  900,  900,  900,  900,  900,  900,  900,  900,  900),
+ 
+-	CPU_DVFS("cpu_g", 12, 3, MHZ,   1,   475, 475, 475, 475, 620, 620, 620, 620, 760, 760, 760, 760,  760,  910,  910,  1000,  1000, 1000, 1000, 1150, 1150, 1150, 1150, 1150, 1300, 1300, 1300, 1300, 1400, 1400, 1400, 1400, 1500, 1500, 1500, 1500, 1500, 1500, 1700),
+-	CPU_DVFS("cpu_g", 12, 4, MHZ,   475, 475, 475, 475, 475, 620, 620, 620, 760, 760, 760, 760, 910,  910,  910, 1000,  1000,  1000, 1000, 1150, 1150, 1150, 1150, 1300, 1300, 1300, 1300, 1400, 1400, 1400, 1400, 1500, 1500, 1500, 1500, 1500, 1500, 1500, 1700),
+-
+-	CPU_DVFS("cpu_g", 13, 3, MHZ,   1,   1,   1,   1, 550, 550, 550, 770, 770, 770, 770,  910,  910,  910,  910,  910,  910,  910, 1150, 1150, 1230, 1230, 1230, 1280, 1280, 1330, 1330, 1370, 1370, 1400, 1400, 1470, 1470, 1500, 1500, 1500, 1500, 1540, 1540, 1700),
+-	CPU_DVFS("cpu_g", 13, 4, MHZ,   1,   1,   1,   1, 550, 550, 550, 770, 770, 770, 770,  940,  940,  940,  940,  940,  940,  940, 1160, 1160, 1240, 1240, 1240, 1280, 1280, 1360, 1360, 1390, 1390, 1470, 1470, 1500, 1500, 1520, 1520, 1520, 1520, 1590, 1700),
++	CPU_DVFS("cpu_g", 12, 3, MHZ,   1,  475, 475, 475, 620, 620, 620, 620, 760, 760, 760, 760,  760,  910,  910,  1000,  1000, 1000, 1000, 1150, 1150, 1150, 1150, 1150, 1300, 1300, 1300, 1300, 1400, 1400, 1400, 1400, 1500, 1500, 1500, 1500, 1500, 1500, 1700, 1800),
++	CPU_DVFS("cpu_g", 12, 4, MHZ,   1,  475, 475, 475, 620, 620, 620, 620, 760, 760, 760, 760,  760,  910,  910,  1000,  1000, 1000, 1000, 1150, 1150, 1150, 1150, 1150, 1300, 1300, 1300, 1300, 1400, 1400, 1400, 1400, 1500, 1500, 1500, 1500, 1500, 1500, 1700, 1800),
+ 
++	CPU_DVFS("cpu_g", 13, 3, MHZ,   1,  475, 475, 475, 620, 620, 620, 620, 760, 760, 760, 760,  760,  910,  910,  1000,  1000, 1000, 1000, 1150, 1150, 1150, 1150, 1150, 1300, 1300, 1300, 1300, 1400, 1400, 1400, 1400, 1500, 1500, 1500, 1500, 1500, 1500, 1700, 1800),
++	CPU_DVFS("cpu_g", 13, 4, MHZ,  1,  475, 475, 475, 620, 620, 620, 620, 760, 760, 760, 760,  760,  910,  910,  1000,  1000, 1000, 1000, 1150, 1150, 1150, 1150, 1150, 1300, 1300, 1300, 1300, 1400, 1400, 1400, 1400, 1500, 1500, 1500, 1500, 1500, 1500, 1700, 1800),
+ 	/*
+ 	 * "Safe entry" to be used when no match for chip speedo, process
+ 	 *  corner is found (just to boot at low rate); must be the last one
+@@ -215,14 +218,14 @@
+ 	CPU_DVFS("cpu_0",  4, 2, MHZ, 475, 475, 475, 640, 640, 640, 760, 760, 760,  860,  860,  860, 1000, 1000, 1000, 1000, 1000, 1100, 1100, 1200, 1200, 1200, 1200, 1200, 1300, 1300, 1300, 1300, 1400, 1400, 1400, 1400, 1400, 1500),
+ 	CPU_DVFS("cpu_0",  4, 3, MHZ, 475, 475, 640, 640, 640, 760, 760, 860, 860,  860,  860, 1000, 1000, 1000, 1100, 1100, 1100, 1100, 1200, 1200, 1200, 1200, 1300, 1300, 1300, 1300, 1400, 1400, 1400, 1400, 1400, 1500),
+ 
+-	CPU_DVFS("cpu_0",  5, 3, MHZ, 475, 475, 620, 620, 620, 760, 760, 760, 910,  910,  910, 1000, 1000, 1000, 1000, 1000, 1000, 1150, 1150, 1150, 1150, 1150, 1300, 1300, 1300, 1300, 1400, 1400, 1400, 1400, 1500, 1500, 1500, 1500, 1500, 1600, 1600, 1600, 1600, 1700),
+-	CPU_DVFS("cpu_0",  5, 4, MHZ, 475, 620, 620, 620, 760, 760, 760, 910, 910, 1000, 1000, 1000, 1000, 1000, 1150, 1150, 1150, 1150, 1150, 1300, 1300, 1300, 1300, 1400, 1400, 1400, 1500, 1500, 1500, 1500, 1600, 1600, 1600, 1600, 1600, 1600, 1600, 1600, 1700),
++	CPU_DVFS("cpu_0",  5, 3, MHZ, 475, 620, 620, 620, 760, 760, 760, 910,  910,  910, 1000, 1000, 1000, 1000, 1000, 1000, 1150, 1150, 1150, 1150, 1150, 1300, 1300, 1300, 1300, 1400, 1400, 1400, 1400, 1500, 1500, 1500, 1500, 1500, 1600, 1600, 1600, 1600, 1700, 1800),
++	CPU_DVFS("cpu_0",  5, 4, MHZ, 475, 620, 620, 760, 760, 760, 910, 910, 1000, 1000, 1000, 1000, 1000, 1150, 1150, 1150, 1150, 1150, 1300, 1300, 1300, 1300, 1400, 1400, 1400, 1500, 1500, 1500, 1500, 1600, 1600, 1600, 1600, 1600, 1600, 1600, 1600, 1700, 1800),
+ 
+ 	CPU_DVFS("cpu_0",  6, 3, MHZ, 475, 475, 620, 620, 620, 760, 760, 760, 910,  910,  910, 1000, 1000, 1000, 1000, 1000, 1000, 1150, 1150, 1150, 1150, 1150, 1300, 1300, 1300, 1300, 1400, 1400, 1400, 1400, 1500, 1500, 1500, 1500, 1500, 1600, 1600, 1600, 1600, 1700),
+ 	CPU_DVFS("cpu_0",  6, 4, MHZ, 475, 620, 620, 620, 760, 760, 760, 910, 910, 1000, 1000, 1000, 1000, 1000, 1150, 1150, 1150, 1150, 1150, 1300, 1300, 1300, 1300, 1400, 1400, 1400, 1500, 1500, 1500, 1500, 1600, 1600, 1600, 1600, 1600, 1600, 1600, 1600, 1700),
+ 
+-	CPU_DVFS("cpu_0", 12, 3, MHZ, 475, 475, 620, 620, 620, 760, 760, 760, 910,  910,  910, 1000, 1000, 1000, 1000, 1000, 1000, 1150, 1150, 1150, 1150, 1150, 1300, 1300, 1300, 1300, 1400, 1400, 1400, 1400, 1500, 1500, 1500, 1500, 1500, 1600, 1600, 1600, 1600, 1700),
+-	CPU_DVFS("cpu_0", 12, 4, MHZ, 475, 620, 620, 620, 760, 760, 760, 910, 910, 1000, 1000, 1000, 1000, 1000, 1000, 1150, 1150, 1150, 1150, 1300, 1300, 1300, 1300, 1400, 1400, 1400, 1500, 1500, 1500, 1500, 1500, 1600, 1600, 1600, 1600, 1600, 1600, 1600, 1700),
++	CPU_DVFS("cpu_0", 12, 3, MHZ, 475, 475, 620, 620, 760, 760, 760, 910,  910,  910, 1000, 1000, 1000, 1000, 1000, 1000, 1150, 1150, 1150, 1150, 1150, 1300, 1300, 1300, 1300, 1400, 1400, 1400, 1400, 1500, 1500, 1500, 1500, 1500, 1600, 1600, 1600, 1600, 1700, 1800),
++	CPU_DVFS("cpu_0", 12, 4, MHZ, 475, 475, 620, 620, 760, 760, 760, 910,  910,  910, 1000, 1000, 1000, 1000, 1000, 1000, 1150, 1150, 1150, 1150, 1150, 1300, 1300, 1300, 1300, 1400, 1400, 1400, 1400, 1500, 1500, 1500, 1500, 1500, 1600, 1600, 1600, 1600, 1700, 1800),
+ };
+ 
+ #define CORE_DVFS(_clk_name, _speedo_id, _auto, _mult, _freqs...)	\
+@@ -260,29 +263,29 @@
+ 	CORE_DVFS("vi",     2, 1, KHZ,        1, 219000, 267000, 300000, 371000,  409000,  425000,  425000,  425000),
+ 	CORE_DVFS("vi",     3, 1, KHZ,        1,      1,      1,      1,      1,       1,  470000,  470000,  470000),
+ 
+-	CORE_DVFS("vde",    0, 1, KHZ,        1, 228000, 275000, 332000, 380000,  416000,  416000,  416000,  416000),
+-	CORE_DVFS("mpe",    0, 1, KHZ,        1, 234000, 285000, 332000, 380000,  416000,  416000,  416000,  416000),
+-	CORE_DVFS("2d",     0, 1, KHZ,        1, 267000, 285000, 332000, 380000,  416000,  416000,  416000,  416000),
+-	CORE_DVFS("epp",    0, 1, KHZ,        1, 267000, 285000, 332000, 380000,  416000,  416000,  416000,  416000),
+-	CORE_DVFS("3d",     0, 1, KHZ,        1, 234000, 285000, 332000, 380000,  416000,  416000,  416000,  416000),
+-	CORE_DVFS("3d2",    0, 1, KHZ,        1, 234000, 285000, 332000, 380000,  416000,  416000,  416000,  416000),
+-	CORE_DVFS("se",     0, 1, KHZ,        1, 267000, 285000, 332000, 380000,  416000,  416000,  416000,  416000),
+-
+-	CORE_DVFS("vde",    1, 1, KHZ,   200000, 228000, 275000, 332000, 380000,  416000,  416000,  416000,  416000),
+-	CORE_DVFS("mpe",    1, 1, KHZ,   200000, 234000, 285000, 332000, 380000,  416000,  416000,  416000,  416000),
+-	CORE_DVFS("2d",     1, 1, KHZ,   200000, 267000, 285000, 332000, 380000,  416000,  416000,  416000,  416000),
+-	CORE_DVFS("epp",    1, 1, KHZ,   200000, 267000, 285000, 332000, 380000,  416000,  416000,  416000,  416000),
+-	CORE_DVFS("3d",     1, 1, KHZ,   200000, 234000, 285000, 332000, 380000,  416000,  416000,  416000,  416000),
+-	CORE_DVFS("3d2",    1, 1, KHZ,   200000, 234000, 285000, 332000, 380000,  416000,  416000,  416000,  416000),
+-	CORE_DVFS("se",     1, 1, KHZ,   200000, 267000, 285000, 332000, 380000,  416000,  416000,  416000,  416000),
+-
+-	CORE_DVFS("vde",    2, 1, KHZ,   200000, 247000, 304000, 352000, 400000,  437000,  484000,  520000,  600000),
+-	CORE_DVFS("mpe",    2, 1, KHZ,   200000, 247000, 304000, 361000, 408000,  446000,  484000,  520000,  600000),
+-	CORE_DVFS("2d",     2, 1, KHZ,   200000, 267000, 304000, 361000, 408000,  446000,  484000,  520000,  600000),
+-	CORE_DVFS("epp",    2, 1, KHZ,   200000, 267000, 304000, 361000, 408000,  446000,  484000,  520000,  600000),
+-	CORE_DVFS("3d",     2, 1, KHZ,   200000, 247000, 304000, 361000, 408000,  446000,  484000,  520000,  600000),
+-	CORE_DVFS("3d2",    2, 1, KHZ,   200000, 247000, 304000, 361000, 408000,  446000,  484000,  520000,  600000),
+-	CORE_DVFS("se",     2, 1, KHZ,   200000, 267000, 304000, 361000, 408000,  446000,  484000,  520000,  600000),
++	CORE_DVFS("vde",    0, 1, KHZ,   200000, 247000, 304000, 352000, 400000,  437000,  484000,  520000,  650000),
++	CORE_DVFS("mpe",    0, 1, KHZ,   200000, 247000, 304000, 361000, 408000,  446000,  484000,  520000,  650000),
++	CORE_DVFS("2d",     0, 1, KHZ,   200000, 267000, 304000, 361000, 408000,  446000,  484000,  520000,  650000),
++	CORE_DVFS("epp",    0, 1, KHZ,   200000, 267000, 304000, 361000, 408000,  446000,  484000,  520000,  650000),
++	CORE_DVFS("3d",     0, 1, KHZ,   200000, 267000, 304000, 361000, 408000,  446000,  484000,  520000,  650000),
++	CORE_DVFS("3d2",    0, 1, KHZ,   200000, 267000, 304000, 361000, 408000,  446000,  484000,  520000,  650000),
++	CORE_DVFS("se",     0, 1, KHZ,   200000, 267000, 304000, 361000, 408000,  446000,  484000,  520000,  650000),
++
++	CORE_DVFS("vde",    1, 1, KHZ,   200000, 247000, 304000, 352000, 400000,  437000,  484000,  520000,  650000),
++	CORE_DVFS("mpe",    1, 1, KHZ,   200000, 247000, 304000, 361000, 408000,  446000,  484000,  520000,  650000),
++	CORE_DVFS("2d",     1, 1, KHZ,   200000, 267000, 304000, 361000, 408000,  446000,  484000,  520000,  650000),
++	CORE_DVFS("epp",    1, 1, KHZ,   200000, 267000, 304000, 361000, 408000,  446000,  484000,  520000,  650000),
++	CORE_DVFS("3d",     1, 1, KHZ,   200000, 247000, 304000, 361000, 408000,  446000,  484000,  520000,  650000),
++	CORE_DVFS("3d2",    1, 1, KHZ,   200000, 247000, 304000, 361000, 408000,  446000,  484000,  520000,  650000),
++	CORE_DVFS("se",     1, 1, KHZ,   200000, 267000, 304000, 361000, 408000,  446000,  484000,  520000,  650000),
++
++	CORE_DVFS("vde",    2, 1, KHZ,   200000, 247000, 304000, 352000, 400000,  437000,  484000,  520000,  650000),
++	CORE_DVFS("mpe",    2, 1, KHZ,   200000, 247000, 304000, 361000, 408000,  446000,  484000,  520000,  650000),
++	CORE_DVFS("2d",     2, 1, KHZ,   200000, 267000, 304000, 361000, 408000,  446000,  484000,  520000,  650000),
++	CORE_DVFS("epp",    2, 1, KHZ,   200000, 267000, 304000, 361000, 408000,  446000,  484000,  520000,  650000),
++	CORE_DVFS("3d",     2, 1, KHZ,   200000, 247000, 304000, 361000, 408000,  446000,  484000,  520000,  650000),
++	CORE_DVFS("3d2",    2, 1, KHZ,   200000, 247000, 304000, 361000, 408000,  446000,  484000,  520000,  650000),
++	CORE_DVFS("se",     2, 1, KHZ,   200000, 267000, 304000, 361000, 408000,  446000,  484000,  520000,  650000),
+ 
+ 	CORE_DVFS("vde",    3, 1, KHZ,        1,      1,      1,      1,      1,       1,  484000,  484000,  484000),
+ 	CORE_DVFS("mpe",    3, 1, KHZ,        1,      1,      1,      1,      1,       1,  484000,  484000,  484000),
+@@ -292,17 +295,17 @@
+ 	CORE_DVFS("3d2",    3, 1, KHZ,        1,      1,      1,      1,      1,       1,  484000,  484000,  484000),
+ 	CORE_DVFS("se",     3, 1, KHZ,        1,      1,      1,      1,      1,       1,  625000,  625000,  625000),
+ 
+-	CORE_DVFS("host1x", 0, 1, KHZ,        1, 152000, 188000, 222000, 254000,  267000,  267000,  267000,  267000),
+-	CORE_DVFS("host1x", 1, 1, KHZ,   100000, 152000, 188000, 222000, 254000,  267000,  267000,  267000,  267000),
+-	CORE_DVFS("host1x", 2, 1, KHZ,   100000, 152000, 188000, 222000, 254000,  267000,  267000,  267000,  300000),
++	CORE_DVFS("host1x", 0, 1, KHZ,   100000, 152000, 188000, 222000, 254000,  267000,  267000,  267000,  350000),
++	CORE_DVFS("host1x", 1, 1, KHZ,   100000, 152000, 188000, 222000, 254000,  267000,  267000,  267000,  350000),
++	CORE_DVFS("host1x", 2, 1, KHZ,   100000, 152000, 188000, 222000, 254000,  267000,  267000,  267000,  350000),
+ 	CORE_DVFS("host1x", 3, 1, KHZ,        1,      1,      1,      1,      1,       1,  242000,  242000,  242000),
+ 
+-	CORE_DVFS("cbus",   0, 1, KHZ,        1, 228000, 275000, 332000, 380000,  416000,  416000,  416000,  416000),
+-	CORE_DVFS("cbus",   1, 1, KHZ,   200000, 228000, 275000, 332000, 380000,  416000,  416000,  416000,  416000),
+-	CORE_DVFS("cbus",   2, 1, KHZ,   200000, 247000, 304000, 352000, 400000,  437000,  484000,  520000,  600000),
++	CORE_DVFS("cbus",   0, 1, KHZ,   200000, 247000, 304000, 352000, 400000,  437000,  484000,  520000,  650000),
++	CORE_DVFS("cbus",   1, 1, KHZ,   200000, 247000, 304000, 352000, 400000,  437000,  484000,  520000,  650000),
++	CORE_DVFS("cbus",   2, 1, KHZ,   200000, 247000, 304000, 352000, 400000,  437000,  484000,  520000,  650000),
+ 	CORE_DVFS("cbus",   3, 1, KHZ,        1,      1,      1,      1,      1,       1,  484000,  484000,  484000),
+ 
+-	CORE_DVFS("pll_c",  -1, 1, KHZ,  533000, 667000, 667000, 800000, 800000, 1066000, 1066000, 1066000, 1200000),
++	CORE_DVFS("pll_c",  -1, 1, KHZ,  533000, 667000, 667000, 800000, 800000, 1066000, 1066000, 1066000, 1300000),
+ 
+ 	/*
+ 	 * PLLM dvfs is common across all speedo IDs with one special exception
+@@ -560,6 +563,7 @@
+ 	 * result to the nominal cpu level for the chips with this speedo_id.
+ 	 */
+ 	mv = tegra3_dvfs_rail_vdd_core.nominal_millivolts;
++        pr_info("tegra3_dvfs: %s: tegra3_dvfs_rail_vdd_core.nominal_millivolts mV for cpu_speedo_id: %u is %umV\n",__func__,speedo_id,mv);
+ 	for (i = 0; i < MAX_DVFS_FREQS; i++) {
+ 		if ((cpu_millivolts[i] == 0) ||
+ 		    tegra3_get_core_floor_mv(cpu_millivolts[i]) > mv)
+@@ -567,8 +571,10 @@
+ 	}
+ 	BUG_ON(i == 0);
+ 	mv = cpu_millivolts[i - 1];
++        pr_info("tegra3_dvfs: %s: cpu mv: %i\n", __func__, mv);
+ 	BUG_ON(mv < tegra3_dvfs_rail_vdd_cpu.min_millivolts);
+ 	mv = min(mv, tegra_cpu_speedo_mv());
++        pr_info("tegra3_dvfs: %s: nominal mV for cpu_speedo_id:%u is %umV\n",__func__,speedo_id,mv);
+ 
+ 	/*
+ 	 * Find matching cpu dvfs entry, and use it to determine index to the
+@@ -607,6 +613,7 @@
+ 		       speedo_id, process_id, d->freqs[i-1] * d->freqs_mult);
+ 
+ 	*cpu_dvfs = d;
++        pr_info("tegra3_dvfs: %s: cpu_nominal_mv_index: %i\n",__func__, i - 1);
+ 	return (i - 1);
+ }
+ 
+@@ -939,7 +946,7 @@
+ 	{
+ 		if(project_id == TEGRA3_PROJECT_TF700T)
+ 		{
+-			printk("force vdd_core of Tf700t as 1300mV !\n");
++			printk("force vdd_core of Tf700t as 1350mV !\n");
+ 		}
+ 		else if(project_id == TEGRA3_PROJECT_P1801)
+ 		{
+diff -urN a/arch/arm/mach-tegra/tegra3_speedo.c b/arch/arm/mach-tegra/tegra3_speedo.c
+--- a/arch/arm/mach-tegra/tegra3_speedo.c	2012-09-19 12:45:32.000000000 +0200
++++ b/arch/arm/mach-tegra/tegra3_speedo.c	2012-11-06 02:41:54.000000000 +0100
+@@ -220,9 +220,9 @@
+ 		case 0x80: /* T33 or T33S */
+ 			switch (package_id) {
+ 			case 1: /* MID => T33 */
+-				cpu_speedo_id = 5;
++				cpu_speedo_id = 12;
+ 				soc_speedo_id = 2;
+-				threshold_index = 8;
++				threshold_index = 9;
+ 				break;
+ 			case 2: /* DSC => T33S */
+ 				cpu_speedo_id = 6;
+@@ -367,7 +367,7 @@
+ 	/* SKU Overrides
+ 	* T33	=> T30, T30L
+ 	* T33S	=> T30S, T30SL
+-	* T30	=> T30L
++	* T30	=> T30Lvi
+ 	* T30S	=> T30SL
+ 	* AP33	=> AP30
+ 	*/
+@@ -540,7 +540,7 @@
+  */
+ static const int cpu_speedo_nominal_millivolts[] =
+ /* speedo_id 0,    1,    2,    3,    4,    5,    6,    7,    8,   9,  10,  11,   12,    13,  14,  15 */
+-	{ 1125, 1150, 1150, 1150, 1237, 1237, 1237, 1150, 1150, 1007, 916, 850, 1237, 1237, 950, 900};
++	{ 1125, 1350, 1350, 1350, 1237, 1350, 1237, 1350, 1150, 1007, 916, 850, 1350,  1350, 950, 900};
+ 
+ int tegra_cpu_speedo_mv(void)
+ {
+@@ -552,18 +552,18 @@
+ {
+ 	switch (soc_speedo_id) {
+ 	case 0:
+-		return 1200;
++		return 1350;
+ 	case 1:
+ 		if ((cpu_speedo_id != 7) && (cpu_speedo_id != 8))
+-			return 1200;
++			return 1350;
+ 		/* fall thru for T30L or T30SL */
+ 	case 2:
+ 		if (cpu_speedo_id != 13)
+-			return 1300;
++			return 1350;
+ 		/* T37 */
+ 		return 1350;
+ 	case 3:
+-		return 1250;
++		return 1350;
+ 	default:
+ 		BUG();
+ 	}
+diff -urN a/drivers/cpufreq/cpufreq.c b/drivers/cpufreq/cpufreq.c
+--- a/drivers/cpufreq/cpufreq.c	2012-09-19 12:45:34.000000000 +0200
++++ b/drivers/cpufreq/cpufreq.c	2012-10-24 16:18:20.000000000 +0200
+@@ -596,6 +596,71 @@
+ 	return sprintf(buf, "%u\n", policy->cpuinfo.max_freq);
+ }
+ 
++#ifdef CONFIG_VOLTAGE_CONTROL
++/*
++ * Tegra3 voltage control via cpufreq by Paul Reioux (faux123)
++ * inspired by Michael Huang's voltage control code for OMAP44xx
++ */
++
++#include "../../arch/arm/mach-tegra/dvfs.h"
++#include "../../arch/arm/mach-tegra/clock.h"
++
++extern int user_mv_table[MAX_DVFS_FREQS];
++
++static ssize_t show_UV_mV_table(struct cpufreq_policy *policy, char *buf)
++{
++	int i = 0;
++	char *out = buf;
++	struct clk *cpu_clk_g = tegra_get_clock_by_name("cpu_g");
++
++	/* find how many actual entries there are */
++	i = cpu_clk_g->dvfs->num_freqs;
++
++	for(i--; i >=0; i--) {
++		out += sprintf(out, "%lumhz: %i mV\n",
++				cpu_clk_g->dvfs->freqs[i]/1000000,
++				cpu_clk_g->dvfs->millivolts[i]);
++	}
++
++	return out - buf;
++}
++
++static ssize_t store_UV_mV_table(struct cpufreq_policy *policy, char *buf, size_t count)
++{
++	int i = 0;
++	unsigned long volt_cur;
++	int ret;
++	char size_cur[16];
++
++	struct clk *cpu_clk_g = tegra_get_clock_by_name("cpu_g");
++
++	/* find how many actual entries there are */
++	i = cpu_clk_g->dvfs->num_freqs;
++
++	for(i--; i >= 0; i--) {
++
++		if(cpu_clk_g->dvfs->freqs[i]/1000000 != 0) {
++			ret = sscanf(buf, "%lu", &volt_cur);
++			if (ret != 1)
++				return -EINVAL;
++
++			/* TODO: need some robustness checks */
++			user_mv_table[i] = volt_cur;
++			pr_info("user mv tbl[%i]: %lu\n", i, volt_cur);
++
++			/* Non-standard sysfs interface: advance buf */
++			ret = sscanf(buf, "%s", size_cur);
++			buf += (strlen(size_cur)+1);
++		}
++	}
++	/* update dvfs table here */
++	cpu_clk_g->dvfs->millivolts = user_mv_table;
++
++	return count;
++}
++#endif
++
++
+ cpufreq_freq_attr_ro_perm(cpuinfo_cur_freq, 0400);
+ cpufreq_freq_attr_ro(cpuinfo_min_freq);
+ cpufreq_freq_attr_ro(cpuinfo_max_freq);
+@@ -613,6 +678,10 @@
+ cpufreq_freq_attr_ro(policy_min_freq);
+ cpufreq_freq_attr_ro(policy_max_freq);
+ cpufreq_freq_attr_rw(dvfs_test);
++#ifdef CONFIG_VOLTAGE_CONTROL
++cpufreq_freq_attr_rw(UV_mV_table);
++#endif
++
+ 
+ static struct attribute *default_attrs[] = {
+ 	&cpuinfo_min_freq.attr,
+@@ -629,6 +698,10 @@
+ 	&policy_min_freq.attr,
+ 	&policy_max_freq.attr,
+ 	&dvfs_test.attr,
++#ifdef CONFIG_VOLTAGE_CONTROL
++	&UV_mV_table.attr,
++#endif
++
+ 	NULL
+ };
+ 
