@@ -135,10 +135,12 @@ process.bootimg.config=Конфигурация ядра
 process.bootimg.blob=Блоб загрузчика
 process.bootimg.blobdone=...ок
 process.rootfs.prepare=Установка корневой файловой системы linux...
+process.rootfs.prepare.info=Выполняется распаковка архива с корневой файловой системой Linux.
 process.done=Порядок!
 
 finish.title=Установка завершена!
-finish.congrat=Поздравляем!
+finish.congrat=Поздравляем! Установка успешно завершена.
+finish.fail=Произошел сбой в процессе установки!
 finish.info=закончил установку Linux на ваше устройство.\
 \
 Статус установки

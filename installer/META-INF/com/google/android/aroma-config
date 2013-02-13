@@ -16,7 +16,7 @@ ini_set("rom_name",    "TF700 Dualboot Installer");
 ini_set("rom_version", "v0.8.0");
 ini_set("rom_author",  "rabits");
 ini_set("rom_device",  "Asus Transformer TF700/T");
-ini_set("rom_date",    "11/02/2013");
+ini_set("rom_date",    "13/02/2013");
 
 setvar("terms_agreed", "0");
 
@@ -31,6 +31,7 @@ splash(
 
 # Extract cool busybox to /tmp/aroma/busybox
 restotmp("exec/busybox","busybox");
+restotmp("exec/start_install.sh","start_install.sh");
 
 # Set fonts
 fontresload( "0", "ttf/Roboto-Regular.ttf", "12" ); #-- "0" = Small Font
@@ -174,12 +175,19 @@ selectbox(
         +"Mb <~common.total>)", "<~rootfs.item4_info>", iif(cmp("1","<=", file_getprop("/tmp/available_disks.prop","available.mmcblk1")),0,3)
 );
 
+# Write basic install_exit.prop file
+write("/tmp/install.prop",
+    "exit=1\n"+
+    "message=\n"
+);
+
 if cmp("1","==", prop("rootfs.prop","selected.0")) then
     # Write install.prop file to prevent hang on skip
     write("/tmp/install.prop",
         "install.rootfs_name=\n"+
         "install.rootfs_dev=\n"+
         "install.disk=\n"+
+        "install.dev=\n"+
         "install.to=\n"+
         "install.moveto=\n"+
         "install.rootsize=\n"
@@ -329,7 +337,7 @@ viewbox(
     "<~ready.info>\n\n"+iif(cmp("1","!=", prop("rootfs.prop","selected.0")),
         "<b><~ready.params></b>:"
             +"\n  <~ready.rootfs>\t: <#selectbg_g>'"+file_getprop("/tmp/install.prop","install.rootfs_name")+"' ("+file_getprop("/tmp/install.prop","install.rootfs_dev")+")</#>"
-            +"\n  <~ready.install_disk>\t: <#selectbg_g>"+file_getprop("/tmp/install.prop","install.disk")+"</#>"
+            +"\n  <~ready.install_disk>\t: <#selectbg_g>"+file_getprop("/tmp/install.prop","install.disk")+" ("+file_getprop("/tmp/install.prop","install.dev")+")</#>"
             +"\n  <~ready.install_path>\t: <#selectbg_g>"+file_getprop("/tmp/install.prop","install.to")+"</#>"
             +iif(cmp("1","==", prop("options.prop","item.1.1")), "\n  <~ready.install_oldmove>\t: <#selectbg_g>"+file_getprop("/tmp/install.prop","install.moveto")+"</#>", "")
             +"\n  <~ready.install_size>\t: <#selectbg_g>"+file_getprop("/tmp/install.prop","install.rootsize")+"Gb</#>"
@@ -351,9 +359,13 @@ setvar("retstatus",
       "<~install.title>",
       "<b>"+ini_get("rom_name")+"</b> <~install.info> (~10 <~common.min>)",
       "@install",
-      "<~install.finish> <b>"+ini_get("rom_name")+"</b>. <~install.finish2> Next <~install.finish3>"
+      "<~install.finish> <b>"+ini_get("rom_name")+"</b>. <~install.finish2> <b><~text_next></b> <~install.finish3>"
   )
 );
+
+if prop("rootfs.prop","selected.0")!=1 then
+    setvar("retstatus",file_getprop("/tmp/install_exit.prop","exit"));
+endif;
 
 ###################################################################################################################
 # Finish screen
@@ -361,8 +373,10 @@ setvar("retstatus",
 ini_set("text_next", "Finish");
 checkviewbox(
     "<~finish.title>",
-    "<#selectbg_g><b><~finish.congrat></b></#>\n\n"+
-    "<b>"+ini_get("rom_name")+"</b> <~finish.info>: "+getvar("retstatus")+"\n\n",
+    iif(cmp("0","==",getvar("retstatus")),
+        "<#0a0><b><~finish.congrat></b></#>",
+        "<#a00><b><~finish.fail>:</b></#>\n"+file_getprop("/tmp/install_exit.prop","message"))
+    +"\n\n<b>"+ini_get("rom_name")+"</b> <~finish.info>: "+getvar("retstatus")+"\n\n",
     "@welcome",
     "<~finish.reboot>",
     "1",
@@ -370,9 +384,7 @@ checkviewbox(
 );
 
 # Check if reboot checkbox was checked
-if
-  getvar("reboot_it")=="1"
-then
+if getvar("reboot_it")=="1" then
   reboot("onfinish");
 endif;
 

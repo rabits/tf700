@@ -4,8 +4,8 @@ echo "[selected_rootfs.sh] Get selected rootfs archive and write it to /tmp/inst
 bb=/tmp/aroma/busybox
 
 number=$(cut -d'=' -f2 /tmp/aroma-data/rootfs_source.prop)
-name=$(grep "available.rootfs${number}.name" /tmp/available_rootfs.prop | cut -d'=' -f2)
-disk=$(grep "available.rootfs${number}.disk" /tmp/available_rootfs.prop | cut -d'=' -f2)
+name=$(grep -F "available.rootfs${number}.name" /tmp/available_rootfs.prop | cut -d'=' -f2)
+disk=$(grep -F "available.rootfs${number}.disk" /tmp/available_rootfs.prop | cut -d'=' -f2)
 echo "Selected rootfs archive ${name} on ${disk}"
 
 [ -e "/dev/block/${disk}" ] && diskdevice="/dev/block/${disk}"

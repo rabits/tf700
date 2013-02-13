@@ -15,7 +15,6 @@ Please, select OS to boot:
 ==========================
  1         - Linux
  2,voldown - Android
- i         - Install
  s         - Shell
 ==========================
 EOF
@@ -34,12 +33,8 @@ case "$inp" in
     /init-android "$@"
     exit 1
     ;;
-  i)
-    echo "Installing..."
-    echo
-    . /lib/multi/02-install.sh
-    ;;
   s)
+    echo
     echo "Welcome to HELL..."
     echo
     /bin/sh -i </dev/console >/dev/console 2>&1

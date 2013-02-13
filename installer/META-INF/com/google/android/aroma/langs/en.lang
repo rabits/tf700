@@ -135,10 +135,12 @@ process.bootimg.config=Kernel configuration
 process.bootimg.blob=Blob boot image
 process.bootimg.blobdone=...done
 process.rootfs.prepare=Installing linux root file system...
+process.rootfs.prepare.info=At the moment, the installer unpacks Linux root filesystem to selected disk.
 process.done=All Done!
 
 finish.title=Installation completed!
-finish.congrat=Congratulation!
+finish.congrat=Congratulation! Installation completed.
+finish.fail=Installation fails!
 finish.info=installed Linux into your device.\
 \
 Installer Status

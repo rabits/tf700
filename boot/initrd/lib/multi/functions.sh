@@ -66,7 +66,7 @@ echo "MMM   MMM.   MMM.  MMM    MMMMM.  .MMM   ZMMMMMMMMMMMM   MMMMMMM   8MMMM  
 echo "MMM.  MMM   NMMM. .MMMM    ....   MMMM.          =MMMM.  MMMMMMM.  MMMMM  MMMMMN                   M"
 echo "MM~  MMMM. ,MMM.  MMMMMMM. . . =MMMMMM.          MMMM~   MMMMMMM.  MMMMM  MMMMMMMM.               MM"
 echo "MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM  MMMMMMMM        .     MMMM"
-echo "M Initrd Linux / Android embedded multiboot menu system with installer M  MMMMMMMMM  ,M.       MMMMM"
+echo "MMMMMMMMM Initrd Linux / Android embedded multiboot menu system MMMMMMMM  MMMMMMMMM  ,M.       MMMMM"
 echo "MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM  MMMMMMMM,=MMMMMMMMMMMMMMMM"
 }
 
@@ -82,15 +82,14 @@ multiFindLinuxDevice()
     for dev in /dev/sda1 /dev/mmcblk1p1 /dev/sdb1 /dev/mmcblk0p9; do
         if mount | grep -q ${rootmnt} 1>&2; then break; fi
         echo "Trying default root: ${dev}" 1>&2
-        if mount -t ext4 ${dev} ${rootmnt} 1>&2; then
+        if mount -t ext4 -o defaults,noatime,nodiratime,discard,errors=remount-ro,commit=60 ${dev} ${rootmnt} 1>&2 2>/dev/null; then
             if multiValidateRootInit "$init" 1>&2; then
                 device="${dev}"
                 break
             fi
-            echo "  Target filesystem doesn't have required ${init}." 1>&2
+            echo "  ${init} not found." 1>&2
             umount ${rootmnt} 1>&2
         fi
-        echo "  FAILED"; 1>&2
         device=""
     done
 
@@ -115,32 +114,6 @@ multiFindLinuxDevice()
     fi
 
     echo $device
-}
-
-multiFindInstallArchive()
-{
-    # Trying to find archive on external devices
-    for dev in /dev/sda1 /dev/mmcblk1p1 /dev/sdb1; do
-        if mount | grep -q ${rootmnt} 1>&2; then break; fi
-        echo "Trying to find rootfs archive in ${dev}" 1>&2
-        if mount ${dev} ${rootmnt} 2>/dev/null 1>&2; then
-            file=$(find "${rootmnt}" -name 'tf700-rootfs*.tar.lzma' -maxdepth 1)
-            if [ "x${file}" != "x" ]; then
-                if [ -f "${file}" ]; then
-                    echo "  Rootfs archive ${file} found!" 1>&2
-                    out=$file
-                    break
-                fi
-                echo "  Found too many archives, skipping: ${file}" 1>&2
-            fi
-            echo "  Rootfs archive not found here." 1>&2
-            umount ${rootmnt} 1>&2
-            continue
-        fi
-        echo "  Can't mount ${dev}" 1>&2
-    done
-
-    echo $out
 }
 
 multiValidateRootInit() {

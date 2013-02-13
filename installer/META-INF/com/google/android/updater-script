@@ -6,12 +6,12 @@ ui_print("<~process.info>");
 set_progress(0.0);
 
 #-- Kernel & boot image --#
+show_progress(0.2, "-5000");
 ui_print("@ <~process.bootimg.prepare>");
 mount("ext4", "EMMC", "/dev/block/mmcblk0p1", "/system");
 set_perm_recursive(0, 0, 0755, 0755, "/tmp");
 
-set_progress(0.1);
-ui_print("---------------------------------------");
+ui_print("");
 ui_print("@ <~process.bootimg.install>");
 
 ui_print("<~process.bootimg.config>");
@@ -41,13 +41,18 @@ package_extract_file("boot.blob", "/dev/block/mmcblk0p4");
 ui_print("<~process.bootimg.blobdone>");
 
 unmount("/system");
-set_progress(0.2);
-ui_print("---------------------------------------");
+ui_print("");
+
+#-- Root disk --#
 ui_print("@ <~process.rootfs.prepare>");
+ui_print("<~process.rootfs.prepare.info>");
 
+if file_getprop("/tmp/aroma-data/rootfs.prop","selected.0") != "1" then
+    show_progress(0.9, "-700000");
+    set_perm(0,0,0755,"/tmp/aroma-data/start_install.sh");
+    run_program("/tmp/aroma-data/start_install.sh");
+endif;
 
-
-set_progress(0.9);
 set_progress(1.0);
-ui_print("---------------------------------------");
+ui_print("");
 ui_print("<~process.done>");

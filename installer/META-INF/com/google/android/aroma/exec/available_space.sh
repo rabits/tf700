@@ -27,9 +27,11 @@ if grep -q 'selected.0=2' /tmp/aroma-data/rootfs.prop; then
     disk_free=$($bb expr $(echo "${mounted}" | awk '{print $4}') / 1024 / 1024)
     overall_space_available=$disk_free
 
+    echo "install.dev=$(echo "${mounted}" | cut -d' ' -f1)" >> /tmp/install.prop
+
     if grep -q 'item.1.1=1' /tmp/aroma-data/options.prop; then
         echo "We don't need count size of rootfs.img - it will not be replaced."
-        echo "install.replace=false" >> /tmp/install.prop
+        echo "install.replace=0" >> /tmp/install.prop
         newname="${rootfsfile}"
         while [ -f "${newname}" ]; do
             newname="$(echo "${rootfsfile}" | cut -d'.' -f1)-old${count}.img"
@@ -38,7 +40,7 @@ if grep -q 'selected.0=2' /tmp/aroma-data/rootfs.prop; then
         echo "install.moveto=${newname}" >> /tmp/install.prop
     else
         echo "Search present virtual disk ${rootfsfile} ..."
-        echo "install.replace=true" >> /tmp/install.prop
+        echo "install.replace=1" >> /tmp/install.prop
         echo "install.moveto=" >> /tmp/install.prop
         if [ -f "${rootfsfile}" ]; then
             out_image_size=$($bb expr $($bb stat -c "%s" "${rootfsfile}") / 1024 / 1024 / 1024)
@@ -50,10 +52,10 @@ if grep -q 'selected.0=2' /tmp/aroma-data/rootfs.prop; then
 
     echo "install.available=${overall_space_available}" >> /tmp/install.prop
 else
-    diskcount=$(cut -d'=' -f2 /tmp/aroma-data/rootfs.prop)
+    diskcount=$(($(cut -d'=' -f2 /tmp/aroma-data/rootfs.prop)-1))
     disk=$(head -n${diskcount} /tmp/available_disks.list | tail -n1)
     overall_space_available=$($bb expr $(grep -F "available.${disk}=" /tmp/available_disks.prop | cut -d'=' -f2) / 1024)
-    echo "Selected external disk ${disk}"
+    echo "Selected external disk ${disk} with size ${overall_space_available}Gb"
 
     [ -e "/dev/block/${disk}" ] && diskdevice="/dev/block/${disk}"
     [ -e "/dev/${disk}" ] && diskdevice="/dev/${disk}"
