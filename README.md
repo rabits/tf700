@@ -68,19 +68,16 @@ TODO
   * $ patch -p1 < ../../../kernel/patch/uksm/0*.patch
 7. Apply additional patches (clemsyn-oc, fsync-control, include-fix, ROW-scheduler):
   * $ patch -p1 < ../../../kernel/patch/*.patch
-8. Change configuration of kernel:
-  * $ make O=$KERNEL_OUT menuconfig
-9. Build kernel and install modules:
+8. Build kernel and install modules:
   * $ make -j4 O=$KERNEL_OUT zImage
   * $ make -j4 modules O=$KERNEL_OUT DESTDIR=$MODULES_OUT
   * $ make -j4 modules_install O=$KERNEL_OUT INSTALL_MOD_PATH=$MODULES_OUT
-10. Done
 
 # Create boot image
 1. Install abootimg tool:
   * # apt-get install abootimg
 2. Make initrd:
-  * $ cd boot/initrd && find | cpio -H newc -o > ../img/initrd.cpio && cd ../img && gzip -9 initrd.cpio && mv initrd.cpio.gz initrd.img && cd ../..
+  * $ cd boot/initrd && rm -rf lib/modules && cp ../../source/kernel/out_modules/modules lib/ && find | cpio -H newc -o > ../img/initrd.cpio && cd ../img && gzip -9 initrd.cpio && mv initrd.cpio.gz initrd.img && cd ../..
 3. Build boot image:
   * $ abootimg --create boot/img/boot.img -k source/kernel/out/arch/arm/boot/zImage -f boot/bootimg.cfg -r boot/img/initrd.img
 4. Init blobtools:

@@ -1,5 +1,6 @@
 source
 boot/img
+boot/initrd/lib/modules/
 backup
 installer/*.zip
 installer/boot.blob
