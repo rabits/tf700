@@ -44,11 +44,11 @@ if file_getprop("/tmp/install_exit.prop","exit") == "0" then
         package_extract_dir("kernel/clemsyn/system1315", "/system");
     endif;
     ui_print("<~process.bootimg.blob>...");
-    if file_getprop("/tmp/aroma-data/rootfs.prop","selected.1") == "1" then
+    if file_getprop("/tmp/aroma-data/kernel.prop","selected.1") == "1" then
         ui_print(" - <~kernel.initrd.default>");
         package_extract_file("boot.blob", "/dev/block/mmcblk0p4");
     endif;
-    if file_getprop("/tmp/aroma-data/rootfs.prop","selected.1") == "2" then
+    if file_getprop("/tmp/aroma-data/kernel.prop","selected.1") == "2" then
         ui_print(" - <~kernel.initrd.data2sd>");
         package_extract_file("boot-data2sd.blob", "/dev/block/mmcblk0p4");
     endif;
