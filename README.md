@@ -77,7 +77,7 @@ TODO
 1. Install abootimg tool:
   * # apt-get install abootimg
 2. Make initrd:
-  * $ cd boot/initrd && rm -rf lib/modules && cp ../../source/kernel/out_modules/modules lib/ && find | cpio -H newc -o > ../img/initrd.cpio && cd ../img && gzip -9 initrd.cpio && mv initrd.cpio.gz initrd.img && cd ../..
+  * $ cd boot/initrd && rm -rf lib/modules && cp -a ../../source/kernel/out_modules/lib/modules lib/ && find | cpio -H newc -o > ../img/initrd.cpio && cd ../img && gzip -9 initrd.cpio && mv initrd.cpio.gz initrd.img && cd ../..
 3. Build boot image:
   * $ abootimg --create boot/img/boot.img -k source/kernel/out/arch/arm/boot/zImage -f boot/bootimg.cfg -r boot/img/initrd.img
 4. Init blobtools:
