@@ -179,7 +179,7 @@ selectbox(
 );
 
 # Write basic install_exit.prop file
-write("/tmp/install.prop",
+write("/tmp/install_exit.prop",
     "exit=1\n"+
     "message=ERROR: installation script not started!\n"
 );
@@ -204,7 +204,7 @@ if cmp("1","==", prop("rootfs.prop","selected.0")) then
     );
 
     # ReWrite basic install_exit.prop file
-    write("/tmp/install.prop",
+    write("/tmp/install_exit.prop",
         "exit=0\n"+
         "message=\n"
     );
