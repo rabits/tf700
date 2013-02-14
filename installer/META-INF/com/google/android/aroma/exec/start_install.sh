@@ -48,7 +48,7 @@ install_rootsize=$(read_prop "install.rootsize" /tmp/install.prop)
 options_separatehome=$(read_prop "item.0.1" /tmp/aroma-data/options.prop)
 # TODO: implement
 options_encryptroot=$(read_prop "item.0.2" /tmp/aroma-data/options.prop)
-echo "...done"
+echo "done"
 
 
 ###### ROOTFS ARCHIVE ######
@@ -63,7 +63,7 @@ else
     if [ "x${rootfs_searchfolder}" = "x" ]; then
         echo ". . Yeah, disk not mounted - mount it into '/tmp/mount/${install_rootfs_disk}'"
         [ -d "/tmp/mount/${install_rootfs_disk}" ] || mkdir -p "/tmp/mount/${install_rootfs_disk}"
-        [ -e "${install_rootfs_dev}" ] && mount "${install_rootfs_dev}" "/tmp/mount/${install_rootfs_disk}" && echo ". . ...done"
+        [ -e "${install_rootfs_dev}" ] && mount "${install_rootfs_dev}" "/tmp/mount/${install_rootfs_disk}" && echo ". . done"
         rootfs_searchfolder=$(df | grep -F "${install_rootfs_dev} " | head -n1 | awk '{print $6}')
     fi
 fi
@@ -84,7 +84,7 @@ if [ "${install_disk}" = 'virtual' ]; then
         if [ "${install_replace}" != '1' ]; then
             echo ". . Backupping '${install_to}' to '${install_moveto}'"
             [ "${install_moveto}" ] || error "install.moveto variable is empty" 86
-            mv "${install_to}" "${install_moveto}" && echo ". . ...done"
+            mv "${install_to}" "${install_moveto}" && echo ". . done"
             [ -f "${install_moveto}" ] || error "can't create backup target '${install_moveto}'" 88
         else
             echo ". . It will be replaced"
@@ -95,7 +95,7 @@ if [ "${install_disk}" = 'virtual' ]; then
     [ "${install_to_dir}" ] || error "empty '${install_to}' install directory" 95
     if [ ! -d "${install_to_dir}" ]; then
         echo ". Install directory '${install_to_dir}' not found. It will be created now..."
-        mkdir -p "${install_to_dir}" && echo ". ...done"
+        mkdir -p "${install_to_dir}" && echo ". done"
     fi
 
     [ -d "${install_to_dir}" ] || error "can't create install directory '${install_to_dir}'" 101
@@ -109,7 +109,7 @@ else
     echo "Preparing block device"
     [ -b "${install_to}" ] || error "'${install_to}' - isn't block device" 110
     echo ". Running fdisk to repartition of th device ${install_to} partition 1 to size ${install_rootsize}"
-    echo "o\nn\np\n1\n\n+${install_rootsize}G\nw\n" | $bb fdisk "${install_to}" && echo ". ...done"
+    echo "o\nn\np\n1\n\n+${install_rootsize}G\nw\n" | $bb fdisk "${install_to}" && echo ". done"
     install_to="$(dirname "${install_to}")/$(grep -F "${install_disk}" /proc/partitions | tail -n1 | awk '{print $4}')"
     [ -b "${install_to}" ] || error "'${install_to}' - not found created first partition" 114
 fi
@@ -117,18 +117,18 @@ fi
 
 ####### CREATING EXT4 FILESYSTEM && MOUNT ######
 echo "Creating filesystem on '${install_to}'"
-$bb mke2fs -F -O has_journal,extent,huge_file,flex_bg,uninit_bg,dir_nlink,extra_isize,extent -E discard,lazy_itable_init=0,lazy_journal_init=0 -I 256 "${install_to}" && echo "...done"
+$bb mke2fs -F -O has_journal,extent,huge_file,flex_bg,uninit_bg,dir_nlink,extra_isize,extent -E discard,lazy_itable_init=0,lazy_journal_init=0 -I 256 "${install_to}" && echo "done"
 
 mount_target="/tmp/mount/target"
 echo "Mounting prepared filesystem '${install_to}' to '${mount_target}' directory"
 [ ! -d "${mount_target}" ] && mkdir -p "${mount_target}"
-mount -t ext4 "${install_to}" "${mount_target}" && echo "...done"
+mount -t ext4 "${install_to}" "${mount_target}" && echo "done"
 grep -qF "${mount_target}" /proc/mounts || error "'${mount_target}' is not mount point of '${install_to}' device" 126
 
 
 ###### UNPACKING ROOTFS INTO MOUNTPOINT ######
 echo "Unpacking rootfs archive into '${mount_target}'"
-cd "${mount_target}" && $bb tar xf "${install_rootfs_path}" && echo "...done"
+cd "${mount_target}" && $bb tar xf "${install_rootfs_path}" && echo "done"
 cd /
 
 ###### CHANGES IN FSTAB TO RUN LOOP ROOT ######
@@ -152,6 +152,14 @@ if [ "${options_separatehome}" = "1" ]; then
     echo "" >> "${mount_target}/etc/fstab"
     echo "# Bind home directory" >> "${mount_target}/etc/fstab"
     echo "/mnt/android/data /home none defaults,bind 0 0" >> "${mount_target}/etc/fstab"
+    if [ -d "${mount_target}/home/ubuntu" ]; then
+        echo ". Move ubuntu homedir to mmcblk0p8"
+        if [ -d "/data/ubuntu" ]; then
+            echo ". . Backup /data/ubuntu to /data/ubuntu-old"
+            mv -f /data/ubuntu /data/ubuntu-old && echo ". . done"
+        fi
+        mv -f "${mount_target}/home/ubuntu" /data/ubuntu && echo ". done"
+    fi
 fi
 
 
@@ -159,11 +167,11 @@ fi
 echo "Unmounting mounted devices"
 if [ "x${install_rootfs_disk}" != "xmmcblk0p8" ]; then
     echo ". Umounting rootfs archive fs"
-    umount "${rootfs_searchfolder}" && echo ". ...done"
+    umount "${rootfs_searchfolder}" && echo ". done"
 fi
 
 echo ". Umounting created root filesystem"
-umount "${mount_target}" && echo "...done"
+umount "${mount_target}" && echo "done"
 
 ###### DONE ######
 echo "Installation completed!"
