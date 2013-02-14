@@ -108,8 +108,8 @@ if [ "${install_disk}" = 'virtual' ]; then
 else
     echo "Preparing block device"
     [ -b "${install_to}" ] || error "'${install_to}' - isn't block device" 110
-    echo ". Running fdisk to repartition of th device ${install_to} partition 1 to size ${install_rootsize}"
-    echo "o\nn\np\n1\n\n+${install_rootsize}G\nw\n" | $bb fdisk "${install_to}" && echo ". done"
+    echo ". Running fdisk to repartition of the device ${install_to} partition 1 to size ${install_rootsize}"
+    echo -e "o\nn\np\n1\n\n+${install_rootsize}G\nw\n" | $bb fdisk "${install_to}" && echo ". done"
     install_to="$(dirname "${install_to}")/$(grep -F "${install_disk}" /proc/partitions | tail -n1 | awk '{print $4}')"
     [ -b "${install_to}" ] || error "'${install_to}' - not found created first partition" 114
 fi

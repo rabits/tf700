@@ -74,6 +74,8 @@ TODO
   * $ make -j4 modules_install O=$KERNEL_OUT INSTALL_MOD_PATH=$MODULES_OUT
 
 # Create boot image
+(To prepare boot-data2sd.blob you should patch boot/initrd)
+$ patch -p1 < boot/data-sd.patch
 1. Install abootimg tool:
   * # apt-get install abootimg
 2. Make initrd:
