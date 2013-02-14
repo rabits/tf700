@@ -29,7 +29,7 @@ for disk in mmcblk0p8 sda sdb mmcblk1; do
                 if [ "x${searchfolder}" = "x" ]; then
                     [ -d "/tmp/mount/${part}" ] || mkdir -p "/tmp/mount/${part}"
                     [ -e "/dev/block/${part}" ] && mount "/dev/block/${part}" "/tmp/mount/${part}"
-                    [ -e "/dev/${part}" ] && mount "/dev/block/${part}" "/tmp/mount/${part}"
+                    [ -e "/dev/${part}" ] && mount "/dev/${part}" "/tmp/mount/${part}"
                     searchfolder=$(df | grep -F "/${part} " | head -n1 | awk '{print $6}')
                 fi
             fi

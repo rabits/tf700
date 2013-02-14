@@ -79,18 +79,22 @@ multiClear()
 multiFindLinuxDevice()
 {
     # Trying to boot external devices, then - internal mmcblk0p9
-    for dev in /dev/sda1 /dev/mmcblk1p1 /dev/sdb1 /dev/mmcblk0p9; do
-        if mount | grep -q ${rootmnt} 1>&2; then break; fi
-        echo "Trying default root: ${dev}" 1>&2
-        if mount -t ext4 -o defaults,noatime,nodiratime,discard,errors=remount-ro,commit=60 ${dev} ${rootmnt} 1>&2 2>/dev/null; then
-            if multiValidateRootInit "$init" 1>&2; then
-                device="${dev}"
-                break
+    for dev in sda mmcblk1 sdb; do
+        if grep -qF "${rootmnt}" /proc/mounts 1>&2; then break; fi
+        partitions=$(grep -F "${dev}" /proc/partitions | awk '{print $4}')
+        for part in $partitions; do
+            echo "Trying root: ${part}" 1>&2
+            [ -e "/dev/${part}" ] && mount -t ext4 -o defaults,noatime,nodiratime,discard,errors=remount-ro,commit=60 "/dev/${part}" "${rootmnt}" 1>&2 2>/dev/null
+            if grep -qF "${rootmnt}" /proc/mounts 1>&2; then
+                if multiValidateRootInit "$init" 1>&2; then
+                    device="/dev/${part}"
+                    break
+                fi
+                echo "  ${init} not found." 1>&2
+                umount ${rootmnt} 1>&2
             fi
-            echo "  ${init} not found." 1>&2
-            umount ${rootmnt} 1>&2
-        fi
-        device=""
+            device=""
+        done
     done
 
     # Trying to boot to virtual disk from internal ssd
