@@ -20,13 +20,14 @@ Please, select OS to boot:
 EOF
 
 [ $wait -gt 0 ] && echo "You have $wait Seconds to choose..."
-echo -n "Please Select (1,2(voldown),i,s) [1]: "
+echo -n "Please Select (1,2(voldown),s) [1]: "
 read -n1 -t $wait inp
 echo
 wait=0
 
 case "$inp" in
   2|"")
+    echo
     echo "Starting Android"
     echo
     multiUmount
@@ -40,6 +41,7 @@ case "$inp" in
     /bin/sh -i </dev/console >/dev/console 2>&1
     ;;
   *)
+    echo
     echo "Starting Linux"
     echo
     . /lib/multi/03-boot_linux.sh "$@"
