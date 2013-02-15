@@ -136,7 +136,7 @@ echo "I: Recover backupped files"
 mv -f tmp/preparing/etc/* etc/
 mv -f tmp/preparing/ssh/* etc/ssh/
 mv -f tmp/preparing/system-connections/* etc/NetworkManager/system-connections/
-mv -f etc/init/ssh.disabled etc/init/ssh.conf
+mv -f etc/init/ssh.conf.disabled etc/init/ssh.conf
 echo "done"
 
 echo
