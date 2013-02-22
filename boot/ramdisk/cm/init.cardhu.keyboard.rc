@@ -1,0 +1,3 @@
+on property:sys.dockkeys.change=1
+    exec /sbin/keyswap
+

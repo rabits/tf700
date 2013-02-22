@@ -80,6 +80,14 @@ fi
 echo "Mounted: $(mount | grep /root)"
 echo '----DONE----'
 
+if [ -f "${rootmnt}/init" ]; then
+    echo "Found ${rootmnt}/init - maybe, this is Linux Phone"
+    echo
+    multiUmount
+    exec run-init ${rootmnt} /init "$@" <${rootmnt}/dev/console >${rootmnt}/dev/console 2>&1
+    exit 1
+fi
+
 # Update kernel modules on rootfs
 kenrel_modules=`find /lib/modules -type d -mindepth 1 -maxdepth 1`
 if [ ! -d "${rootmnt}${kenrel_modules}" -o "${kenrel_modules}" -nt "${rootmnt}${kenrel_modules}" ]; then

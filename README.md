@@ -74,21 +74,21 @@ TODO
   * $ make -j4 modules_install O=$KERNEL_OUT INSTALL_MOD_PATH=$MODULES_OUT
 
 # Create boot image
-(To prepare boot-data2sd.blob you should patch boot/initrd)
-$ patch -p1 < boot/data-sd.patch
 1. Install abootimg tool:
   * # apt-get install abootimg
-2. Make initrd:
-  * $ cd boot/initrd && rm -rf lib/modules && cp -a ../../source/kernel/out_modules/lib/modules lib/ && find | cpio -H newc -o > ../img/initrd.cpio && cd ../img && gzip -9 initrd.cpio && mv initrd.cpio.gz initrd.img && cd ../..
-3. Build boot image:
+2. Prepare ramdisk:
+  * $ rm -rf boot/img/ramdisk; cp -af boot/ramdisk/stock boot/img/ramdisk && cp -af boot/ramdisk/multi/* boot/img/ramdisk/ && rm -rf boot/img/ramdisk/lib/modules && cp -a source/kernel/out_modules/lib/modules boot/img/ramdisk/lib/
+3. Make ramdisk:
+  * $ cd boot/img/ramdisk && find | cpio -H newc -o > ../initrd.cpio && cd .. && gzip -9 initrd.cpio && mv initrd.cpio.gz initrd.img && cd ../..
+4. Build boot image:
   * $ abootimg --create boot/img/boot.img -k source/kernel/out/arch/arm/boot/zImage -f boot/bootimg.cfg -r boot/img/initrd.img
-4. Init blobtools:
+5. Init blobtools:
   * $ git submodule update --init tools/blobtools
-5. Build blobtools:
+6. Build blobtools:
   * $ cd tools/blobtools && make && cd ../..
-6. Prepare blob file:
+7. Prepare blob file:
   * $ tools/blobtools/blobpack boot/img/boot.blob LNX boot/img/boot.img
-7. Prepend header of the blob, thanx [that](http://forum.xda-developers.com/showpost.php?p=35408420&postcount=67):
+8. Prepend header of the blob, thanx [that](http://forum.xda-developers.com/showpost.php?p=35408420&postcount=67):
   * $ echo -n "-SIGNED-BY-SIGNBLOB-$(dd if=/dev/zero count=8 bs=1)" | cat - boot/img/boot.blob > boot/img/boot.blob.new
   * $ mv boot/img/boot.blob.new boot/img/boot.blob
 
