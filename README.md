@@ -79,7 +79,7 @@ TODO
 2. Prepare ramdisk:
   * $ rm -rf boot/img/ramdisk; cp -af boot/ramdisk/stock boot/img/ramdisk && cp -af boot/ramdisk/multi/* boot/img/ramdisk/ && rm -rf boot/img/ramdisk/lib/modules && cp -a source/kernel/out_modules/lib/modules boot/img/ramdisk/lib/
 3. Make ramdisk:
-  * $ cd boot/img/ramdisk && find | cpio -H newc -o > ../initrd.cpio && cd .. && gzip -9 initrd.cpio && mv initrd.cpio.gz initrd.img && cd ../..
+  * $ cd boot/img/ramdisk && find | cpio -H newc -o | lzma -9 > ../initrd.img && cd ../../..
 4. Build boot image:
   * $ abootimg --create boot/img/boot.img -k source/kernel/out/arch/arm/boot/zImage -f boot/bootimg.cfg -r boot/img/initrd.img
 5. Init blobtools:
