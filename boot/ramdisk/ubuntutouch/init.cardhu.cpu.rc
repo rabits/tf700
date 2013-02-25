@@ -1,0 +1,45 @@
+on property:sys.cpu.mode=0
+    write /sys/module/cpu_tegra/parameters/system_mode 2
+    write /sys/kernel/tegra_cap/core_cap_level 1200
+    write /sys/kernel/tegra_cap/core_cap_state 1
+    write /sys/devices/platform/tegra_grhost/enable_3d_scaling 1
+    write /sys/module/cpu_tegra3/parameters/mp_overhead 0
+    write /sys/module/cpu_tegra/parameters/pwr_cap_limit_1 1000000
+    write /sys/module/cpu_tegra/parameters/pwr_cap_limit_2 1000000
+    write /sys/module/cpu_tegra/parameters/pwr_cap_limit_3 720000
+    write /sys/module/cpu_tegra/parameters/pwr_cap_limit_4 600000
+    setprop power.saving.mode 2
+    setprop persist.tegra.NV_FPSLIMIT 0
+    setprop persist.sys.NV_FPSLIMIT 60
+    setprop persist.sys.NV_POWERMODE 2
+
+on property:sys.cpu.mode=1
+    write /sys/module/cpu_tegra/parameters/system_mode 1
+    write /sys/kernel/tegra_cap/core_cap_level 1200
+    write /sys/kernel/tegra_cap/core_cap_state 1
+    write /sys/devices/platform/tegra_grhost/enable_3d_scaling 1
+    write /sys/module/cpu_tegra3/parameters/mp_overhead 10
+    write /sys/module/cpu_tegra/parameters/pwr_cap_limit_1 9999999
+    write /sys/module/cpu_tegra/parameters/pwr_cap_limit_2 9999999
+    write /sys/module/cpu_tegra/parameters/pwr_cap_limit_3 9999999
+    write /sys/module/cpu_tegra/parameters/pwr_cap_limit_4 9999999
+    setprop power.saving.mode 0
+    setprop persist.tegra.NV_FPSLIMIT 0
+    setprop persist.sys.NV_FPSLIMIT 60
+    setprop persist.sys.NV_POWERMODE 1
+
+on property:sys.cpu.mode=2
+    write /sys/module/cpu_tegra/parameters/system_mode 4
+    write /sys/kernel/tegra_cap/core_cap_level 1300
+    write /sys/kernel/tegra_cap/core_cap_state 0
+    write /sys/devices/platform/tegra_grhost/enable_3d_scaling 0
+    write /sys/module/cpu_tegra3/parameters/mp_overhead 10
+    write /sys/module/cpu_tegra/parameters/pwr_cap_limit_1 9999999
+    write /sys/module/cpu_tegra/parameters/pwr_cap_limit_2 9999999
+    write /sys/module/cpu_tegra/parameters/pwr_cap_limit_3 9999999
+    write /sys/module/cpu_tegra/parameters/pwr_cap_limit_4 9999999
+    setprop power.saving.mode 1
+    setprop persist.tegra.NV_FPSLIMIT 0
+    setprop persist.sys.NV_FPSLIMIT 0
+    setprop persist.sys.NV_POWERMODE 0
+

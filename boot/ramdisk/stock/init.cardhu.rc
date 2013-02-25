@@ -474,22 +474,6 @@ on property:ril.testmode=0
     stop ril-daemon-test
     start ril-daemon
 
-#insmod bcmdhd driver for BCM4330/BCM4334
-on property:wifi.module.type=0
-    insmod lib/modules/3.1.10-tf700/kernel/drivers/net/wireless/bcmdhd/bcmdhd.ko
-
-on property:wifi.module.type=2
-    insmod lib/modules/3.1.10-tf700/kernel/drivers/net/wireless/bcmdhd/bcmdhd.ko
-
-on property:wifi.module.type=4
-    insmod lib/modules/3.1.10-tf700/kernel/drivers/net/wireless/bcmdhd/bcmdhd.ko
-
-on property:wifi.module.type=5
-    insmod /system/lib/modules/bcmdhd_34.ko
-
-on property:wifi.module.type=6
-    insmod /system/lib/modules/bcmdhd_34.ko
-
 #Raydium touch setting
 service rm_ts_service    /system/bin/rm_ts_server
     class main

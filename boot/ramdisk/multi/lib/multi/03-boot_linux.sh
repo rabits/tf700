@@ -88,12 +88,12 @@ if [ -f "${rootmnt}/init" ]; then
     exit 1
 fi
 
-# Update kernel modules on rootfs
+# Copy kernel modules & firmware to rootfs
 kenrel_modules=`find /lib/modules -type d -mindepth 1 -maxdepth 1`
-if [ ! -d "${rootmnt}${kenrel_modules}" -o "${kenrel_modules}" -nt "${rootmnt}${kenrel_modules}" ]; then
-    rm -rf "${rootmnt}${kenrel_modules}"
-    cp -a "${kenrel_modules}" "${rootmnt}${kenrel_modules}"
-fi
+rm -rf "${rootmnt}${kenrel_modules}"
+cp -af "${kenrel_modules}" "${rootmnt}${kenrel_modules}"
+[ ! -d "${rootmnt}/lib/vendor" ] && mkdir -p "${rootmnt}/lib/vendor"
+cp -af "/lib/vendor/firmware" "${rootmnt}/lib/vendor/firmware"
 
 # Preserve information on old systems without /run on the rootfs
 if [ -d ${rootmnt}/run ]; then

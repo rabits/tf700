@@ -79,6 +79,7 @@ on boot
 
 # backlight
     chown system system /sys/class/backlight/pwm-backlight/brightness
+    chmod 0666 /sys/class/backlight/pwm-backlight/brightness
 
 # didim
     chown system system /sys/class/graphics/fb0/device/smartdimmer/enable
