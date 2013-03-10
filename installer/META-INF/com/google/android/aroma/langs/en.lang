@@ -60,10 +60,16 @@ terms.notconfirm.info=You didn't accept the conditions. Exit the installation wi
 
 kernel.title=Select kernel configuration...
 kernel.info=Please, select need configuration of kernel. This configuration - is powersave modes.
-kernel.initrd.title=Select initrd configuration
-kernel.initrd.default=Default
-kernel.initrd.data2sd=Data2SD
-kernel.initrd.data2sd.info=Only if you know it
+kernel.initrd.title=Initrd
+kernel.initrd.title=Select basic initrd configuration
+kernel.initrd.stock=CleanRom
+kernel.initrd.stock.info=for Stock and CleanRom
+kernel.initrd.data2sd=CR+Data2SD
+kernel.initrd.data2sd.info=for CleanRom with Data2SD
+kernel.initrd.cm=CyanogenMod 10
+kernel.initrd.cm.info=for CyanogenMod 10
+kernel.initrd.ubuntutouch=UbuntuTouch
+kernel.initrd.ubuntutouch.info=for Ubuntu Phone & Touch
 
 nodiskavailable.info=I can't find any available device to install rootfs. Please, check your system (mmcblk0p8) and other devices (sda, sdb, mmcblk1).
 

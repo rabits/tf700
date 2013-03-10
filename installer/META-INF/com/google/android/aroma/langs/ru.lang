@@ -60,10 +60,16 @@ terms.notconfirm.info=Вы не приняли условия использов
 
 kernel.title=Выберите конфигурацию ядра
 kernel.info=Пожалуйста, выберите необходимую конфигурацию ядра. Эта конфигурация относится к режимам энергосбережения.
-kernel.initrd.title=Выберите конфигурацию инициализационного диска (initrd)
-kernel.initrd.default=По умолчанию
-kernel.initrd.data2sd=Data2SD
-kernel.initrd.data2sd.info=Только если вы знаете, что это такое!
+kernel.initrd.title=Initrd
+kernel.initrd.title=Выберите конфигурацию основного инициализационного диска
+kernel.initrd.stock=CleanRom
+kernel.initrd.stock.info=для стоковой прошивки и CleanRom
+kernel.initrd.data2sd=CR+Data2SD
+kernel.initrd.data2sd.info=для CleanRom с установленным Data2SD
+kernel.initrd.cm=CyanogenMod 10
+kernel.initrd.cm.info=для CyanogenMod 10
+kernel.initrd.ubuntutouch=UbuntuTouch
+kernel.initrd.ubuntutouch.info=для Ubuntu Phone & Touch
 
 nodiskavailable.info=Я не могу найти какое-либо устройство для установки на него корневой файловой системы. Пожалуйста, проверьте систему (mmcblk0p8) и другие диски (sda, sdb, mmcblk1).
 

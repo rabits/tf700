@@ -16,7 +16,7 @@ ini_set("rom_name",    "TF700 Dualboot Installer");
 ini_set("rom_version", "v0.8.0");
 ini_set("rom_author",  "rabits");
 ini_set("rom_device",  "Asus Transformer TF700/T");
-ini_set("rom_date",    "14/02/2013");
+ini_set("rom_date",    "10/03/2013");
 
 setvar("terms_agreed", "0");
 
@@ -32,6 +32,7 @@ splash(
 # Extract cool busybox to /tmp/aroma/busybox
 restotmp("exec/busybox","busybox");
 restotmp("exec/start_install.sh","start_install.sh");
+restotmp("exec/prepare_blob.sh","prepare_blob.sh");
 
 # Set fonts
 fontresload( "0", "ttf/Roboto-Regular.ttf", "12" ); #-- "0" = Small Font
@@ -125,9 +126,11 @@ selectbox(
     "CPU 1.5 - 1.8GHz GPU 650MHz", "", 1, #-- "selected.0" == "1"
     "CPU 1.3 - 1.8GHz GPU 650MHz", "", 0, #-- "selected.0" == "2"
     "CPU 1.3 - 1.5GHz GPU 650MHz", "", 0, #-- "selected.0" == "3"
-    "<~kernel.initrd.title>", "", 2,
-    "<~kernel.initrd.default>", "", 1, #-- "selected.1" == "1"
-    "<~kernel.initrd.data2sd>", "<~kernel.initrd.data2sd.info>", 0 #-- "selected.1" == "2"
+    "<~kernel.initrd.title>", "<~kernel.initrd.info>", 2,
+    "<~kernel.initrd.stock>", "<~kernel.initrd.stock.info>", 1, #-- "selected.1" == "1"
+    "<~kernel.initrd.data2sd>", "<~kernel.initrd.data2sd.info>", 0, #-- "selected.1" == "2"
+    "<~kernel.initrd.cm>", "<~kernel.initrd.cm.info>", 0, #-- "selected.1" == "3"
+    "<~kernel.initrd.ubuntutouch>", "<~kernel.initrd.ubuntutouch.info>", 0 #-- "selected.1" == "4"
 );
 
 ###################################################################################################################

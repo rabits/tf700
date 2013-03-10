@@ -4,6 +4,8 @@ ui_print("-----------------------------------------------------");
 ui_print("<~process.info>");
 
 set_progress(0.0);
+package_extract_file("ramdisk/abootimg", "/tmp/abootimg");
+package_extract_file("ramdisk/blobpack", "/tmp/blobpack");
 set_perm_recursive(0, 0, 0755, 0755, "/tmp");
 
 #-- Root disk --#
@@ -12,17 +14,16 @@ ui_print("<~process.rootfs.prepare.info>...");
 
 if file_getprop("/tmp/aroma-data/rootfs.prop","selected.0") != "1" then
     show_progress(0.9, "-800000");
-    set_perm(0,0,0755,"/tmp/aroma-data/start_install.sh");
     run_program("/tmp/aroma-data/start_install.sh");
 endif;
 
-#-- Kernel & boot image --#
+#-- Preparing kernel & initrd into blob image --#
 
 if file_getprop("/tmp/install_exit.prop","exit") == "0" then
     ui_print("");
     ui_print("@ <~process.bootimg.install>");
 
-    show_progress(1.0, "-5000");
+    show_progress(0.91, "-300");
     mount("ext4", "EMMC", "/dev/block/mmcblk0p1", "/system");
 
     ui_print("<~process.bootimg.config>...");
@@ -43,15 +44,35 @@ if file_getprop("/tmp/install_exit.prop","exit") == "0" then
         ui_print(" - 1.3 - 1.5GHz, 650MHz GPU");
         package_extract_dir("kernel/clemsyn/system1315", "/system");
     endif;
+
+    show_progress(0.93, "-1000");
     ui_print("<~process.bootimg.blob>...");
+    run_program("/tmp/aroma/busybox", "mkdir", "/tmp/ramdisk");
     if file_getprop("/tmp/aroma-data/kernel.prop","selected.1") == "1" then
-        ui_print(" - <~kernel.initrd.default>");
-        package_extract_file("boot.blob", "/dev/block/mmcblk0p4");
+        ui_print(" - <~kernel.initrd.stock>");
+        package_extract_dir("ramdisk/stock", "/tmp/ramdisk");
     endif;
     if file_getprop("/tmp/aroma-data/kernel.prop","selected.1") == "2" then
         ui_print(" - <~kernel.initrd.data2sd>");
-        package_extract_file("boot-data2sd.blob", "/dev/block/mmcblk0p4");
+        package_extract_dir("ramdisk/stock", "/tmp/ramdisk");
+        run_program("/tmp/aroma/busybox", "mkdir", "/tmp/ramdisk-patch");
+        package_extract_file("ramdisk/data2sd/stock.patch", "/tmp/ramdisk-patch/01.patch");
     endif;
+    if file_getprop("/tmp/aroma-data/kernel.prop","selected.1") == "3" then
+        ui_print(" - <~kernel.initrd.cm>");
+        package_extract_dir("ramdisk/cm", "/tmp/ramdisk");
+    endif;
+    if file_getprop("/tmp/aroma-data/kernel.prop","selected.1") == "4" then
+        ui_print(" - <~kernel.initrd.ubuntutouch>");
+        package_extract_dir("ramdisk/ubuntutouch", "/tmp/ramdisk");
+    endif;
+    show_progress(0.95, "-1000");
+    package_extract_dir("ramdisk/multi", "/tmp/ramdisk");
+    package_extract_file("zImage", "/tmp/zImage");
+    show_progress(0.98, "-2000");
+    run_program("/tmp/aroma/prepare_blob.sh");
+    show_progress(1.0, "-3000");
+    run_program("/tmp/aroma/busybox", "dd", "if=/tmp/boot.blob", "of=/dev/block/mmcblk0p4");
 
     unmount("/system");
     ui_print("");

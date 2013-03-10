@@ -1,6 +1,6 @@
-diff -ru boot/initrd/fstab.cardhu b/boot/initrd/fstab.cardhu
---- a/boot/initrd/fstab.cardhu	2012-12-17 17:32:45.000000000 +0400
-+++ b/boot/initrd/fstab.cardhu	2013-02-10 03:17:40.704776814 +0400
+diff -ru a/fstab.cardhu b/fstab.cardhu
+--- a/fstab.cardhu	2012-12-17 17:32:45.000000000 +0400
++++ b//fstab.cardhu	2013-02-10 03:17:40.704776814 +0400
 @@ -3,6 +3,7 @@
  # The filesystem that contains the filesystem checker binary (typically /system) cannot
  # specify MF_CHECK, and must come before any filesystems that do specify MF_CHECK
@@ -12,9 +12,9 @@ diff -ru boot/initrd/fstab.cardhu b/boot/initrd/fstab.cardhu
 +/dev/block/mmcblk0p2	/cache	ext4	noatime,noauto_da_alloc,nosuid,nodev,nodiratime,barrier=0,nobh,errors=panic	wait
 +/dev/block/mmcblk1p2	/data	ext4	noatime,noauto_da_alloc,nosuid,nodev,nodiratime,barrier=0,nobh,errors=panic	wait,encryptable=footer
 +/dev/block/mmcblk0p8	/data2	ext4	noatime,noauto_da_alloc,nosuid,nodev,nodiratime,barrier=0,nobh,errors=panic	wait,encryptable=footer
-diff -ru boot/initrd/init.cardhu.rc b/boot/initrd/init.cardhu.rc
---- a/boot/initrd/init.cardhu.rc	2012-12-17 17:32:45.000000000 +0400
-+++ b/boot/initrd/init.cardhu.rc	2013-02-10 03:17:40.708776814 +0400
+diff -ru a/init.cardhu.rc b/init.cardhu.rc
+--- a/init.cardhu.rc	2012-12-17 17:32:45.000000000 +0400
++++ b/init.cardhu.rc	2013-02-10 03:17:40.708776814 +0400
 @@ -13,8 +13,9 @@
  
      # for backwards compatibility
