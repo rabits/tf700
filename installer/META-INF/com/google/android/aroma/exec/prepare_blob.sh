@@ -12,6 +12,14 @@ if [ -d /tmp/ramdisk-patch ]; then
     done
 fi
 
+echo "Changing permissions of initrd files..."
+chmod +x /tmp/ramdisk/init
+chmod +x /tmp/ramdisk/init-android
+chmod +x /tmp/ramdisk/bin/*
+chmod +x /tmp/ramdisk/sbin/*
+chmod +x /tmp/ramdisk/lib/*
+chmod +x /tmp/ramdisk/lib/arm-linux-*/*
+
 echo ". Packing ramdisk into /tmp/ramdisk.img ..."
 cd /tmp/ramdisk && $bb find | $bb cpio -H newc -o | $bb bzip2 -9 > /tmp/ramdisk.img
 cd /

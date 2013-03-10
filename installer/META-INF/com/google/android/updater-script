@@ -9,10 +9,9 @@ package_extract_file("ramdisk/blobpack", "/tmp/blobpack");
 set_perm_recursive(0, 0, 0755, 0755, "/tmp");
 
 #-- Root disk --#
-ui_print("@ <~process.rootfs.prepare>");
-ui_print("<~process.rootfs.prepare.info>...");
-
 if file_getprop("/tmp/aroma-data/rootfs.prop","selected.0") != "1" then
+    ui_print("@ <~process.rootfs.prepare>");
+    ui_print("<~process.rootfs.prepare.info>...");
     show_progress(0.9, "-800000");
     run_program("/tmp/aroma-data/start_install.sh");
 endif;
@@ -23,7 +22,7 @@ if file_getprop("/tmp/install_exit.prop","exit") == "0" then
     ui_print("");
     ui_print("@ <~process.bootimg.install>");
 
-    show_progress(0.91, "-300");
+    show_progress(0.91, "-6000");
     mount("ext4", "EMMC", "/dev/block/mmcblk0p1", "/system");
 
     ui_print("<~process.bootimg.config>...");
@@ -45,7 +44,7 @@ if file_getprop("/tmp/install_exit.prop","exit") == "0" then
         package_extract_dir("kernel/clemsyn/system1315", "/system");
     endif;
 
-    show_progress(0.93, "-1000");
+    show_progress(0.93, "-6000");
     ui_print("<~process.bootimg.blob>...");
     run_program("/tmp/aroma/busybox", "mkdir", "/tmp/ramdisk");
     if file_getprop("/tmp/aroma-data/kernel.prop","selected.1") == "1" then
@@ -66,10 +65,13 @@ if file_getprop("/tmp/install_exit.prop","exit") == "0" then
         ui_print(" - <~kernel.initrd.ubuntutouch>");
         package_extract_dir("ramdisk/ubuntutouch", "/tmp/ramdisk");
     endif;
-    show_progress(0.95, "-1000");
+    show_progress(0.95, "-8000");
     package_extract_dir("ramdisk/multi", "/tmp/ramdisk");
+    symlink("../init-android", "/tmp/ramdisk/sbin/watchdogd", "/tmp/ramdisk/sbin/ueventd");
+    symlink("busybox", "/tmp/ramdisk/bin/sh", "/tmp/ramdisk/bin/sleep", "/tmp/ramdisk/bin/mount");
+    symlink("/lib/ld-linux-armhf.so.3", "/tmp/ramdisk/lib/arm-linux-gnueabihf/ld-linux.so.3");
     package_extract_file("zImage", "/tmp/zImage");
-    show_progress(0.98, "-2000");
+    show_progress(0.98, "-4000");
     run_program("/tmp/aroma/prepare_blob.sh");
     show_progress(1.0, "-3000");
     run_program("/tmp/aroma/busybox", "dd", "if=/tmp/boot.blob", "of=/dev/block/mmcblk0p4");

@@ -64,6 +64,13 @@ echo -n "I: Preparing config..."
 sed -i "s|ini_set(\"rom_version\".*|ini_set(\"rom_version\", \"${DIST_VER}\");|g" "${AROMACONFIG}" &&\
     sed -i "s|ini_set(\"rom_date\".*|ini_set(\"rom_date\",    \"${DIST_DATE}\");|g" "${AROMACONFIG}" && echo " ok" || echo " fail"
 
+echo -n "I: Copying ramdisks and remove symlinks..."
+rm -rf installer/ramdisk && cp -a boot/ramdisk installer/ramdisk &&\
+    find installer/ramdisk -type l | while read link; do
+        echo "  Removing ${link}"
+        rm -f "${link}"
+    done && echo " ok" || echo " fail"
+
 echo -n "I: Linking ${KERNEL} as zImage file into archive..."
 ln -sf "${KERNEL}" installer/zImage && echo " ok" || echo " fail"
 
