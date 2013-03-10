@@ -44,7 +44,7 @@ case "$inp" in
     echo
     echo "Starting Linux"
     echo
-    . /lib/multi/03-boot_linux.sh "$@"
+    . /lib/multi/02-find_linux.sh "$@"
     exit 1
     ;;
 esac

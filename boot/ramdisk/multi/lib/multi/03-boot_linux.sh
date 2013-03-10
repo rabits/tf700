@@ -67,11 +67,10 @@ export BOOT
 
 echo '----MOUNT ROOT----'
 
-multiFindLinuxDevice
-
 if ! mount | grep -q ${rootmnt}; then
     echo "Linux mount failed. Fallback to Android..."
     echo
+    sleep 10
     multiUmount
     /init-android "$@"
     exit 1
@@ -80,11 +79,11 @@ fi
 echo "Mounted: $(mount | grep /root)"
 echo '----DONE----'
 
-if [ -f "${rootmnt}/init" ]; then
-    echo "Found ${rootmnt}/init - maybe, this is Linux Phone"
+if [ -f "${rootmnt}${ainit}" ]; then
+    echo "Found ${rootmnt}${ainit} - Boot as android"
     echo
     multiUmount
-    exec run-init ${rootmnt} /init "$@" <${rootmnt}/dev/console >${rootmnt}/dev/console 2>&1
+    exec run-init ${rootmnt} ${ainit} "$@" <${rootmnt}/dev/console >${rootmnt}/dev/console 2>&1
     exit 1
 fi
 
@@ -123,5 +122,5 @@ echo '====SYSTEM START===='
 echo ''
 
 # Chain to real filesystem
-exec run-init ${rootmnt} ${init} "@" <${rootmnt}/dev/console >${rootmnt}/dev/console 2>&1
+exec run-init ${rootmnt} ${init} "$@" <${rootmnt}/dev/console >${rootmnt}/dev/console 2>&1
 panic "Could not execute run-init."

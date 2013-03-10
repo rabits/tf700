@@ -49,6 +49,7 @@ multiUmount()
     umount /dev
     umount /sys
     umount /proc
+    umount /run
 }
 
 multiHeader()
@@ -78,7 +79,7 @@ multiClear()
 
 multiFindLinuxDevice()
 {
-    # Trying to boot external devices, then - internal mmcblk0p9
+    # Trying to boot external devices
     for dev in sda mmcblk1 sdb; do
         if grep -qF "${rootmnt}" /proc/mounts 1>&2; then break; fi
         partitions=$(grep -F "${dev}" /proc/partitions | awk '{print $4}')
@@ -86,7 +87,7 @@ multiFindLinuxDevice()
             echo "Trying root: ${part}" 1>&2
             [ -e "/dev/${part}" ] && mount -t ext4 -o defaults,noatime,nodiratime,discard,errors=remount-ro,commit=60 "/dev/${part}" "${rootmnt}" 1>&2 2>/dev/null
             if grep -qF "${rootmnt}" /proc/mounts 1>&2; then
-                if multiValidateRootInit "$init" 1>&2; then
+                if multiValidateRootInit "${init}" 1>&2 || multiValidateRootInit "${ainit}" 1>&2; then
                     device="/dev/${part}"
                     break
                 fi
@@ -97,27 +98,26 @@ multiFindLinuxDevice()
         done
     done
 
-    # Trying to boot to virtual disk from internal ssd
-    if ! mount | grep -q ${rootmnt} 1>&2; then
-        mkdir /data
-        mount /dev/mmcblk0p8 /data
-        echo "Trying virtual disk rootfs file: ${indevice_rootfsfile}" 1>&2
-        if mount -t ext4 ${indevice_rootfsfile} ${rootmnt} 1>&2; then
-            if multiValidateRootInit "$init" 1>&2; then
-                device="${indevice_rootfsfile}"
-                [ -d /root/mnt/android/data ] || mkdir -p /root/mnt/android/data
-                mount --move /data /root/mnt/android/data
-            else
-                echo "  Target filesystem doesn't have required ${init}." 1>&2
-                umount ${rootmnt} 1>&2
-                losetup -d `losetup -a | awk -F: '{print $1}'` 1>&2
-                umount /data 1>&2
-            fi
-        fi
-        rmdir /data
-    fi
-
     echo $device
+}
+
+multiMountLinuxLoop()
+{
+    # Trying to boot to virtual disk from internal emmc
+    rootfsfile=${1}
+
+    echo "Trying to mount virtual disk rootfs file: ${rootfsfile}" 1>&2
+    if mount -t ext4 -o defaults,noatime,nodiratime,discard,errors=remount-ro,commit=60 ${rootfsfile} ${rootmnt} 1>&2; then
+        if multiValidateRootInit "${init}" 1>&2 || multiValidateRootInit "${ainit}" 1>&2; then
+            [ -d /root/mnt/android/data ] || mkdir -p /root/mnt/android/data
+            mount --move /data /root/mnt/android/data
+        else
+            echo "  Target filesystem doesn't have required ${init}." 1>&2
+            umount ${rootmnt} 1>&2
+            losetup -d `losetup -a | awk -F: '{print $1}'` 1>&2
+            umount /data 1>&2
+        fi
+    fi
 }
 
 multiValidateRootInit() {

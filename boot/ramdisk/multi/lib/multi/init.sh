@@ -21,8 +21,9 @@ echo -ne "\033[9;0]" > /dev/console
 # Disable dmesg to console
 echo "1 1 1 7" > /proc/sys/kernel/printk
 
+export ainit=/init
 export init=/sbin/init
 export rootmnt=/root
-export indevice_rootfsfile="/data/media/linux/rootfs.img"
+export indevice_rootfs_dir="/data/media/linux"
 
 . /lib/multi/01-main_screen.sh
