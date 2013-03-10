@@ -2,6 +2,6 @@ source
 boot/img
 boot/ramdisk/multi/lib/modules/
 backup
-installer/*.zip
+installer/ramdisk
 installer/zImage
 installer/META-INF/com/google/android/aroma/exec/busybox

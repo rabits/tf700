@@ -22,7 +22,7 @@ if file_getprop("/tmp/install_exit.prop","exit") == "0" then
     ui_print("");
     ui_print("@ <~process.bootimg.install>");
 
-    show_progress(0.91, "-6000");
+    show_progress(0.91, "-9000");
     mount("ext4", "EMMC", "/dev/block/mmcblk0p1", "/system");
 
     ui_print("<~process.bootimg.config>...");
@@ -44,36 +44,40 @@ if file_getprop("/tmp/install_exit.prop","exit") == "0" then
         package_extract_dir("kernel/clemsyn/system1315", "/system");
     endif;
 
-    show_progress(0.93, "-6000");
+    show_progress(0.96, "-15000");
     ui_print("<~process.bootimg.blob>...");
+    ui_print("  <~process.bootimg.blob.first>...");
     run_program("/tmp/aroma/busybox", "mkdir", "/tmp/ramdisk");
     if file_getprop("/tmp/aroma-data/kernel.prop","selected.1") == "1" then
-        ui_print(" - <~kernel.initrd.stock>");
+        ui_print("   - <~kernel.initrd.stock>");
         package_extract_dir("ramdisk/stock", "/tmp/ramdisk");
     endif;
     if file_getprop("/tmp/aroma-data/kernel.prop","selected.1") == "2" then
-        ui_print(" - <~kernel.initrd.data2sd>");
+        ui_print("   - <~kernel.initrd.data2sd>");
         package_extract_dir("ramdisk/stock", "/tmp/ramdisk");
         run_program("/tmp/aroma/busybox", "mkdir", "/tmp/ramdisk-patch");
         package_extract_file("ramdisk/data2sd/stock.patch", "/tmp/ramdisk-patch/01.patch");
     endif;
     if file_getprop("/tmp/aroma-data/kernel.prop","selected.1") == "3" then
-        ui_print(" - <~kernel.initrd.cm>");
+        ui_print("   - <~kernel.initrd.cm>");
         package_extract_dir("ramdisk/cm", "/tmp/ramdisk");
     endif;
     if file_getprop("/tmp/aroma-data/kernel.prop","selected.1") == "4" then
-        ui_print(" - <~kernel.initrd.ubuntutouch>");
+        ui_print("   - <~kernel.initrd.ubuntutouch>");
         package_extract_dir("ramdisk/ubuntutouch", "/tmp/ramdisk");
     endif;
-    show_progress(0.95, "-8000");
+    ui_print("  <~process.bootimg.blob.second>...");
     package_extract_dir("ramdisk/multi", "/tmp/ramdisk");
+    ui_print("  <~process.bootimg.blob.third>...");
     symlink("../init-android", "/tmp/ramdisk/sbin/watchdogd", "/tmp/ramdisk/sbin/ueventd");
     symlink("busybox", "/tmp/ramdisk/bin/sh", "/tmp/ramdisk/bin/sleep", "/tmp/ramdisk/bin/mount");
     symlink("/lib/ld-linux-armhf.so.3", "/tmp/ramdisk/lib/arm-linux-gnueabihf/ld-linux.so.3");
+    ui_print("  <~process.bootimg.blob.fourth>...");
     package_extract_file("zImage", "/tmp/zImage");
-    show_progress(0.98, "-4000");
+    ui_print("  <~process.bootimg.blob.fifth>...");
     run_program("/tmp/aroma/prepare_blob.sh");
-    show_progress(1.0, "-3000");
+    show_progress(1.0, "-5000");
+    ui_print("  <~process.bootimg.blob.sixth>...");
     run_program("/tmp/aroma/busybox", "dd", "if=/tmp/boot.blob", "of=/dev/block/mmcblk0p4");
 
     unmount("/system");
