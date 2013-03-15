@@ -87,6 +87,12 @@ multiFindLinuxDevice()
             echo "Trying root: ${part}" 1>&2
             [ -e "/dev/${part}" ] && mount -t ext4 -o defaults,noatime,nodiratime,discard,errors=remount-ro,commit=60 "/dev/${part}" "${rootmnt}" 1>&2 2>/dev/null
             if grep -qF "${rootmnt}" /proc/mounts 1>&2; then
+
+                # fsck the fs
+                umount ${rootmnt} 1>&2
+                fsck.ext4 -y "/dev/${part}"
+                mount -t ext4 -o defaults,noatime,nodiratime,discard,errors=remount-ro,commit=60 "/dev/${part}" "${rootmnt}"
+
                 if multiValidateRootInit "${init}" 1>&2 || multiValidateRootInit "${ainit}" 1>&2; then
                     device="/dev/${part}"
                     break
@@ -107,7 +113,16 @@ multiMountLinuxLoop()
     rootfsfile=${1}
 
     echo "Trying to mount virtual disk rootfs file: ${rootfsfile}" 1>&2
+
+    # fsck the rootfs
     if mount -t ext4 -o defaults,noatime,nodiratime,discard,errors=remount-ro,commit=60 ${rootfsfile} ${rootmnt} 1>&2; then
+        umount ${rootmnt} 1>&2
+        fsck.ext4 -y "${rootfsfile}"
+    fi
+    
+    if mount -t ext4 -o defaults,noatime,nodiratime,discard,errors=remount-ro,commit=60 ${rootfsfile} ${rootmnt} 1>&2; then
+        mount -t ext4 -o defaults,noatime,nodiratime,discard,errors=remount-ro,commit=60 ${rootfsfile} ${rootmnt} 1>&2;
+
         if multiValidateRootInit "${init}" 1>&2 || multiValidateRootInit "${ainit}" 1>&2; then
             [ -d /root/mnt/android/data ] || mkdir -p /root/mnt/android/data
             mount --move /data /root/mnt/android/data
