@@ -17,12 +17,12 @@ fi
 
 wait=5
 
-multiClear
-
 # If linux not found on device - trying to search it on loop device:
 mkdir /data
 multiMount /dev/mmcblk0p8 /data
 loop_list=$(find "${indevice_rootfs_dir}" -type f -name '*.img' | sed -n '1,9p')
+
+multiClear
 
 cat <<EOF
 

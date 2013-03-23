@@ -19,7 +19,9 @@ multiMount()
 {
     dev=$1
     mp=$2
-    fsck.ext4 -p "${dev}" 2>/dev/null 1>&2
+    echo "FSCK checking..." 1>&2
+    fsck.ext4 -p "${dev}" 1>&2 2>/dev/null
+    echo "Mounting fs..." 1>&2
     return $(mount -t ext4 -o defaults,noatime,nodiratime,discard,errors=remount-ro,commit=60 "${dev}" "${mp}" 1>&2 2>/dev/null)
 }
 
