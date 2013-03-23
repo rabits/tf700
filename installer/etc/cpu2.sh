@@ -6,8 +6,8 @@ logi ()
 }
 logi "echo 0 > system_mode"
 echo 0 > /sys/module/cpu_tegra/parameters/system_mode
-logi "echo 1300 > core_cap_level"
-echo 1300 > /sys/kernel/tegra_cap/core_cap_level
+logi "echo 1350 > core_cap_level"
+echo 1350 > /sys/kernel/tegra_cap/core_cap_level
 logi "echo 0 > core_cap_state"
 echo 0 > /sys/kernel/tegra_cap/core_cap_state
 logi "echo 0 > enable_3d_scaling"
@@ -28,5 +28,5 @@ logi "setprop persist.tegra.NV_FPSLIMIT 0"
 setprop persist.tegra.NV_FPSLIMIT 0
 logi "setprop persist.sys.NV_FPSLIMIT 0"
 setprop persist.sys.NV_FPSLIMIT 0
-logi "setprop persist.sys.NV_POWERMODE 1"
-setprop persist.sys.NV_POWERMODE 1
+logi "setprop persist.sys.NV_POWERMODE 0"
+setprop persist.sys.NV_POWERMODE 0

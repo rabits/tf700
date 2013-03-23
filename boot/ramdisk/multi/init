@@ -1,5 +1,8 @@
 #!/bin/sh
 #
+# Multi - initrd multiboot
+# Author - Rabit <home@rabits.org>
+#
 # Main init
 #
 

@@ -19,7 +19,7 @@ multiMount()
 {
     dev=$1
     mp=$2
-    fsck "${dev}" 1>&2
+    fsck.ext4 -p "${dev}" 2>/dev/null 1>&2
     return $(mount -t ext4 -o defaults,noatime,nodiratime,discard,errors=remount-ro,commit=60 "${dev}" "${mp}" 1>&2 2>/dev/null)
 }
 
@@ -117,7 +117,6 @@ multiMountLinuxLoop()
     rootfsfile=${1}
 
     echo "Trying to mount virtual disk rootfs file: ${rootfsfile}" 1>&2
-    fsck "${rootfsfile}" 1>&2
     if multiMount "${rootfsfile}" "${rootmnt}"; then
         if multiValidateRootInit "${init}" 1>&2 || multiValidateRootInit "${ainit}" 1>&2; then
             [ -d /root/mnt/android/data ] || mkdir -p /root/mnt/android/data

@@ -58,18 +58,22 @@ terms.check=Я согласен с правилами использования
 terms.notconfirm.title=Правила не приняты...
 terms.notconfirm.info=Вы не приняли условия использования. Выйти из установщика прямо сейчас?
 
-kernel.title=Выберите конфигурацию ядра
-kernel.info=Пожалуйста, выберите необходимую конфигурацию ядра. Эта конфигурация относится к режимам энергосбережения.
 kernel.initrd.title=Initrd
-kernel.initrd.title=Выберите конфигурацию основного инициализационного диска
-kernel.initrd.stock=CleanRom
+kernel.initrd.info=Выберите конфигурацию инициализационного диска для основной системы
+kernel.initrd.stock=Android CleanRom
 kernel.initrd.stock.info=для стоковой прошивки и CleanRom
-kernel.initrd.data2sd=CR+Data2SD
+kernel.initrd.data2sd=Android CleanRom + Data2SD
 kernel.initrd.data2sd.info=для CleanRom с установленным Data2SD
-kernel.initrd.cm=CyanogenMod 10
+kernel.initrd.cm=Android CyanogenMod 10
 kernel.initrd.cm.info=для CyanogenMod 10
-kernel.initrd.ubuntutouch=UbuntuTouch
+kernel.initrd.ubuntutouch=Ubuntu-Touch
 kernel.initrd.ubuntutouch.info=для Ubuntu Phone & Touch
+kernel.defaultsys.title=Загружать по-умолчанию
+kernel.defaultsys.info=Выберите, какую систему загружать по-умолчанию
+kernel.defaultsys.linux=Linux
+kernel.defaultsys.linux.info=Загружать Linux по-умолчанию
+kernel.defaultsys.basic=Basic
+kernel.defaultsys.basic.info=Загружать базовую систему (Android) по-умолчанию
 
 nodiskavailable.info=Я не могу найти какое-либо устройство для установки на него корневой файловой системы. Пожалуйста, проверьте систему (mmcblk0p8) и другие диски (sda, sdb, mmcblk1).
 
