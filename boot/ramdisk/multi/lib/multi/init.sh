@@ -1,15 +1,18 @@
 #!/bin/sh
 #
 # Multi - initrd multiboot
+# Author - Rabit <home@rabits.org>
+#
 # Initial script
 #
 
 . /lib/multi/functions.sh
+. /lib/multi/config.sh
 
 chown -R 0:0 /
 chmod -R g-w /
 
-multiMount
+multiSysMount
 
 multiClear
 

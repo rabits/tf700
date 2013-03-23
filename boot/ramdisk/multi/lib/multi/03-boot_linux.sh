@@ -1,6 +1,8 @@
 #!/bin/sh
 #
 # Multi - initrd multiboot
+# Author - Rabit <home@rabits.org>
+#
 # Linux init start script
 #
 
@@ -68,24 +70,16 @@ export BOOT
 echo '----MOUNT ROOT----'
 
 if ! mount | grep -q ${rootmnt}; then
-    echo "Linux mount failed. Fallback to Android..."
+    echo "${SECOND_SYS_NAME} mount failed. Fallback to ${BASIC_SYS_NAME}..."
     echo
     sleep 10
-    multiUmount
+    multiSysUmount
     /init-android "$@"
     exit 1
 fi
 
 echo "Mounted: $(mount | grep /root)"
 echo '----DONE----'
-
-if [ -f "${rootmnt}${ainit}" ]; then
-    echo "Found ${rootmnt}${ainit} - Boot as android"
-    echo
-    multiUmount
-    exec run-init ${rootmnt} ${ainit} "$@" <${rootmnt}/dev/console >${rootmnt}/dev/console 2>&1
-    exit 1
-fi
 
 # Copy kernel modules & firmware to rootfs
 kenrel_modules=`find /lib/modules -type d -mindepth 1 -maxdepth 1`
@@ -111,6 +105,15 @@ fi
 
 # Move virtual filesystems over to the real filesystem
 mount --bind /dev ${rootmnt}/dev
+
+if [ -f "${rootmnt}${ainit}" ]; then
+    echo "Found ${rootmnt}${ainit} - boot it!"
+    echo
+    multiSysUmount
+    exec run-init ${rootmnt} ${ainit} "$@" <${rootmnt}/dev/console >${rootmnt}/dev/console 2>&1
+    panic "Could not execute run-init."
+fi
+
 mount -n -o move /sys ${rootmnt}/sys
 mount -n -o move /proc ${rootmnt}/proc
 

@@ -1,6 +1,8 @@
 #!/bin/sh
 #
 # Multi - initrd multiboot
+# Author - Rabit <home@rabits.org>
+#
 # Linux rootfs find script
 #
 
@@ -19,7 +21,7 @@ multiClear
 
 # If linux not found on device - trying to search it on loop device:
 mkdir /data
-mount -t ext4 -o defaults,noatime,nodiratime,discard,errors=remount-ro,commit=60 /dev/mmcblk0p8 /data
+multiMount /dev/mmcblk0p8 /data
 loop_list=$(find "${indevice_rootfs_dir}" -type f -name '*.img' | sed -n '1,9p')
 
 cat <<EOF

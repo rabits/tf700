@@ -1,6 +1,8 @@
 #!/bin/sh
 #
 # Multi - initrd multiboot
+# Author - Rabit <home@rabits.org>
+#
 # Some common functions
 #
 
@@ -14,6 +16,14 @@ multiIsMount()
 }
 
 multiMount()
+{
+    dev=$1
+    mp=$2
+    fsck "${dev}" 1>&2
+    return $(mount -t ext4 -o defaults,noatime,nodiratime,discard,errors=remount-ro,commit=60 "${dev}" "${mp}" 1>&2 2>/dev/null)
+}
+
+multiSysMount()
 {
     if ! multiIsMount "/dev"; then
         [ -d /dev ] || mkdir -m 0755 /dev
@@ -38,7 +48,7 @@ multiMount()
     [ -d /root ] || mkdir -m 0700 /root
 }
 
-multiUmount()
+multiSysUmount()
 {
     # Unbinding virtual consoles from framebuffers
     echo -n 0 > /sys/class/vtconsole/vtcon0/bind
@@ -85,7 +95,7 @@ multiFindLinuxDevice()
         partitions=$(grep -F "${dev}" /proc/partitions | awk '{print $4}')
         for part in $partitions; do
             echo "Trying root: ${part}" 1>&2
-            [ -e "/dev/${part}" ] && mount -t ext4 -o defaults,noatime,nodiratime,discard,errors=remount-ro,commit=60 "/dev/${part}" "${rootmnt}" 1>&2 2>/dev/null
+            [ -e "/dev/${part}" ] && multiMount "/dev/${part}" "${rootmnt}"
             if grep -qF "${rootmnt}" /proc/mounts 1>&2; then
                 if multiValidateRootInit "${init}" 1>&2 || multiValidateRootInit "${ainit}" 1>&2; then
                     device="/dev/${part}"
@@ -107,15 +117,15 @@ multiMountLinuxLoop()
     rootfsfile=${1}
 
     echo "Trying to mount virtual disk rootfs file: ${rootfsfile}" 1>&2
-    if mount -t ext4 -o defaults,noatime,nodiratime,discard,errors=remount-ro,commit=60 ${rootfsfile} ${rootmnt} 1>&2; then
+    fsck "${rootfsfile}" 1>&2
+    if multiMount "${rootfsfile}" "${rootmnt}"; then
         if multiValidateRootInit "${init}" 1>&2 || multiValidateRootInit "${ainit}" 1>&2; then
             [ -d /root/mnt/android/data ] || mkdir -p /root/mnt/android/data
             mount --move /data /root/mnt/android/data
         else
-            echo "  Target filesystem doesn't have required ${init}." 1>&2
+            echo "  Target filesystem doesn't have required ${init} or ${ainit}." 1>&2
             umount ${rootmnt} 1>&2
             losetup -d `losetup -a | awk -F: '{print $1}'` 1>&2
-            umount /data 1>&2
         fi
     fi
 }
