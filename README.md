@@ -52,32 +52,23 @@ TODO
   * # dd if=/dev/block/mmcblk0 of=backup/block/09_GP1.img ibs=4096 bs=4096 skip=11136 count=256
 
 # Build Linux Kernel
-1. Get kernel source from [Asus support](http://support.asus.com/Download.aspx?SLanguage=en&m=ASUS+Transformer+Pad+Infinity+TF700T&p=28&s=1)
+1. Get kernel source from [Hundsbuah](git://github.com/Hundsbuah/tf700t_kernel.git)
+  * $ git clone git://github.com/Hundsbuah/tf700t_kernel.git source/kernel/src
 2. Get linaro armhf gcc 4.7 toolchain from [Linaro release site](http://www.linaro.org/downloads/)
 3. Unpack it to source/toolchain dir:
   * $ tar xvf gcc-linaro-arm-linux-gnueabihf-*.tar.bz2 --strip-components=1 -C source/toolchain
 4. Set need environment:
   * $ export KERNEL_OUT=../out MODULES_OUT=../out_modules CROSS_COMPILE=../../toolchain/bin/arm-linux-gnueabihf-  ARCH=arm
-5. Unpack it to source/kernel/src directory:
-  * $ cd source/kernel/src
-  * $ unrar x ../../10_4_4_25_kernel.rar
-  * $ tar xvf 10_4_4_25_kernel/*.tar.gz
-  * $ rm -rf 10_4_4_25_kernel
-6. Apply [UKSM patch](http://kerneldedup.org/projects/uksm/download/):
-  * $ patch -p1 < ../../../kernel/patch/uksm/uksm*.patch
-  * $ patch -p1 < ../../../kernel/patch/uksm/0*.patch
-7. Apply additional patches (clemsyn-oc, fsync-control, include-fix, ROW-scheduler):
-  * $ patch -p1 < ../../../kernel/patch/*.patch
-8. Build kernel and install modules:
-  * $ make -j4 O=$KERNEL_OUT zImage
-  * $ make -j4 modules O=$KERNEL_OUT DESTDIR=$MODULES_OUT
-  * $ make -j4 modules_install O=$KERNEL_OUT INSTALL_MOD_PATH=$MODULES_OUT
+5. Build kernel and install modules:
+  * $ cd source/kernel/src && make -j4 O=$KERNEL_OUT zImage && make -j4 modules O=$KERNEL_OUT DESTDIR=$MODULES_OUT && make -j4 modules_install O=$KERNEL_OUT INSTALL_MOD_PATH=$MODULES_OUT ; cd ../../..
+6. Copy modules to Multi:
+  * $ rm -rf boot/img/ramdisk/lib/modules && cp -a source/kernel/out_modules/lib/modules boot/img/ramdisk/lib/
 
 # Create boot image
 1. Install abootimg tool:
   * # apt-get install abootimg
 2. Prepare ramdisk:
-  * $ rm -rf boot/img/ramdisk; cp -af boot/ramdisk/stock boot/img/ramdisk && cp -af boot/ramdisk/multi/* boot/img/ramdisk/ && rm -rf boot/img/ramdisk/lib/modules && cp -a source/kernel/out_modules/lib/modules boot/img/ramdisk/lib/
+  * $ rm -rf boot/img/ramdisk; cp -af boot/ramdisk/stock boot/img/ramdisk && cp -af boot/ramdisk/multi/* boot/img/ramdisk/
 3. Make ramdisk:
   * $ cd boot/img/ramdisk && find | cpio -H newc -o | lzma -9 > ../initrd.img && cd ../../..
 4. Build boot image:
@@ -87,22 +78,14 @@ TODO
 6. Build blobtools:
   * $ cd tools/blobtools && make && cd ../..
 7. Prepare blob file:
-  * $ tools/blobtools/blobpack boot/img/boot.blob LNX boot/img/boot.img
+  * $ tools/blobtools/blobpack boot/img/boot.blob.tosign LNX boot/img/boot.img
 8. Prepend header of the blob, thanx [that](http://forum.xda-developers.com/showpost.php?p=35408420&postcount=67):
-  * $ echo -n "-SIGNED-BY-SIGNBLOB-$(dd if=/dev/zero count=8 bs=1)" | cat - boot/img/boot.blob > boot/img/boot.blob.new && mv boot/img/boot.blob.new boot/img/boot.blob
+  * $ echo -ne "-SIGNED-BY-SIGNBLOB-\0\0\0\0\0\0\0\0" | cat - boot/img/boot.blob.tosign > boot/img/boot.blob
 
 # Create rootfs on SD card
 1. Name of rootfs archive file should start with "rootfs-" string
 2. You can use tar.lzma (by default), tar.gz, tar.bz2, tar.xz rootfs file extensions
-
-# Pack rootfs
-1. Copy rootfs from device to rootfs,img file:
-  * by dd utility
-2. Clean ext4 empty space for better compression:
-  * # apt-get install zerofree
-  * $ zerofree rootfs.img
-3. Compress rootfs.img
-  * $ zip -9 rootfs.img.zip rootfs.img
+3. If you prepared working disk.img - you can mount it and use tools/prepare_tar.sh
 
 # Test boot linux
 1. Power off android
@@ -130,8 +113,8 @@ TODO
 4. $ make -j4 install
 5. $ cd ../../..
 
-# Create installation package
-1. Prepare boot.blob - blobed kernel with initrd
+# Create installer
+1. Prepare kernel zImage and modules
 2. Prepare busybox binary
 3. Create zip archive:
   * $ tools/prepare_installer.sh installer.zip
