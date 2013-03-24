@@ -1,0 +1,12 @@
+diff --git a/.repo/manifests/default.xml b/.repo/manifests/default.xml
+index 90a0aa9..f25172c 100644
+--- a/.repo/manifests/default.xml
++++ b/.repo/manifests/default.xml
+@@ -161,4 +161,7 @@
+   <project path="kernel/lge/mako" name="CyanogenMod/lge-kernel-mako" />
+   <project path="device/asus/grouper" name="CyanogenMod/android_device_asus_grouper" />
+   <project path="kernel/asus/grouper" name="CyanogenMod/android_kernel_asus_grouper" />
++
++  <project path="device/asus/tf700t" name="CyanogenMod/android_device_asus_tf700t" remote="github" revision="refs/heads/cm-10.1" />
++  <project path="kernel/asus/tf700t" name="CyanogenMod/android_kernel_asus_tf700t" remote="github" revision="refs/heads/cm-10.1" />
+ </manifest>

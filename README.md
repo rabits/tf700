@@ -136,3 +136,6 @@ TODO
 5. Build & install package:
   * $ dpkg-buildpackage -b -uc -rfakeroot
   * $ sudo dpkg -i ../xserver-xorg-input-mtev_0.1.13_armhf.deb
+
+## ubuntu-touch specific:
+* Follow this build instructions: https://wiki.ubuntu.com/Touch/Devices/tf700t
