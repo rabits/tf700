@@ -1,7 +1,7 @@
-diff --git a/arch/arm/configs/cyanogenmod_cardhu_defconfig b/arch/arm/configs/cyanogenmod_cardhu_defconfig
+diff --git a/kernel/asus/tf700t/arch/arm/configs/cyanogenmod_cardhu_defconfig b/kernel/asus/tf700t/arch/arm/configs/cyanogenmod_cardhu_defconfig
 index c712d21..3610899 100644
---- a/arch/arm/configs/cyanogenmod_cardhu_defconfig
-+++ b/arch/arm/configs/cyanogenmod_cardhu_defconfig
+--- a/kernel/asus/tf700t/arch/arm/configs/cyanogenmod_cardhu_defconfig
++++ b/kernel/asus/tf700t/arch/arm/configs/cyanogenmod_cardhu_defconfig
 @@ -48,12 +48,16 @@ CONFIG_KERNEL_GZIP=y
  # CONFIG_KERNEL_LZO is not set
  CONFIG_DEFAULT_HOSTNAME="(none)"
