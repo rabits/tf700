@@ -27,13 +27,18 @@ if file_getprop("/tmp/install_exit.prop","exit") == "0" then
 
     ui_print("<~process.bootimg.config>...");
 
-    delete("/system/etc/cpu1.sh");
-    delete("/system/etc/cpu2.sh");
-    delete("/system/etc/cpu3.sh");
-    package_extract_dir("etc", "/system/etc");
-    set_perm(0, 0, 0755, "/system/etc/cpu1.sh");
-    set_perm(0, 0, 0755, "/system/etc/cpu2.sh");
-    set_perm(0, 0, 0755, "/system/etc/cpu3.sh");
+    if file_getprop("/tmp/aroma-data/kernel.prop","selected.0") == "3" then
+        package_extract_dir("etc/init.d", "/system/etc/init.d");
+    endif;
+    if file_getprop("/tmp/aroma-data/kernel.prop","selected.0") != "3" then
+        delete("/system/etc/cpu1.sh");
+        delete("/system/etc/cpu2.sh");
+        delete("/system/etc/cpu3.sh");
+        package_extract_dir("etc", "/system/etc");
+        set_perm(0, 0, 0755, "/system/etc/cpu1.sh");
+        set_perm(0, 0, 0755, "/system/etc/cpu2.sh");
+        set_perm(0, 0, 0755, "/system/etc/cpu3.sh");
+    endif;
     set_perm_recursive(0, 0, 0755, 0755, "/system/etc/init.d");
 
     show_progress(0.96, "-15000");
