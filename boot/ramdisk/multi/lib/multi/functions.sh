@@ -62,6 +62,9 @@ multiSysUmount()
     umount /sys
     umount /proc
     umount /run
+
+    # Unmount data partition
+    umount /data
 }
 
 multiHeader()
@@ -113,19 +116,24 @@ multiFindLinuxDevice()
     echo $device
 }
 
-multiMountLinuxLoop()
+multiMountLinuxRootfs()
 {
-    # Trying to boot to virtual disk from internal emmc
-    rootfsfile=${1}
+    # Trying to boot rootfs from internal emmc
+    rootfs=${1}
 
-    echo "Trying to mount virtual disk rootfs file: ${rootfsfile}" 1>&2
-    if multiMount "${rootfsfile}" "${rootmnt}"; then
-        if multiValidateRootInit "${init}" 1>&2 || multiValidateRootInit "${ainit}" 1>&2; then
-            [ -d /root/mnt/android/data ] || mkdir -p /root/mnt/android/data
-            mount --move /data /root/mnt/android/data
-        else
-            echo "  Target filesystem doesn't have required ${init} or ${ainit}." 1>&2
-            umount ${rootmnt} 1>&2
+    if [ -d "${selected_img}" ]; then
+        export rootmnt="${selected_img}"
+    else
+        echo "Trying to mount virtual disk rootfs file: ${rootfsfile}" 1>&2
+        multiMount "${rootfs}" "${rootmnt}"
+    fi
+    if multiValidateRootInit "${init}" 1>&2 || multiValidateRootInit "${ainit}" 1>&2; then
+        [ -d "${rootmnt}/mnt/android/data" ] || mkdir -p "${rootmnt}/mnt/android/data"
+        mount --move /data "${rootmnt}/mnt/android/data"
+    else
+        echo "  Target filesystem doesn't have required ${init} or ${ainit}." 1>&2
+        if [ -f "${selected_img}" ]; then
+            umount "${rootmnt}" 1>&2
             losetup -d `losetup -a | awk -F: '{print $1}'` 1>&2
         fi
     fi

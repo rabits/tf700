@@ -67,20 +67,6 @@ done
 
 export BOOT
 
-echo '----MOUNT ROOT----'
-
-if ! mount | grep -q ${rootmnt}; then
-    echo "${SECOND_SYS_NAME} mount failed. Fallback to ${BASIC_SYS_NAME}..."
-    echo
-    sleep 10
-    multiSysUmount
-    /init-android "$@"
-    exit 1
-fi
-
-echo "Mounted: $(mount | grep /root)"
-echo '----DONE----'
-
 # Copy kernel modules & firmware to rootfs
 kenrel_modules=`find /lib/modules -type d -mindepth 1 -maxdepth 1`
 [ -d "${rootmnt}${kenrel_modules}" ] || mkdir -p "${rootmnt}${kenrel_modules}"

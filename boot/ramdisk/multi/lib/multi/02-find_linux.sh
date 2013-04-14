@@ -20,7 +20,7 @@ wait=5
 # If linux not found on device - trying to search it on loop device:
 mkdir /data
 multiMount /dev/mmcblk0p8 /data
-loop_list=$(find "${indevice_rootfs_dir}" -type f -name '*.img' | sed -n '1,9p')
+loop_list=$(find "${indevice_rootfs_dir}" -mindepth 1 -maxdepth 1 \( -type f -name '*.img' \) -o -type d | sed -n '1,9p')
 
 multiClear
 
@@ -40,15 +40,9 @@ wait=0
 
 [ "${input}" -gt "0" ] 2>/dev/null || input=1
 
-selected_img=$(echo "${loop_list}" | sed -n "${input}p")
+selected_rootfs=$(echo "${loop_list}" | sed -n "${input}p")
 
-multiMountLinuxLoop "${selected_img}"
-
-if multiValidateRootInit "$init" 1>&2 || multiValidateRootInit "$ainit" 1>&2; then
-    echo "Found init"
-else
-    umount /data
-fi
+multiMountLinuxRootfs "${selected_rootfs}"
 
 echo
 echo "Starting Linux"
