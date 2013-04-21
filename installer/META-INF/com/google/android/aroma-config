@@ -13,10 +13,10 @@
 
 # Initializing Rom Information
 ini_set("rom_name",    "TF700 Dualboot Installer");
-ini_set("rom_version", "v0.8.3");
+ini_set("rom_version", "v0.8.4");
 ini_set("rom_author",  "Rabit");
 ini_set("rom_device",  "Asus Transformer TF700/T");
-ini_set("rom_date",    "26/03/2013");
+ini_set("rom_date",    "15/04/2013");
 
 setvar("terms_agreed", "0");
 
@@ -134,11 +134,12 @@ selectbox(
 # Write Multi config.sh file
 write("/tmp/config.sh",
     "#!/bin/sh\n"+
-    "export DEFAULT_SYS="+iif(cmp("1","==", prop("kernel.prop","selected.1")),"Linux","Android")+"\n"+
+    "export BOOT_VERSION='"+ini_get("rom_version")+" ("+ini_get("rom_date")+")'\n"+
+    "export DEFAULT_SYS='"+iif(cmp("1","==", prop("kernel.prop","selected.1")),"Linux","Android")+"'\n"+
     "export BASIC_SYS_NAME='"+iif(cmp("1","==", prop("kernel.prop","selected.0")),"Android CleanRom",
         iif(cmp("2","==", prop("kernel.prop","selected.0")),"Android CleanRom + Data2SD",
         iif(cmp("3","==", prop("kernel.prop","selected.0")),"Android CyanogenMOD 10.x","Ubuntu-Touch")))+"'\n"+
-    "export SECOND_SYS_NAME=Linux\n"
+    "export SECOND_SYS_NAME='Linux'\n"
 );
 
 ###################################################################################################################

@@ -69,7 +69,7 @@ multiSysUmount()
 
 multiHeader()
 {
-echo "MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM home@rabits.org M  M   MMMM    MMMMMMMMMMMMMM"
+echo "M ""${BOOT_VERSION}"" MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM home@rabits.org M  M   MMMM    MMMMMMMMMMMMMM"
 echo "MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM  M+.   M.    MMMMMMMMMMMMMM"
 echo "MMMMM.    MMMMMM     MMM   MMMMMMM   MMM.   MMMMMMM             OM.  .MM  MM .       MMMMMMMMMMMMMMM"
 echo "MMMMM   . MMMMM?. .  MMO   MMMMMMM.  MMM   MMMMMMMMMMMMM.  MMMMMMM   MMM  MMM,       MMMMMMMMMMMMMMM"
@@ -121,18 +121,18 @@ multiMountLinuxRootfs()
     # Trying to boot rootfs from internal emmc
     rootfs=${1}
 
-    if [ -d "${selected_img}" ]; then
-        export rootmnt="${selected_img}"
+    if [ -d "${rootfs}" ]; then
+        export rootmnt="${rootfs}"
     else
         echo "Trying to mount virtual disk rootfs file: ${rootfsfile}" 1>&2
         multiMount "${rootfs}" "${rootmnt}"
     fi
     if multiValidateRootInit "${init}" 1>&2 || multiValidateRootInit "${ainit}" 1>&2; then
         [ -d "${rootmnt}/mnt/android/data" ] || mkdir -p "${rootmnt}/mnt/android/data"
-        mount --move /data "${rootmnt}/mnt/android/data"
+        mount --bind /data "${rootmnt}/mnt/android/data"
     else
         echo "  Target filesystem doesn't have required ${init} or ${ainit}." 1>&2
-        if [ -f "${selected_img}" ]; then
+        if [ -f "${rootfs}" ]; then
             umount "${rootmnt}" 1>&2
             losetup -d `losetup -a | awk -F: '{print $1}'` 1>&2
         fi
