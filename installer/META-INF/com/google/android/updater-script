@@ -27,14 +27,24 @@ if file_getprop("/tmp/install_exit.prop","exit") == "0" then
 
     ui_print("<~process.bootimg.config>...");
 
-    if file_getprop("/tmp/aroma-data/kernel.prop","selected.0") == "3" then
+    if file_getprop("/tmp/aroma-data/kernel.prop","selected.0") == "4" then
         package_extract_dir("etc/init.d", "/system/etc/init.d");
     endif;
-    if file_getprop("/tmp/aroma-data/kernel.prop","selected.0") != "3" then
+    if file_getprop("/tmp/aroma-data/kernel.prop","selected.0") != "4" then
         delete("/system/etc/cpu1.sh");
         delete("/system/etc/cpu2.sh");
         delete("/system/etc/cpu3.sh");
-        package_extract_dir("etc", "/system/etc");
+        if file_getprop("/tmp/aroma-data/kernel.prop","selected.0") == "2" then
+            package_extract_dir("etc3", "/system/etc");
+        endif;
+        if file_getprop("/tmp/aroma-data/kernel.prop","selected.0") != "2" then
+            if file_getprop("/tmp/aroma-data/kernel.prop","selected.0") == "3" then
+                package_extract_dir("etc3", "/system/etc");
+            endif;
+            if file_getprop("/tmp/aroma-data/kernel.prop","selected.0") != "2" then
+                package_extract_dir("etc", "/system/etc");
+            endif;
+        endif;
         set_perm(0, 0, 0755, "/system/etc/cpu1.sh");
         set_perm(0, 0, 0755, "/system/etc/cpu2.sh");
         set_perm(0, 0, 0755, "/system/etc/cpu3.sh");
@@ -50,16 +60,20 @@ if file_getprop("/tmp/install_exit.prop","exit") == "0" then
         package_extract_dir("ramdisk/stock", "/tmp/ramdisk");
     endif;
     if file_getprop("/tmp/aroma-data/kernel.prop","selected.0") == "2" then
-        ui_print("   - <~kernel.initrd.data2sd>");
-        package_extract_dir("ramdisk/stock", "/tmp/ramdisk");
-        run_program("/tmp/aroma/busybox", "mkdir", "/tmp/ramdisk-patch");
-        package_extract_file("ramdisk/data2sd/stock.patch", "/tmp/ramdisk-patch/01.patch");
+        ui_print("   - <~kernel.initrd.stock3>");
+        package_extract_dir("ramdisk/stock3", "/tmp/ramdisk");
     endif;
     if file_getprop("/tmp/aroma-data/kernel.prop","selected.0") == "3" then
+        ui_print("   - <~kernel.initrd.data2sd3>");
+        package_extract_dir("ramdisk/stock", "/tmp/ramdisk");
+        run_program("/tmp/aroma/busybox", "mkdir", "/tmp/ramdisk-patch");
+        package_extract_file("ramdisk/data2sd3/stock.patch", "/tmp/ramdisk-patch/01.patch");
+    endif;
+    if file_getprop("/tmp/aroma-data/kernel.prop","selected.0") == "4" then
         ui_print("   - <~kernel.initrd.cm>");
         package_extract_dir("ramdisk/cm", "/tmp/ramdisk");
     endif;
-    if file_getprop("/tmp/aroma-data/kernel.prop","selected.0") == "4" then
+    if file_getprop("/tmp/aroma-data/kernel.prop","selected.0") == "5" then
         ui_print("   - <~kernel.initrd.ubuntutouch>");
         package_extract_dir("ramdisk/ubuntutouch", "/tmp/ramdisk");
     endif;

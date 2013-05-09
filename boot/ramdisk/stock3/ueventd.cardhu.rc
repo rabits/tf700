@@ -51,18 +51,17 @@
 /dev/raydium_ts	0660	system	system
 #/dev/pn544	0660	nfc	nfc
 /dev/timerinfo	0444	system	system
-/sys/devices/system/cpu/cpufreq/gov_interactive* ../interactive/max_boost 0644 system system
-/sys/devices/system/cpu/cpufreq/gov_interactive* ../interactive/go_maxspeed_load 0644 system system
 /dev/block/mmcblk0p3    0660    root    system
 /dev/block/mmcblk0p4    0660    root    system
+/dev/block/mmcblk0p6    0600    drm     drm
 /dev/block/mmcblk0p7    0660    root    system
 /dev/touch_debug 0666    system  system
 /dev/touchpanel 0660     system  system 
 /dev/elan-iap   0660     system  system
-/dev/sis_aegis_touch_device 		0660   system       system
-/dev/sis_aegis_hid_touch_device		0660   system       system
+/dev/sis_aegis_touch_device 		0666   root       root
+/dev/sis_aegis_hid_touch_device		0666   root       root
+/dev/sis_aegis_hid_bridge_touch_device	0666   root       root
+/dev/sis_zeus_hid_touch_device		0666   root       root
+/dev/sis_zeus_hid_bridge_touch_device	0666   root       root
 /dev/asusdec     0660    system  system
 /dev/asuspec     0660    system  system
-/dev/block/mmcblk0p6    0600    drm     drm
-/dev/aw8ec       0660    system  system
-/dev/scalar      0660    system  system

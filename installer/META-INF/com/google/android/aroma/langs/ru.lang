@@ -60,10 +60,12 @@ terms.notconfirm.info=Вы не приняли условия использов
 
 kernel.initrd.title=Initrd
 kernel.initrd.info=Выберите конфигурацию инициализационного диска для основной системы
-kernel.initrd.stock=Android CleanRom
-kernel.initrd.stock.info=для стоковой прошивки и CleanRom
-kernel.initrd.data2sd=Android CleanRom + Data2SD
-kernel.initrd.data2sd.info=для CleanRom с установленным Data2SD
+kernel.initrd.stock=Android CleanRom v4.x
+kernel.initrd.stock.info=для стоковой прошивки и CleanRom v4.x
+kernel.initrd.stock3=Android CleanRom v3.x
+kernel.initrd.stock3.info=для стоковой прошивки и CleanRom v3.x
+kernel.initrd.data2sd3=Android CleanRom v3.x + Data2SD
+kernel.initrd.data2sd3.info=для CleanRom v3.x с установленным Data2SD
 kernel.initrd.cm=Android CyanogenMod 10
 kernel.initrd.cm.info=для CyanogenMod 10
 kernel.initrd.ubuntutouch=Ubuntu-Touch

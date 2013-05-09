@@ -65,7 +65,7 @@ sed -i "s|ini_set(\"rom_version\".*|ini_set(\"rom_version\", \"${DIST_VER}\");|g
     sed -i "s|ini_set(\"rom_date\".*|ini_set(\"rom_date\",    \"${DIST_DATE}\");|g" "${AROMACONFIG}" && echo " ok" || echo " fail"
 
 echo -n "I: Copying ramdisks and remove symlinks..."
-rm -rf installer/ramdisk && cp -a boot/ramdisk installer/ramdisk &&\
+rm -rf installer/ramdisk && cp -al boot/ramdisk installer/ramdisk &&\
     find installer/ramdisk -type l | while read link; do
         echo "  Removing ${link}"
         rm -f "${link}"

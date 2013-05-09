@@ -16,7 +16,7 @@ ini_set("rom_name",    "TF700 Dualboot Installer");
 ini_set("rom_version", "v0.8.4");
 ini_set("rom_author",  "Rabit");
 ini_set("rom_device",  "Asus Transformer TF700/T");
-ini_set("rom_date",    "15/04/2013");
+ini_set("rom_date",    "09/05/2013");
 
 setvar("terms_agreed", "0");
 
@@ -124,9 +124,10 @@ selectbox(
     "@personalize",
     "kernel.prop",
     "<~kernel.initrd.stock>", "<~kernel.initrd.stock.info>", 1, #-- "selected.0" == "1"
-    "<~kernel.initrd.data2sd>", "<~kernel.initrd.data2sd.info>", 0, #-- "selected.0" == "2"
-    "<~kernel.initrd.cm>", "<~kernel.initrd.cm.info>", 0, #-- "selected.0" == "3"
-    "<~kernel.initrd.ubuntutouch>", "<~kernel.initrd.ubuntutouch.info>", 0, #-- "selected.1" == "4"
+    "<~kernel.initrd.stock3>", "<~kernel.initrd.stock3.info>", 0, #-- "selected.0" == "2"
+    "<~kernel.initrd.data2sd3>", "<~kernel.initrd.data2sd3.info>", 0, #-- "selected.0" == "3"
+    "<~kernel.initrd.cm>", "<~kernel.initrd.cm.info>", 0, #-- "selected.0" == "4"
+    "<~kernel.initrd.ubuntutouch>", "<~kernel.initrd.ubuntutouch.info>", 0, #-- "selected.0" == "5"
     "<~kernel.defaultsys.title>", "<~kernel.defaultsys.info>", 2,
     "<~kernel.defaultsys.linux>", "<~kernel.defaultsys.linux.info>", 1, #-- "selected.1" == "1"
     "<~kernel.defaultsys.basic>", "<~kernel.defaultsys.basic.info>", 0 #-- "selected.1" == "2"
@@ -136,9 +137,10 @@ write("/tmp/config.sh",
     "#!/bin/sh\n"+
     "export BOOT_VERSION='"+ini_get("rom_version")+" ("+ini_get("rom_date")+")'\n"+
     "export DEFAULT_SYS='"+iif(cmp("1","==", prop("kernel.prop","selected.1")),"Linux","Android")+"'\n"+
-    "export BASIC_SYS_NAME='"+iif(cmp("1","==", prop("kernel.prop","selected.0")),"Android CleanRom",
-        iif(cmp("2","==", prop("kernel.prop","selected.0")),"Android CleanRom + Data2SD",
-        iif(cmp("3","==", prop("kernel.prop","selected.0")),"Android CyanogenMOD 10.x","Ubuntu-Touch")))+"'\n"+
+    "export BASIC_SYS_NAME='"+iif(cmp("1","==", prop("kernel.prop","selected.0")),"Android CleanRom v4.x",
+        iif(cmp("2","==", prop("kernel.prop","selected.0")),"Android CleanRom v3.x",
+        iif(cmp("3","==", prop("kernel.prop","selected.0")),"Android CleanRom v3.x + Data2SD",
+        iif(cmp("4","==", prop("kernel.prop","selected.0")),"Android CyanogenMOD 10.x","Ubuntu-Touch"))))+"'\n"+
     "export SECOND_SYS_NAME='Linux'\n"
 );
 

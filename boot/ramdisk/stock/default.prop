@@ -5,3 +5,51 @@ ro.secure=0
 ro.allow.mock.location=0
 ro.debuggable=0
 persist.sys.usb.config=mtp
+
+# UI & GENERAL PERFORMANCE
+debug.performance.tuning=1
+video.accelerate.hw=1
+ro.kernel.android.checkjni=0
+ro.kernel.checkjni=0
+ro.mot.eri.losalert.delay=1000
+persist.sys.strictmode.visual=0
+persist.sys.strictmode.disable=1
+dalvik.vm.execution-mode=int:jit
+com.ti.omap_enhancement=true
+
+# MEDIA QUALITY & PERFORMANCE
+ro.max.fling_velocity=12000
+ro.min.fling_velocity=8000
+media.stagefright.enable-player=true
+media.stagefright.enable-meta=true
+media.stagefright.enable-scan=false
+media.stagefright.enable-http=true
+ro.media.enc.jpeg.quality=90
+ro.media.dec.jpeg.memcap=8000000
+ro.media.enc.hprof.vid.bps=8000000
+persist.sys.use_dithering=1
+
+# SWITCHING SOME NOTIFICATIONS OFF
+# disable sending usage data
+ro.config.nocheckin=1
+
+# disable adb notifications
+persist.adb.notify=0
+
+# This is for current, Wi-Fi only version of Infinity of course:
+ro.carrier=wifi-only
+
+# BATTERY SAVING
+ro.ril.disable.power.collapse=0
+pm.sleep_mode=1
+wifi.supplicant_scan_interval=180
+
+#Dalvik settings
+dalvik.vm.dexopt-flags=v=n,o=a,u=y
+
+#Max Events
+windowsmgr.max_events_per_sec=300
+
+# NETWORK PERFORMANCE
+net.tcp.buffersize.default=4096,87380,256960,4096, 16384,256960
+net.tcp.buffersize.wifi=262144,524288,1048576,2621 44,524288,1048576
